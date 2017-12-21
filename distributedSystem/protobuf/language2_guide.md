@@ -74,22 +74,22 @@ message Foo {
 
 ## 标量（内置）类型
 
-|proto类型|说明|C++类型|Java类型|Python类型|Go类型|
+|proto类型|说明|C++类型|Java类型|Python类型[2]|Go类型|
 |-|-|-|-|-|-|
-|double|无|double|double|float|*float64|
-|float|无|float|float|float|*float32|
-|int32|使用可变长度编码。对于负数是无效的 - 如果您的字段可能具有负值，请改用sint32类型|int32|int|int|*int32|
-|int64|使用可变长度编码。对于负数是无效的 - 如果您的字段可能具有负值，请改用sint64类型|int64|long|int/long[3]|*int64|
-|uint32|使用可变长度编码。|uint32|int[1]|int/long[3]|*unit32|
-|uint64|使用可变长度编码。|uint64|long[1]|int/long[3]|*unit64|
-|sint32|使用可变长度编码。带符号的int值。可以有效地编码负数。|int32|int|int|*int32|
-|sint64|使用可变长度编码。带符号的int值。可以有效地编码负数。|int64|long|int/long[3]|*int64|
-|fixed32|使用定长编码，总是四个字节。如果值通常大于2的28次方，则比uint32效率更高。|uint32|int[1]|int|*uint32|
-|fixed64|使用定长编码，总是八个字节。如果值通常大于2的56次方，则比uint64效率更高。|uint64|long[1]|int/long[3]|*uint64|
-|sfixed32|使用定长编码，总是四个字节。|int32|int|int|*int32|
-|sfixed64|使用定长编码，总是八个字节。|int64|long|int/long[3]|*int64|
-|bool|无|bool|boolean|bool|*bool|
-|string|字符串必须始终包含UTF-8编码或7位ASCII文本。|string|String|str/unicode[4]|*string|
+|double|无|double|double|float|float64|
+|float|无|float|float|float|float32|
+|int32|使用可变长度编码。对于负数是无效的 - 如果您的字段可能具有负值，请改用sint32类型|int32|int|int|int32|
+|int64|使用可变长度编码。对于负数是无效的 - 如果您的字段可能具有负值，请改用sint64类型|int64|long|int/long[3]|int64|
+|uint32|使用可变长度编码。|uint32|int[1]|int/long[3]|unit32|
+|uint64|使用可变长度编码。|uint64|long[1]|int/long[3]|unit64|
+|sint32|使用可变长度编码。带符号的int值。可以有效地编码负数。|int32|int|int|int32|
+|sint64|使用可变长度编码。带符号的int值。可以有效地编码负数。|int64|long|int/long[3]|int64|
+|fixed32|使用定长编码，总是四个字节。如果值通常大于2的28次方，则比uint32效率更高。|uint32|int[1]|int|uint32|
+|fixed64|使用定长编码，总是八个字节。如果值通常大于2的56次方，则比uint64效率更高。|uint64|long[1]|int/long[3]|uint64|
+|sfixed32|使用定长编码，总是四个字节。|int32|int|int|int32|
+|sfixed64|使用定长编码，总是八个字节。|int64|long|int/long[3]|int64|
+|bool|无|bool|boolean|bool|bool|
+|string|字符串必须始终包含UTF-8编码或7位ASCII文本。|string|String|str/unicode[4]|string|
 |bytes|字节序列|string|ByteString|str|[]byte|
 
 [1]在Java中，无符号的32位和64位整数用符号对应表示，最高位仅存储在符号位中。在使用时需要注意这一点.  
@@ -472,7 +472,35 @@ void Done() {
 ```
 所有的服务类都实现了Service接口，它提供了一种调用特定函数的方法，而不需要在编译时知道方法名或者输入输出类型。在服务器端，这可以用来实现一个RPC服务器，你可以注册服务。  
 ```C++
+using google::protobuf;
 
+class ExampleSearchService : public SearchService {
+ public:
+  void Search(protobuf::RpcController* controller,
+              const SearchRequest* request,
+              SearchResponse* response,
+              protobuf::Closure* done) {
+    if (request->query() == "google") {
+      response->add_result()->set_url("http://www.google.com");
+    } else if (request->query() == "protocol buffers") {
+      response->add_result()->set_url("http://protobuf.googlecode.com");
+    }
+    done->Run();
+  }
+};
+
+int main() {
+  // You provide class MyRpcServer.  It does not have to implement any
+  // particular interface; this is just an example.
+  MyRpcServer server;
+
+  protobuf::Service* service = new ExampleSearchService;
+  server.ExportOnPort(1234, service);
+  server.Run();
+
+  delete service;
+  return 0;
+}
 ```
 如果你不想实现你自己的RPC系统，你可以使用[gRPC](https://grpc.io/docs/): gRPC与protobuf工作的很好，但是，由于在使用proto2和proto3生成的客户端和服务器之间存在潜在的兼容性问题，我们建议您使用proto3来定义gRPC服务，你可以在Proto3语言指南中找到有关proto3语法的更多信息。如果你想使用proto2和gRPC，你需要使用版本3.0.0或更高版本的ptotobuf编译器和库。除了gRPC之外，还有一些正在进行的第三方项目来开发Protocol Buffers的RPC实现。有关我们了解的项目的链接列表，请参阅[third-party add-ons wiki page](https://github.com/google/protobuf/blob/master/docs/third_party.md).  
 
@@ -641,7 +669,7 @@ message Bar {
 protoc --proto_path=IMPORT_PATH --cpp_out=DST_DIR --java_out=DST_DIR --python_out=DST_DIR path/to/file.proto
 ```
 其中：
- - IMPORT_PATH: 指定解析import指令时要查找.proto文件的目录，如果省略，则使用当前目录。可以通过多次传递--proto_path选项来指定多个导入目录，将按指定的顺序搜索。-I = IMPORT_PATH可以用作--proto_path的一个简短形式。
+ - IMPORT_PATH: 指定解析import指令时要查找.proto文件的目录，如果省略，则使用当前目录。可以通过多次传递--proto_path选项来指定多个导入目录，将按指定的顺序搜索。-I=IMPORT_PATH可以用作--proto_path的一个简短形式。
  - 你可以提供一个或多个输出指令：  
   - --cpp_out: 在DST_DIR中生成C++代码。
   - --java_out: 在DST_DIR中生成Java代码。
