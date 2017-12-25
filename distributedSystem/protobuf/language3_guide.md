@@ -233,21 +233,47 @@ message Outer {                  // Level 0
 
 ## 更新一个消息的类型
 如果现有的消息类型不再满足你的所有需求 - 例如，你希望消息具有额外的字段 - 但是你仍然希望使用以旧格式创建的代码，请不要担心！更新消息类型非常简单，而不会破坏任何现有的代码。只要记住以下规则：  
- - 不要更改任何现有字段的数字标签。
- - 添加的任何新字段应该是optional 或者 repeated。这意味着任何使用“旧”消息格式的代码序列化的消息都可以被新生成的代码解析，因为它们不会丢失任何required元素。你应该为这些元素设置合理的默认值，以便新代码可以正确地与旧代码生成的消息进行交互。同样，新代码创建的消息也可以用旧代码解析：旧的二进制文件在解析时会忽略新的字段。但是，未知字段不会被丢弃，并且如果消息稍后被旧代码序列化，则未知字段将与其一起序列化 - 所以如果消息被传递给新代码，则新字段仍然可用。
- - 只要在更新的消息类型中不再使用标签号码，non-required字段可以被删除。你可能需要重命名该字段，可能会添加前缀“OBSOLETE_”，或者reserved标记，以便将来的.proto用户不会意外的重复使用该标签编号数值。
- - 只要类型和数量保持不变，non-required字段可以被转换为一个extension，反之亦然。
+ - 不要更改任何现有字段的数字标签。  
+ - 如果添加新的字段，则任何使用“旧”消息格式的代码序列化的消息仍然可以通过新生成的代码进行解析。你应该记住这些元素的默认值，以便新代码可以正确地与旧代码生成的消息进行交互。同样，由新代码创建的消息可以由旧代码解析：旧的二进制文件在分析时会忽略新的字段。  
+ - 只要标签号码在更新的消息类型中不再使用，字段可以被删除。你需要重命名该字段，可能会添加前缀“OBSOLETE_”，或者reserved标记，以便将来的.proto用户不会意外重复使用该标签编号数值。  
  - int32，uint32，int64，uint64，和bool都是相互兼容的-这意味着你可以将字段从这些类型之一更改为另一个类型，而不会破坏前向或后向兼容性。但是，如果从不符合相应类型的数据中解析出数字，则会得到与C++中将该数字转换为该类型相同的效果（例如，如果将64位数字读作int32，它将被截断为32位，也就是说，可以改变类型，改变之后代码也可以工作，但是不一定正确工作，这要看业务的值了）。
  - sint32和sint64相互兼容，但与其他整数类型不兼容。
  - 只要bytes是有效的UTF-8，string与bytes是兼容的。
  - 如果bytes包含消息的编码版本，嵌入式消息与bytes兼容。
  - fixed32与sfixed32兼容，而fixed64与sfixed64兼容。
- - 
- - 
+ - 枚举与int32，uint32，int64和uint64在序列化格式上是兼容的（注意如果它们不适合，值将被截断）。但是请注意，当消息被反序列化时，客户端代码可能会以不同的方式对待它们：例如，无法识别的proto3枚举类型将保留在消息中，但是当消息被反序列化时如何表示是语言相关的。Int域始终保持其值。  
 
 ## 未知的字段
+未知的字段是解析器无法识别的字段。例如，当一个旧的二进制文件解析一个新的二进制文件发送来的带有新字段的数据时，这些新的字段变对于旧的二进制文件来说就是未知的字段。Proto3实现可以成功解析未知字段的消息，但是，实现可能支持或不支持保留那些未知的字段。你不应该做未知的字段会被保留或丢弃的假设。对于大多数Google protobuf实现，未知字段在proto3中不能通过相应的proto运行时访问。并在反序列化时间被丢弃。这与proto2的行为不同，其中未知字段总是与消息一起保存和序列化。
 
 ## Any
+Any类型消息允许你在没有指定他们的.proto定义的情况下使用消息作为一个嵌套类型。一个Any类型包括一个可以被序列化bytes类型的任意消息，以及一个URL作为一个全局标识符和解析消息类型。为了使用Any类型，你需要导入import google/protobuf/any.proto。  
+```C++
+import "google/protobuf/any.proto";
+message ErrorStatus {
+  string message = 1;
+  repeated google.protobuf.Any details = 2;
+}
+```
+对于给定的消息类型的默认类型URL是type.googleapis.com/packagename.messagename。  
+不同语言的实现会支持动态库以线程安全的方式去帮助封装或者解封装Any值。例如在java中，Any类型会有特殊的pack()和unpack()访问器，在C++中会有PackFrom()和UnpackTo()方法。  
+```c++
+// Storing an arbitrary message type in Any.
+NetworkErrorDetails details = ...;
+ErrorStatus status;
+status.add_details()->PackFrom(details);
+
+// Reading an arbitrary message from Any.
+ErrorStatus status = ...;
+for (const Any& detail : status.details()) {
+  if (detail.Is<NetworkErrorDetails>()) {
+    NetworkErrorDetails network_error;
+    detail.UnpackTo(&network_error);
+    ... processing network_error ...
+  }
+}
+```
+目前，用于Any类型的动态库仍在开发之中。如果你已经很熟悉proto2语法，使用Any替换扩展。  
 
 
 ## Oneof
@@ -275,7 +301,6 @@ message.mutable_sub_message();   // Will clear name field.
 CHECK(!message.has_name());
 ```
  - 如果解析器遇到oneof的多个成员，则仅仅使用最后那个填充消息。
- - oneof字段不支持扩展。
  - oneof字段不能repeated。
  - 反射API对oneof 字段有效。
  - 如果您使用C++，请确保您的代码不会导致memory crashes。下面的示例代码将会崩溃，因为通过调用set_name()方法已经删除了sub_message。  
@@ -300,9 +325,9 @@ CHECK(msg2.has_name());
 当增加或者删除oneof字段时一定要小心. 如果检查oneof的值返回None/NOT_SET, 它意味着oneof字段没有被赋值或者在一个不同的版本中赋值了。你不会知道是哪种情况。  
 
  *标签编号重用问题* 
- - 将可选字段移入或移出oneof：在消息序列化和解析后，可能会丢失一些信息（某些字段将被清除）。
- - 删除oneof字段并将其添加回来：在消息被序列化和解析之后，这可以清除当前设置的字段。
- - 拆分或者合并oneof：这与移动普通optional字段有同样的问题。
+ - 将字段移入或移出oneof：在消息序列化和解析后，可能会丢失一些信息（某些字段将被清除）。
+ - 删除一个字段或者加入一个字段：在消息被序列化和解析之后，这可以清除当前设置的字段。
+ - 拆分或者合并oneof：这与移动常规字段有同样的问题。
 
 ## Maps
 如果你想创建一个关联映射作为数据定义的一部分，protobuf提供了一个方便快捷的语法：  
@@ -366,7 +391,28 @@ service SearchService {
 如果你不想实现你自己的RPC系统，你可以使用[gRPC](https://grpc.io/docs/): gRPC与protobuf工作的很好。除了gRPC之外，还有一些正在进行的第三方项目来开发Protocol Buffers的RPC实现。有关我们了解的项目的链接列表，请参阅[third-party add-ons wiki page](https://github.com/google/protobuf/blob/master/docs/third_party.md).你也可以实现自己的RPC系统，更多的信息可以参考[Proto2 Language Guide.](https://developers.google.com/protocol-buffers/docs/proto#services).  
 
 ## JSON映射
-
+Proto3 支持JSON的编码规范，使他更容易在不同系统之间共享数据，在下表中逐个描述编码对应类型。如果JSON编码的数据丢失或者其本身就是null，这个数据会在解析成protocol buffer的消息时候被表示成默认值。如果一个字段在protocol buffer中表示为默认值，在转化成JSON编码的时候将忽略掉以节省空间。具体实现可以提供在JSON编码中可选的默认值。  
+|proto3 类型|JSON|JSON example|描述|
+|-|-|-|-|
+|message|object|{"fBar": v, "g": null, …}|产生JSON对象，消息字段名可以被映射成lowerCamelCase形式，并且成为JSON对象键，null被接受并成为对应字段的默认值。|
+|enum|string|"FOO_BAR"|使用proto中指定的枚举值的名称。|
+|map<K,V>|object|{"k": v, …}|所有的键都被转换成字符串。|
+|repeated V|array|[v, …]|null被接受为空列表[]。|
+|bool|true, false|true, false||
+|string|string|"Hello World!"||
+|bytes|base64 string|"YWJjMTIzIT8kKiYoKSctPUB+"|JSON值将是使用带有填充的标准base64编码作为字符串编码的数据。|
+|int32, fixed32, uint32|number|1, -10, 0|JSON值会是一个十进制数，数值型或者string类型都会接受。|
+|int64, fixed64, uint64|string|"1", "-10"|JSON值会是一个十进制数，数值型或者string类型都会接受。|
+|float, double|number|1.1, -10.0, 0, "NaN", "Infinity"|JSON值会是一个数字或者一个指定的字符串如”NaN”,”infinity”或者”-Infinity”，数值型或者字符串都是可接受的，指数符号也可以接受。|
+|Any|object|{"@type": "url", "f": v, … }|如果Any包含一个具有特殊的JSON映射，它将被转换如下格式：{“@type”：xxx，“value”：yyy}。否则，值将被转换为JSON对象，并且将插入“@type”字段以指示实际的数据类型。|
+|Timestamp|string|"1972-01-01T10:00:20.021Z"|使用RFC 3339，其中生成的输出始终是Z归一化的，并使用0,3,6或9小数位。|
+|Duration|string|"1.000340012s", "1s"|生成的输出总是包含0,3,6或9个小数位，具体取决于所需的精度，后面跟着后缀“s”。接受所有可以转换为纳秒级的精度。|
+|Struct|object|{ … }|任意的JSON对象，见struct.proto。|
+|Wrapper types|various types|2, "2", "foo", true, "true", null, 0, …| 包装器在JSON中的表示方式类似于基本类型，但是允许nulll，并且在转换的过程中保留null。|
+|FieldMask|string|"f.fooBar,h"|见fieldmask.proto。|
+|ListValue|array|[foo, bar, …]||
+|Value|value||任意JSON值|
+|NullValue|null||JSON null。|
 
 ## 选项
 .proto文件中的一些声明可以用多个选项标注。选项不会更改声明的整体含义，但可能会影响在特定上下文中的处理方式。可用选项的完整列表在google/protobuf/descriptor.proto中定义。  
