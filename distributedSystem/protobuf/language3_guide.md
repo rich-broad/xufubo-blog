@@ -392,7 +392,7 @@ service SearchService {
 
 ## JSON映射
 Proto3 支持JSON的编码规范，使他更容易在不同系统之间共享数据，在下表中逐个描述编码对应类型。如果JSON编码的数据丢失或者其本身就是null，这个数据会在解析成protocol buffer的消息时候被表示成默认值。如果一个字段在protocol buffer中表示为默认值，在转化成JSON编码的时候将忽略掉以节省空间。具体实现可以提供在JSON编码中可选的默认值。  
-|proto3 类型|JSON|JSON example|描述|
+|proto3类型|JSON|JSON example|描述|
 |-|-|-|-|
 |message|object|{"fBar": v, "g": null, …}|产生JSON对象，消息字段名可以被映射成lowerCamelCase形式，并且成为JSON对象键，null被接受并成为对应字段的默认值。|
 |enum|string|"FOO_BAR"|使用proto中指定的枚举值的名称。|
