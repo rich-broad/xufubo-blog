@@ -1,8 +1,7 @@
 # 概述
 近期在学习百度开源的BFS，其实现使用了LevelDB，对LevelDB产生了浓厚的兴趣，里边的很多技术点以及技术细节也一直是自己想了解的。本文章先从其官方使用文档开始，逐步分析LevelDB的实现。
 本篇文章主要是对LevelDB官方文档的翻译。
-leveldb
-=======
+# leveldb
 _Jeff Dean, Sanjay Ghemawat_
 leveldb支持key-value形式的持久性存储。Keys和Values可以是任意的字节数组。leveldb中的数据是根据用户提供的比较函数(comparator function)对key进行排序后将键值进行存储的。
 # 打开数据库
