@@ -178,23 +178,110 @@ leveldb::Status status = leveldb::DB::Open(options, "/tmp/testdb", &db);
 # 性能
 通过修改一些参数可以调整leveldb的性能，可以在include/leveldb/options.h中查看定义。
 ## 块大小
-
+leveldb将相邻的keys聚集在一起放进同一个块中，将块作为写入或者从持久性存储器中读取的单元。默认的块大小大约为4096个未压缩字节。主要对数据库内容做批量扫描的应用不妨增加块的大小。若应用有很多读取小数据的地方，不妨在配合性能测试的条件下，选择一个更小的块大小。当块尺寸小于1K bytes或者大于几M bytes时，性能将不会显著提升。注意更大的块尺寸可以让压缩有更好的效果。
 ## 压缩
-
+每个块在被写入持久存储前都会被压缩。leveldb默认是允许压缩的，因为默认的压缩方法是很快的。对不可压缩数据的将自动关闭压缩功能。在极少数情况下，应用程序可能希望完全禁用压缩，但只有在基准测试显示性能有所改进时才应该这样做.禁止方法如下：
+```C++
+leveldb::Options options;
+options.compression = leveldb::kNoCompression;
+... leveldb::DB::Open(options, name, ...) ....
+```
 ## cache
+leveldb的数据是以一些列文件的形式存放在文件系统中的，每个文件中存放了一系列经过压缩的块。如果options.cache非空，那么他将被用来存放频繁使用的未压缩的块数据。
+```C++
+#include "leveldb/cache.h"
 
+leveldb::Options options;
+options.cache = leveldb::NewLRUCache(100 * 1048576);  // 100MB cache
+leveldb::DB* db;
+leveldb::DB::Open(options, name, &db);
+... use the db ...
+delete db
+delete options.cache;
+```
+必须要注意的是缓存中存放的是未压缩的数据，因此应该根据应用程序的数据来确定其大小，而不应该把压缩带来的数据尺寸变小考虑在内。(缓存压缩过的块数据是由操作系统负责，或者客户端定制Env来实现) 当执行批量读操作时，应用程序可能希望禁止缓存功能以防止批量读操作破坏cache中已经缓存的内容。可以通过设置迭代器的来达到该目的：
+```C++
+leveldb::ReadOptions options;
+options.fill_cache = false;
+leveldb::Iterator* it = db->NewIterator(options);
+for (it->SeekToFirst(); it->Valid(); it->Next()) {
+  ...
+}
+```
 ## 键布局(Key Layout)
-
+注意磁盘传输和缓存的单位是块。相邻的键(根据数据库的排序顺序)通常被放在同一个块中。因此应用程序可以把那些需要同时存取的键放在相邻的位置，不常用的键合拢单独放在一个位置，以此来提高性能。 
+例如，假设我们以leveldb为基础，实现一个文件系统。存储的条目类型不放设置以下格式：
+```C++
+filename -> permission-bits, length, list of file_block_ids
+file_block_id -> data
+// 其中，<k = filename, v = filemetadata>,<k = file_block_id, v = file_block_data>
+```
+我们可能需要在filename前加一个字母(例如’/’)作为前缀，在file_block_id前加一个不同的字母(例如’0’)，这样扫描只需要检查元数据而不需要强制我们读取和缓存笨重的文件内容(因为这样就会保证<k = filename, v = filemetadata>和<k = file_block_id, v = file_block_data>不会同时存在于一个块中，这样就使得扫描文件系统元数据会大大加快，仅需要扫描很少一部分数据。如果不这样做，<k = filename, v = filemetadata>和<k = file_block_id, v = file_block_data>有可能会保存在同一个块中，这时候，扫描文件系统元数据，就需要扫描leveldb数据库的所有数据。)。
 ## 过滤器(Filters)
-过滤器
+由于leveldb的数据在磁盘上的组织方式，一个Get()方法可能导致多次从磁盘读取数据。可选的FilterPolicy机制可以用来减少读磁盘的次数。
+```C++
+leveldb::Options options;
+options.filter_policy = NewBloomFilterPolicy(10);
+leveldb::DB* db;
+leveldb::DB::Open(options, "/tmp/testdb", &db);
+... use the database ...
+delete db;
+delete options.filter_policy;
+```
+上述代码将一个基于Bloom_filter算法的过滤策略与数据库联系起来。基于Bloom_filter算法的过滤策略为每个键保存若干个bit的数据在内存中(根据传给NewBloomFilterPolicy的参数，该例中将为每个key保存10个bit的数据)。该过滤器会将Get()方法需要的不必要磁盘读操作数量降低大约100倍。增加保存的bit数量会大幅的减少磁盘读操作，但是也会占用更多的内存。我们建议为工作集不适合在内存中并且做大量随机读操作的应用程序设置一个过滤策略。
+如果使用一个定制的比较器，那么应该保证正在使用的过滤策略和比较器是互相兼容的。例如，假设一个比较器在比较key时忽略尾随空格，那么NewBloomFilterPolicy不能和这样的比较器一起使用。此时应用程序应该提供一个忽略尾随空格的过滤策略与该比较器一起使用。例如：
+```C++
+class CustomFilterPolicy : public leveldb::FilterPolicy {
+ private:
+  FilterPolicy* builtin_policy_;
+
+ public:
+  CustomFilterPolicy() : builtin_policy_(NewBloomFilterPolicy(10)) {}
+  ~CustomFilterPolicy() { delete builtin_policy_; }
+
+  const char* Name() const { return "IgnoreTrailingSpacesFilter"; }
+
+  void CreateFilter(const Slice* keys, int n, std::string* dst) const {
+    // Use builtin bloom filter code after removing trailing spaces
+    std::vector<Slice> trimmed(n);
+    for (int i = 0; i < n; i++) {
+      trimmed[i] = RemoveTrailingSpaces(keys[i]);
+    }
+    return builtin_policy_->CreateFilter(&trimmed[i], n, dst);
+  }
+};
+```
+高级应用程序可能会提供不使用布隆过滤器(bloom filter)的过滤策略，但使用其他一些机制来概括一组健，细节参考：leveldb/filter_policy.h。
 # 校验和
-
+leveldb对所有它存放在文件系统的数据计算校验和。leveldb提供两个独立的选项来控制数据校验的严格程度。
+ReadOptions::verify_checksums设置为true，则对所有从文件系统中读取的数据进行校验和检查。默认不会进行该检查。
+在打开数据库之前，可以将Options :: paranoid_checks设置为true，以便在数据库实现检测到内部损坏后立即引发错误。根据数据库的哪一部分被损坏，数据库打开时可能会引发错误，或者稍后由另一个数据库操作引发错误。默认情况下该选项是关闭的，以便数据库可以在部分已经损坏的情况下继续使用。
+如果数据库已经被损坏(或许无法再Options::paranoid_checks为true时被打开)，leveldb::RepairDB方法可以用来尽可能的恢复数据。
 # 近似大小
-
+GetApproximateSizes方法可用于获取一个或多个键范围的数据使用的文件系统空间的近似字节数。
+```C++
+leveldb::Range ranges[2];
+ranges[0] = leveldb::Range("a", "c");
+ranges[1] = leveldb::Range("x", "z");
+uint64_t sizes[2];
+leveldb::Status s = db->GetApproximateSizes(ranges, 2, sizes);
+```
+执行上述代码后，sizes[0]将保存[a..c)范围内所有key保存在文件系统中估计需占用的空间大小，sizes[1]将保存[x..z)范围内所有key保存在文件系统中估计需要占用的空间大小。
 # 环境(Environment)
+leveldb发起的所有文件操作和其他的系统调用，都需要通过一个leveldb::Env对象来路由。有经验的客户可能希望提供他们自己的Env实现以获得更好的控制。例如，应用程序可能会在文件IO操作路径中引入人为的延迟，以限制leveldb对系统中其他活动的影响
+```C++
+class SlowEnv : public leveldb::Env {
+  ... implementation of the Env interface ...
+};
 
+SlowEnv env;
+leveldb::Options options;
+options.env = &env;
+Status s = leveldb::DB::Open(options, ...);
+```
 # 可移植性(Porting)
-
+通过实现leveldb/port/port.h中的与平台相关的types/methods/functions，leveldb可以移植到新的平台上，参考：leveldb/port/port_example.h
+另外，新平台可能需要一个新的默认leveldb::Env实现。参考：leveldb/util/env_posix.h
 # 其他信息
 有关leveldb实现的细节可以在以下文档中找到：
 1. [实现说明](impl.md)
