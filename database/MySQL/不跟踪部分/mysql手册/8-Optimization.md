@@ -78,8 +78,7 @@
  - 对于连接中的每个表，构造一个更简单的WHERE以加快过滤。
  - 在查询任何其他表之前首先读取所有常量表。 常量表是以下任何一项：
     - 空表或者包含一行的表
-    - 与PRIMARY KEY或UNIQUE索引中的WHERE子句一起使用的表，其中所有索引部分都与常量表达式进行比较并定义为NOT NULL。
-以下所有表格均用作常量表格：
+    - 与PRIMARY KEY或UNIQUE索引中的WHERE子句一起使用的表，其中所有索引部分都与常量表达式进行比较并定义为NOT NULL。以下所有表格均用作常量表格：
 ```sql
 SELECT * FROM t WHERE primary_key=1;
 SELECT * FROM t1,t2
@@ -123,5 +122,6 @@ SELECT ... FROM tbl_name
 SELECT ... FROM tbl_name
   ORDER BY key_part1 DESC, key_part2 DESC, ... ;
 ```
+#### 2.1.2 范围优化
 
 
