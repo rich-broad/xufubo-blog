@@ -56,11 +56,72 @@
 
  #### 2.1.1 where条件优化
  接下来研究mysql对where条件的优化，当然了，mysql的优化器一直也在发展，这里记录的不一定完整。文档通常都是比源代码滞后的。对于where条件的优化，
-  - 移除不必要的括号
+  - 移除不必要的括号:
 ```sql
    ((a AND b) AND c OR (((a AND b) AND (c AND d))))
 -> (a AND b AND c) OR (a AND b AND c AND d)
 ```
+ - Constant folding:
+ ```sql
+   (a<b AND b=c) AND a=5
+-> b>5 AND b=c AND a=5
+ ```
+ - 确定条件的去除
+ ```sql
+   (B>=5 AND B=5) OR (B=6 AND 5=5) OR (B=7 AND 5=6)
+-> B=5 OR B=6
+ ```
+ - 由索引使用的常量表达式仅计算一次
+ - 对于没有WHERE的单个表上的COUNT（*），直接从MyISAM和MEMORY表的表信息中查询，当仅与一个表一起使用时，这也适用于任何NOT NULL表达式。
+ - 及时检测无效的常量表达式。 MySQL会快速检测到某些SELECT语句中的where条件不会发生，并且不返回任何行。
+ - 如果不使用GROUP BY或聚合函数（COUNT（），MIN（）等），HAVING将与WHERE合并。
+ - 对于连接中的每个表，构造一个更简单的WHERE以加快过滤。
+ - 在查询任何其他表之前首先读取所有常量表。 常量表是以下任何一项：
+    - 空表或者包含一行的表
+    - 与PRIMARY KEY或UNIQUE索引中的WHERE子句一起使用的表，其中所有索引部分都与常量表达式进行比较并定义为NOT NULL。
+以下所有表格均用作常量表格：
+```sql
+SELECT * FROM t WHERE primary_key=1;
+SELECT * FROM t1,t2
+  WHERE t1.primary_key=1 AND t2.primary_key=t1.id;
+```
+ - 通过尝试所有可能性来找到联表的最佳联合组合。如果ORDER BY和GROUP BY子句中的所有列都来自同一个表，那么在连接时首选该表。
+ - 如果存在ORDER BY子句和不同的GROUP BY子句，或者如果ORDER BY或GROUP BY包含来自联接队列中第一个表以外的表的列，则会创建一个临时表。
+ - 如果您使用SQL_SMALL_RESULT修饰符，则MySQL使用内存中的临时表。
+ - 除非优化器认为使用表扫描更高效，否则将查询每个表索引，并使用最佳索引。在之前，根据最佳索引是否超过表格的30％来使用扫描，但固定百分比这种做法，不再用于决定是使用索引还是全表扫描。优化器现在更加复杂，会基于其他因素进行考量，如表大小，行数和I/O块大小。
+ - 在某些情况下，MySQL可以从索引中读取行，而无需查询数据文件。如果索引中使用的所有列都是数字，则仅使用索引树来解析查询。
+ - 在输出每行之前，会跳过与HAVING子句不匹配的那些行。
+一些很快的查询例子：
+```sql
+SELECT COUNT(*) FROM tbl_name;
 
+SELECT MIN(key_part1),MAX(key_part1) FROM tbl_name;
+
+SELECT MAX(key_part2) FROM tbl_name
+  WHERE key_part1=constant;
+
+SELECT ... FROM tbl_name
+  ORDER BY key_part1,key_part2,... LIMIT 10;
+
+SELECT ... FROM tbl_name
+  ORDER BY key_part1 DESC, key_part2 DESC, ... LIMIT 10;
+```
+假设索引列是数值类型，那么mysql将仅使用索引树来解析如下查询：
+```sql
+SELECT key_part1,key_part2 FROM tbl_name WHERE key_part1=val;
+
+SELECT COUNT(*) FROM tbl_name
+  WHERE key_part1=val1 AND key_part2=val2;
+
+SELECT key_part2 FROM tbl_name GROUP BY key_part1;
+```
+以下查询使用索引来按照排序顺序检索行，而无需单独的排序：
+```sql
+SELECT ... FROM tbl_name
+  ORDER BY key_part1,key_part2,... ;
+
+SELECT ... FROM tbl_name
+  ORDER BY key_part1 DESC, key_part2 DESC, ... ;
+```
 
 
