@@ -109,6 +109,7 @@ ERROR 1305 (42000): SAVEPOINT identifier does not exist
 RELEASE SAVEPOINT语句从当前事务的一组保存点中删除指定的保存点。没有提交或回滚发生。如果保存点不存在，则是错误的。  
 如果执行COMMIT或没有命名保存点的ROLLBACK，则删除当前事务的所有保存点。  
 当调用存储函数或激活触发器时，将创建新的保存点级别。以前级别的保存点不可用，因此不会与新级别的保存点冲突。当函数或触发器终止时，它所创建的任何保存点都会被释放，并恢复以前的保存点级别。
+
 ---
 ### 3.5 LOCK INSTANCE FOR BACKUP and UNLOCK INSTANCE 语法
 ```sql
@@ -134,6 +135,7 @@ UNLOCK INSTANCE;
 UNLOCK TABLES;
 ```
 lock_wait_timeout选项设定了LOCK INSTANCE FOR BACKUP语句在获取锁之前等待的时间量。
+
 ---
 ### 3.6 LOCK TABLES 和 UNLOCK TABLES语法
 ```sql
