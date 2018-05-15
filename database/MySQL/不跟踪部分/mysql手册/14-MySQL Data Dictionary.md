@@ -5,9 +5,9 @@ MySQL8.0相比于5.7、5.6、5.5、5.1等版本最为中最重要的特性之一
  - 字典数据的事务性，使得MySQL更加可靠。
  - 可以对字典对象进行统一和集中式的缓存。
  - 一些INFORMATION_SCHEMA表的更简单和改进的实现。
- - 原子DDL。
+ - 原子DDL。  
  ***重要：与没有数据字典的服务器相比，启用数据字典的服务器在常规的操作上存在一些差异，此外，对于升级到MySQL 8.0，升级过程与以前的MySQL版本有所不同，并要求你通过检查特定先决条件来验证安装的升级准备情况。更多信息见：[Section 2.10.1, “Upgrading MySQL](https://dev.mysql.com/doc/refman/8.0/en/upgrading.html)***
- 
+
  ---
  ## 1、数据字典Schema
  数据字典表受到保护，只能在MySQL的调试版本中访问。但是，MySQL支持通过INFORMATION_SCHEMA表和 SHOW语句访问存储在数据字典表中的数据 。有关构成数据字典的表的概述，请参阅[数据字典表](https://dev.mysql.com/doc/refman/8.0/en/system-database.html#system-database-data-dictionary-tables)。  
