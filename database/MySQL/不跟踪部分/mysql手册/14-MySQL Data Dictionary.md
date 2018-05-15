@@ -6,7 +6,7 @@ MySQL8.0相比于5.7、5.6、5.5、5.1等版本最为中最重要的特性之一
  - 可以对字典对象进行统一和集中式的缓存。
  - 一些INFORMATION_SCHEMA表的更简单和改进的实现。
  - 原子DDL。
- ***重要：与没有数据字典的服务器相比，启用数据字典的服务器在常规的操作上存在一些差异，此外，对于升级到MySQL 8.0，升级过程与以前的MySQL版本有所不同，并要求你通过检查特定先决条件来验证安装的升级准备情况。更多信息见：[Section 2.10.1, “Upgrading MySQL](https://dev.mysql.com/doc/refman/8.0/en/upgrading.html) ***
+ ***重要：与没有数据字典的服务器相比，启用数据字典的服务器在常规的操作上存在一些差异，此外，对于升级到MySQL 8.0，升级过程与以前的MySQL版本有所不同，并要求你通过检查特定先决条件来验证安装的升级准备情况。更多信息见：[Section 2.10.1, “Upgrading MySQL](https://dev.mysql.com/doc/refman/8.0/en/upgrading.html)***
  
  ---
  ## 1、数据字典Schema
@@ -129,7 +129,6 @@ IMPORT TABLE语句根据.sdi文件中包含的信息导入MyISAM表。见[IMPORT
 ---
 ## 7、数据字典使用差异
 与没有数据字典的服务器相比，使用启用数据字典的MySQL服务器会带来一些操作差异：
- - 
 
 ---
 ## 8、数据字典限制
