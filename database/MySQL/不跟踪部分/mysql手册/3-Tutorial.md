@@ -549,3 +549,255 @@ mysql> \. filename
 
 ---
 ## 6、常见的查询示例
+本节列出一些常用的查询示例。基础数据如下：  
+一张商品交易表，即：各种经销商（dealer）对文章的交易价格的表，每一篇文章可以被多个经销商销售，同一篇文章不同的经销商可以有不同的价格。因此该表的主键为（article, dealer）。  
+```sql
+CREATE TABLE shop (
+article INT(4) UNSIGNED ZEROFILL DEFAULT '0000' NOT NULL,     
+dealer  CHAR(20)                 DEFAULT ''     NOT NULL,     
+price   DOUBLE(16,2)             DEFAULT '0.00' NOT NULL,     
+PRIMARY KEY(article, dealer)); 
+INSERT INTO shop VALUES
+(1,'A',3.45),(1,'B',3.99),(2,'A',10.99),(3,'B',1.45),   (3,'C',1.69),(3,'D',1.25),(4,'D',19.95);
+SELECT * FROM shop;  
++---------+--------+-------+ 
+| article | dealer | price | 
++---------+--------+-------+ 
+|    0001 | A      |  3.45 | 
+|    0001 | B      |  3.99 | 
+|    0002 | A      | 10.99 | 
+|    0003 | B      |  1.45 | 
+|    0003 | C      |  1.69 | 
+|    0003 | D      |  1.25 | 
+|    0004 | D      | 19.95 | 
++---------+--------+-------+
+```
+#### 6.1 最大值
+```sql
+SELECT MAX(article) AS article FROM shop;  
++---------+ 
+| article | 
++---------+ 
+|       4 | 
++---------+
+```
+### 6.2 查询最大列的行
+任务：找出价格最贵的文章对应的信息：  
+即：该表中哪一行数据的price最大，因此先要求出该表中price的最大值，然后以他为条件查询：  
+```sql
+SELECT article, dealer, price FROM   shop WHERE  price=(SELECT MAX(price) FROM shop);
+```
+其他方案：  
+```sql
+SELECT s1.article, s1.dealer, s1.price 
+FROM shop s1 LEFT JOIN shop s2 ON s1.price < s2.price 
+WHERE s2.article IS NULL;  
+SELECT article, dealer, price FROM shop ORDER BY price DESC LIMIT 1;
+```
+注意：如果有几个最贵的文章，每个价格为19.95，LIMIT解决方案将只显示其中之一。即：这个不通用。  
+
+### 6.3 每个分组中的最大值
+任务：找到每篇文章最高的价格。  
+先按照文章分组，再求每组的最大值：  
+```sql
+SELECT article, MAX(price) AS price FROM   shop GROUP BY article;
+```
+
+### 6.4 找出每组中包含特定列最大值的行
+任务：对于每篇文章，找到价格最昂贵的经销商。  
+即：以文章分组，找出每组中价格最大的行。可以如下完成：  
+```sql
+SELECT article, dealer, price 
+FROM   shop s1 
+WHERE  price=(SELECT MAX(s2.price)
+FROM shop s2
+WHERE s1.article = s2.article);  
++---------+--------+-------+ 
+| article | dealer | price | 
++---------+--------+-------+ 
+|    0001 | B      |  3.99 | 
+|    0002 | A      | 10.99 | 
+|    0003 | C      |  1.69 | 
+|    0004 | D      | 19.95 | 
++---------+--------+-------+
+```
+即：对于每一行，处理where条件，首先计算出对于这一行数据中这一个文章ID的价格的最大值。然后选择出对应的列。  
+上述示例使用了相关子查询，MySQL可能不支持，也可以如下完成：  
+思路：首先找出每篇文章最大的价格对应的行：  
+```sql
+SELECT article, MAX(price) AS price   FROM shop   GROUP BY article
+```
+然后与自己链接，目的是为了查询到其他的列数据。但是链接条件是文章ID和价格都相等。  
+```sql
+SELECT s1.article, dealer, s1.price 
+FROM shop s1 
+JOIN 
+(
+   SELECT article, MAX(price) AS price
+   FROM shop
+   GROUP BY article
+) AS s2
+   ON s1.article = s2.article AND s1.price = s2.price;
+```
+或者：  
+```sql
+SELECT s1.article, s1.dealer, s1.price 
+FROM shop s1 
+LEFT JOIN shop s2 ON s1.article = s2.article AND s1.price < s2.price 
+WHERE s2.article IS NULL;
+```
+
+### 6.5 使用用户定义的变量
+您可以使用MySQL用户变量记住结果，而不必将其存储在客户端中的临时变量中。  
+例如，要找到最高和最低价格的文章，您可以这样做：  
+```sql
+mysql> SELECT @min_price:=MIN(price),@max_price:=MAX(price) FROM shop; 
+mysql> SELECT * FROM shop WHERE price=@min_price OR price=@max_price; 
++---------+--------+-------+ 
+| article | dealer | price | 
++---------+--------+-------+ 
+|    0003 | D      |  1.25 | 
+|    0004 | D      | 19.95 | 
++---------+--------+-------+
+```
+### 6.6 使用外键
+在MySQL中，InnoDB表支持检查外键约束。  
+外键约束涉及到两个表，但是，在定义时，对于除InnoDB之外的存储引擎而言，外键约束没有任何实际意义，仅仅作为备注或者注释。MySQL本身不会对外键进行任何检查，也不会进行任何操作，即：对于REFERENCES tbl_name(col_name)，即使你在定义时写了ON DELETE或者ON UPDATE，但是却不会有任何实际行为，即对外键无感知，因此，要使用外键功能还是要使用InnoDB。  
+ - MySQL不执行任何类型的CHECK，以确保col_name实际存在于tbl_name中（或者甚至tbl_name本身存在）。
+ - MySQL也不会为了tbl_name执行任何额外的关联更新，这完全由存储引擎来完成。
+ - 该语法创建一个列;它不会创建任何类型的索引或键。
+一个例子如下：
+```sql
+CREATE TABLE person (
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    name CHAR(60) NOT NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE shirt (
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    style ENUM('t-shirt', 'polo', 'dress') NOT NULL,
+    color ENUM('red', 'blue', 'orange', 'white', 'black') NOT NULL,
+    owner SMALLINT UNSIGNED NOT NULL REFERENCES person(id),
+    PRIMARY KEY (id)
+);
+
+INSERT INTO person VALUES (NULL, 'Antonio Paz');
+
+SELECT @last := LAST_INSERT_ID();
+
+INSERT INTO shirt VALUES
+(NULL, 'polo', 'blue', @last),
+(NULL, 'dress', 'white', @last),
+(NULL, 't-shirt', 'blue', @last);
+
+INSERT INTO person VALUES (NULL, 'Lilliana Angelovska');
+
+SELECT @last := LAST_INSERT_ID();
+
+INSERT INTO shirt VALUES
+(NULL, 'dress', 'orange', @last),
+(NULL, 'polo', 'red', @last),
+(NULL, 'dress', 'blue', @last),
+(NULL, 't-shirt', 'white', @last);
+
+SELECT * FROM person;
++----+---------------------+
+| id | name                |
++----+---------------------+
+|  1 | Antonio Paz         |
+|  2 | Lilliana Angelovska |
++----+---------------------+
+
+SELECT * FROM shirt;
++----+---------+--------+-------+
+| id | style   | color  | owner |
++----+---------+--------+-------+
+|  1 | polo    | blue   |     1 |
+|  2 | dress   | white  |     1 |
+|  3 | t-shirt | blue   |     1 |
+|  4 | dress   | orange |     2 |
+|  5 | polo    | red    |     2 |
+|  6 | dress   | blue   |     2 |
+|  7 | t-shirt | white  |     2 |
++----+---------+--------+-------+
+
+
+SELECT s.* FROM person p INNER JOIN shirt s
+   ON s.owner = p.id
+ WHERE p.name LIKE 'Lilliana%'
+   AND s.color <> 'white';
+
++----+-------+--------+-------+
+| id | style | color  | owner |
++----+-------+--------+-------+
+|  4 | dress | orange |     2 |
+|  5 | polo  | red    |     2 |
+|  6 | dress | blue   |     2 |
++----+-------+--------+-------+
+```
+
+### 6.7 在两个字段上进行搜索
+使用单个字段的OR很容易优化，但是对于两个不同字段的OR就不好优化：  
+```sql
+SELECT field1_index, field2_index FROM test_table 
+WHERE field1_index = '1' OR  field2_index = '1'
+```
+这就不好优化，其实你可以这么做：每个SELECT搜索只有一个字段，可以优化查询：  
+```sql
+SELECT field1_index, field2_index
+FROM test_table WHERE field1_index = '1' 
+UNION 
+SELECT field1_index, field2_index
+FROM test_table WHERE field2_index = '1';
+```
+注意：UNION会去除结果集中重复的行，除非是有UNION ALL。  
+
+### 6.8 计算每天的访问量
+计算一个Web页面，在各个月之中有几天被访问到：  
+```sql
+CREATE TABLE t1 (year YEAR(4), month INT(2) UNSIGNED ZEROFILL,
+day INT(2) UNSIGNED ZEROFILL); 
+INSERT INTO t1 
+VALUES(2000,1,1),(2000,1,20),(2000,1,30),(2000,2,2), (2000,2,23),(2000,2,23);
+```
+示例表中包含用户访问页面的年、月、日。要确定每月有几天被访问到，请如下查询：  
+```sql
+SELECT year,month,BIT_COUNT(BIT_OR(1<<day)) AS days FROM t1 GROUP BY year,month;
++------+-------+------+ 
+| year | month | days | 
++------+-------+------+ 
+| 2000 |    01 |    3 | 
+| 2000 |    02 |    2 | 
++------+-------+------+
+```
+该查询可以计算每年/月组合中表格中显示的不同天数，自动删除重复的条目。  
+ ### 6.9 使用AUTO_INCREMENT
+AUTO_INCREMENT属性可用于为新行生成唯一标识：  
+```sql
+CREATE TABLE animals (
+id MEDIUMINT NOT NULL AUTO_INCREMENT,      
+name CHAR(30) NOT NULL,      
+PRIMARY KEY (id) 
+);  
+INSERT INTO animals (name) VALUES
+('dog'),('cat'),('penguin'),     
+('lax'),('whale'),('ostrich');  
+SELECT * FROM animals;
++----+---------+ 
+| id | name    | 
++----+---------+ 
+|  1 | dog     | 
+|  2 | cat     | 
+|  3 | penguin | 
+|  4 | lax     | 
+|  5 | whale   | 
+|  6 | ostrich | 
++----+---------+
+```
+可以看到默认从1开始，如果没有启用SQL模式NO_AUTO_VALUE_ON_ZER，那么可以明确地将0分配给列以生成序列号。可以使用LAST_INSERT_ID（）SQL函数或mysql_insert_id（）C API函数检索最近自动生成的AUTO_INCREMENT值。这些功能是***特定于连接***的，所以它们的返回值不受另外一个也执行插入的连接的影响。
+对于自增列，要合理的选用数据类型以保证可以容纳你的行。如果超过了范围，那么下一次自动生成序号时将失败。为了不让序号从1开始，你可以在CREATE TABLE或者ALTER TABLE中指定：
+```sql
+mysql> ALTER TABLE tbl AUTO_INCREMENT = 100;
+```
+关于AUTO_INCREMENT的更多信息和使用规则，见mysql手册。
