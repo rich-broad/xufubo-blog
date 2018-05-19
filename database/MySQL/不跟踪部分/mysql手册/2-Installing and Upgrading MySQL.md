@@ -10,6 +10,7 @@
 
 ---
 ## 1、通用安装指南
+### 1.1 选定版本和发行版
 本节学习mysql的通用安装指南。介绍安装mysql需要的通用信息。在安装mysql之前，先决定使用哪种版本和分发格式（二进制或源代码）。MySQL通常包含两种版本，开发版和GA版本，GA版本也称为稳定版本，生产环境一般不要安装开发版本，要安装GA版本。  
 mysql8.0的命名方案使用由三个数字和一个可选的后缀组成的版本名称; 例如：mysql-8.0.1-dmr。发行版名称中的数字解释如下：  
  - 第一个数字（8）是主版本号。
@@ -24,9 +25,9 @@ mysql8.0的命名方案使用由三个数字和一个可选的后缀组成的版
  - 你想在某个指定的位置安装mysql，而不是标准的位置。
  - 你希望配置mysqld，其中可能不包含标准二进制分发版中的功能。以下是常见的额外选项：  
  > - 通过-DWITH_LIBWRAP=1来支持TCP包装器
-   - -DWITH_ZLIB={system|bundled}，指定压缩特性
-   - -DWITH_DEBUG=1，支持debug
-   - 更多额外的信息，参见[MySQL Source-Configuration Options](https://dev.mysql.com/doc/refman/8.0/en/source-configuration-options.html).
+ > - -DWITH_ZLIB={system|bundled}，指定压缩特性
+ > - -DWITH_DEBUG=1，支持debug
+ > - 更多额外的信息，参见[MySQL Source-Configuration Options](https://dev.mysql.com/doc/refman/8.0/en/source-configuration-options.html).
  - 你希望配置mysqld在标准二进制分发版中不包含的某些功能。
  - 你想要定制自己的mysql，修改其内核代码。
  - 源代码分发包含比二进制分发更多的测试和示例。
