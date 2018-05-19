@@ -50,7 +50,9 @@ shell> md5sum mysql-standard-8.0.13-linux-i686.tar.gz
 aaab65abbec64d5e907dcd41b8699945  mysql-standard-8.0.13-linux-i686.tar.gz
 ```
 ***使用GnuPG进行签名校验：***  
-该方法比md5更加可靠，但是需要更多的工作。GnuPG通常都会安装在linux上，如果没有安装，参见：http://www.gnupg.org/。具体如何验证，请参考官方网址[使用GnuPG进行签名检查](https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html)。通常情况下，我们使用md5来校验即可。  
+该方法比md5更加可靠，但是需要更多的工作。GnuPG通常都会安装在linux上，如果没有安装，参见：http://www.gnupg.org/。  
+ - 具体如何验证，请参考官方网址[使用GnuPG进行签名检查](https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html)。  
+通常情况下，我们使用md5来校验即可。  
 ***使用RPM进行签名检查：***   
 对于RPM软件包，没有单独的签名。RPM软件包具有内置的GPG签名和MD5校验和。您可以通过运行以下命令来验证软件包：  
 ```
