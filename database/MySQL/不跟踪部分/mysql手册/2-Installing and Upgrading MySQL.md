@@ -31,3 +31,36 @@ mysql8.0的命名方案使用由三个数字和一个可选的后缀组成的版
  - 你希望配置mysqld在标准二进制分发版中不包含的某些功能。
  - 你想要定制自己的mysql，修改其内核代码。
  - 源代码分发包含比二进制分发更多的测试和示例。
+
+### 1.2 获得mysql
+ 确定了要安装的mysql版本和发行版之后，就去获得它，有如下几种途径：  
+ - 下载最近几个版本mysql：http://dev.mysql.com/downloads/
+ - 完整的列表：http://dev.mysql.com/downloads/mirrors.html
+ - 获取最新的开发源码：[2.8.3 Installing MySQL Using a Development Source Tree](https://dev.mysql.com/doc/refman/8.0/en/installing-development-tree.html)
+
+### 1.3 校验包的完整性
+下载完成之后，需要检查你安装包的完整性。主要有三种方法：  
+ - MD5校验和
+ - 使用GNU Privacy Guard的GnuPG加密签名
+ - 对于RPM软件包，内置RPM完整性验证机制
+***验证MD5：***  
+在你下载了一个MySQL包之后，你应该确保它的MD5校验和与MySQL下载页面上提供的校验和匹配。每个操作系统都带有自己的md5程序，通常为md5sum。如果你的系统没有计算md5的工具，可以从google上下载安装。例如在linux上：  
+```shell
+shell> md5sum mysql-standard-8.0.13-linux-i686.tar.gz
+aaab65abbec64d5e907dcd41b8699945  mysql-standard-8.0.13-linux-i686.tar.gz
+```
+***使用GnuPG进行签名校验：***  
+该方法比md5更加可靠，但是需要更多的工作。GnuPG通常都会安装在linux上，如果没有安装，参见：http://www.gnupg.org/。具体如何验证，请参考官方网址[2.1.3.2使用GnuPG进行签名检查](https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html)。通常情况下，我们使用md5来校验即可。  
+***使用RPM进行签名检查：***   
+对于RPM软件包，没有单独的签名。RPM软件包具有内置的GPG签名和MD5校验和。您可以通过运行以下命令来验证软件包：  
+```
+shell> rpm --checksig package_name.rpm
+shell> rpm --checksig MySQL-server-8.0.13-0.linux_glibc2.5.i386.rpm
+MySQL-server-8.0.13-0.linux_glibc2.5.i386.rpm: md5 gpg OK
+```
+更多的校验方法，可从mysql手册上获得。  
+
+### 1.4 安装布局
+不同的安装类型，不同的系统，布局不同，具体见[安装布局](https://dev.mysql.com/doc/refman/8.0/en/installation-layouts.html)。我们后边会详细学习源码的安装。并且学习源码安装的布局。
+
+## 8、源码安装mysql
