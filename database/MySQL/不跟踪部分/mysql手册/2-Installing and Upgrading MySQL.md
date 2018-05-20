@@ -399,7 +399,7 @@ shell> make clean
 shell> rm CMakeCache.txt
 ```
 对于上边的脚本而言，我们的构建目录为：***bld***  
-如上边我们在执行***cmake .. -L***时，cmake提示我们boost版本不一致，Boost minor version found is 53 we need 66（mysql需要66，而安装的为53），因此在我们的安装脚本中要指定boost路径，而不能使用默认的路径。  
+如上边我们在执行**cmake .. -L**时，cmake提示我们boost版本不一致，Boost minor version found is 53 we need 66（mysql需要66，而安装的为53），因此在我们的安装脚本中要指定boost路径，而不能使用默认的路径。  
 你也可以使用特定的环境变量来影响cmake，见[4.9 MySQL Program Environment Variables](https://dev.mysql.com/doc/refman/8.0/en/environment-variables.html)。  
 下表将对cmake支持的选项进行说明。在Default列，PREFIX 表示了 CMAKE_INSTALL_PREFIX选项的值，它指定安装的基目录。此值用作几个安装子目录的父级位置。  
 通过**cmake .. -LAH**也能查看这些编译选项。    
