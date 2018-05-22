@@ -50,8 +50,8 @@ shell> md5sum mysql-standard-8.0.13-linux-i686.tar.gz
 aaab65abbec64d5e907dcd41b8699945  mysql-standard-8.0.13-linux-i686.tar.gz
 ```
 ***使用GnuPG进行签名校验：***  
-该方法比md5更加可靠，但是需要更多的工作。GnuPG通常都会安装在linux上，如果没有安装，参见：http://www.gnupg.org/。  
- - 具体如何验证，请参考官方网址[使用GnuPG进行签名检查](https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html)。  
+该方法比md5更加可靠，但是需要更多的工作。GnuPG通常都会安装在linux上，如果没有安装，参见：http://www.gnupg.org/ 。  
+ - 具体如何验证，请参考官方网址[使用GnuPG进行签名检查](https://dev.mysql.com/doc/refman/8.0/en/checking-gpg-signature.html) 。  
   
 通常情况下，我们使用md5来校验即可。  
 ***使用RPM进行签名检查：***   
@@ -426,11 +426,25 @@ CMake选项主要包括儒如下几类：
  - -DCMAKE_INSTALL_PREFIX=dir_name     
  安装基础目录。该值可以在服务器启动时使用--basedir选项进行设置。默认为/usr/local/mysql
  - -DINSTALL_BINDIR=dir_name  
+ 安装用户程序的目录，一般使用默认值。DCMAKE_INSTALL_PREFIX/bin
  - -DINSTALL_DOCDIR=dir_name  
+ 文档安装目录。
  - -DINSTALL_DOCREADMEDIR=dir_name  
+ README文件安装目录。
  - -DINSTALL_INCLUDEDIR=dir_name  
+ 头文件安装目录。
  - -DINSTALL_INFODIR=dir_name  
- - -DINSTALL_LAYOUT=name
+ Info文件安装目录
+ - -DINSTALL_LAYOUT=name  
+ 选择预定义的安装布局。name取值如下：  
+ > - STANDALONE: 与.tar.gz和.zip软件包使用的布局相同。默认值。  
+ > - RPM: 布局类似于RPM软件包。  
+ > - SVR4: Solaris软件包布局。  
+ > - DEB: DEB软件包布局。  
+ 你可以选择预定义的安装布局，同时可以通过指定其他选项来修改各个组件的安装位置。例如：  
+ ```s
+ shell> cmake . -DINSTALL_LAYOUT=SVR4 -DMYSQL_DATADIR=/var/mysql/data
+ ```
 
 
 ### 2.2.3 存储引擎选项
