@@ -106,9 +106,12 @@ total 1072992
 |MYSQL_PWD|默认密码，使用这个环境变量是不安全的，千万不要这么用|  
 |MYSQL_DEBUG|调试时调试跟踪选项|  
 |TMPDIR|临时表和文件的创建目录|  
+
 有关MySQL程序使用的完整环境变量列表，请参阅[4.9 MySQL Program Environment Variables](https://dev.mysql.com/doc/refman/8.0/en/environment-variables.html)。  
 
-本节简略介绍了mysql的程序集，接下来会对其中重要的、常用的程序进行详细的介绍，其他的程序请查看mysql的官方手册[Chapter 4 MySQL Programs](https://dev.mysql.com/doc/refman/8.0/en/programs.html)。  
+本节简略介绍了mysql的程序集，接下来会对mysql程序如何使用进行通用的介绍，然后对其中重要的、常用的程序进行详细的介绍，其他的程序请查看mysql的官方手册[Chapter 4 MySQL Programs](https://dev.mysql.com/doc/refman/8.0/en/programs.html)。  
 
 ---
-## 2、重要的mysql程序
+## 2、使用mysql程序
+
+## 3、重要的mysql程序
