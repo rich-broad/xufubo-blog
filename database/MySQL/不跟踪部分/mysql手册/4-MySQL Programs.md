@@ -113,5 +113,54 @@ total 1072992
 
 ---
 ## 2、使用mysql程序
+### 2.1 调用mysql程序
+在linux命令行输入mysql程序名称，后边加程序的命令行参数即可，例如：  
+```shell
+shell> mysql --user=root test
+shell> mysqladmin extended-status variables
+shell> mysqlshow --help
+shell> mysqldump -u root personnel
+```
+程序的命令行选项通常分为两种，单破折号的简写形式和双破折号的普通形式，例如：-uroot和--user=root均表示使用root账号链接mysql服务器。有时候你会发现如上形式输入,shell会提示你command not found，这通常是你的mysql安装目录没有添加到环境变量PATH中。这时你只要添加就可以了。一些选项对于许多MySQL程序是常见的。最常用的选项有： --host（或-h）， --user（或-u）和--password（或 -p）选项，它们指示运行MySQL服务器的主机，MySQL帐户的用户名和密码。所有MySQL客户端程序都支持这些选项；它们使你能够指定要连接的服务器和要在该服务器上使用的帐户。其他的连接选项如： --port（或-P）指定MySQL服务器监听的TCP/IP端口号， --socket（或-S）在Unix/Linux上指定Unix套接字文件（或Windows上命名管道的名称）。  
+
+### 2.2 连接到mysql服务器
+要连接到MySQL服务器，对于***所有的MySQL客户端***有些参数都是必须的。要连接哪台主机、哪个端口的MySQL服务器？要使用哪个账号连接？账号的密码是多少？连接上去之后要使用哪个数据库？如何进行安全加密的链接？有了这些问题，就知道MySQL客户端必须支持的选项了。这里以mysql这个最常用的客户端来说明，当然了，这些也适用于其他的客户端。针对以上问题MySQL客户端均支持如下选项：  
+ - --default-auth=plugin：客户端使用的身份验证插件的提示  
+ - --host=host_name或者-h host_name：要连接的服务器主机。默认值为 localhost。  
+ - --password[=pass_val]或者 -p[pass_val]：MySQL帐户的密码。密码值是可选的，但如果给出，则密码和-p以及密码之中不可以有空格。最好使用-p，因为这会要求用户接下来输入密码，而且不可见，否则，Linux上的其他用户有可能会查看执行的命令，这就会增加MySQL账号密码泄露的风险。  
+ - --pipe或者 –W：在Windows上，使用命名管道连接到服务器。必须启动服务器选项--enable-named-pipe，以启用命名管道连接 。  
+ - --port=port_num或者 -P port_num：用于连接的端口号，用于使用TCP / IP进行连接。默认端口号为3306。  
+ - --protocol={TCP|SOCKET|PIPE|MEMORY}：此选项显式指定用于连接到服务器的协议。例如：Unix上默认使用Unix套接字文件连接localhost。  
+ 要强制使用TCP/IP连接，请指定 --protocol选项：  
+ ```shell
+ shell> mysql --host=localhost --protocol=TCP
+ ```
+下表显示了允许的 --protocol选项值，并指出可以使用每个值的系统平台。值不区分大小写。  
+  
+|--protocol值|连接协议|操作系统平台|  
+|-|-|-|  
+|TCP|TCP/IP连接到本地或远程服务器|所有|  
+|SOCKET|Unix套接字文件连接到本地服务器|仅UNIX/Linux|  
+|PIPE|命名管道连接到本地或远程服务器|仅Windows|  
+|MEMORY|共享内存连接到本地服务器|仅Windows|  
+
+ - --shared-memory-base-name=name：在Windows上，要使用的共享内存名称，用于使用共享内存链接到本地服务器。默认值为MYSQL。共享内存名称区分大小写。必须以--shared-memory选项启动服务器以启用共享内存连接。  
+ - --socket=file_name或者 -S file_name：在Unix上，使用Unix域套接字文件连接到本地服务器。默认的Unix套接字文件名是 /tmp/mysql.sock。在Windows上，需要指定命名管道的名称。默认的Windows管道名称是MySQL。管道名称不区分大小写。必须通过--enable-named-pipe启动服务器以启用命名管道连接方式。  
+ - --ssl*：如果服务器配置了SSL支持，则该***系列***选项使客户端用SSL与服务器建立安全连接。有关详细信息，见[6.4.2 Command Options for Encrypted Connections](https://dev.mysql.com/doc/refman/8.0/en/encrypted-connection-options.html) 。  
+ - --tls-version=protocol_list：客户端允许的加密连接协议。该值是一个包含一个或多个协议名称的逗号分隔列表。可以为此选项命名的协议取决于用于编译MySQL的SSL库。   
+ - --user=user_name或者 -u user_name：要使用的MySQL帐户的用户名。Windows上的默认用户名为ODBC，Unix上为登录到Unix的登录名。  
+
+为了在链接MySQL服务时少输入些参数，你可以为程序配置默认值，通常有如下方式：
+ - 1、你可以在选项文件的[client]部分指定连接参数 。该文件的相关部分可能如下所示：  
+ ```conf
+ [client] 
+ host=host_name 
+ user=user_name 
+ password=your_pass
+ ```
+ - 2、你可以使用环境变量指定一些连接参数。可以使用MYSQL_HOST为mysql指定要链接的主机 。可以使用USER（仅适用于Windows）指定MySQL用户名 。密码可以使用MYSQL_PWD指定（虽然这是不安全的）。 等等。  
+
+
+
 
 ## 3、重要的mysql程序
