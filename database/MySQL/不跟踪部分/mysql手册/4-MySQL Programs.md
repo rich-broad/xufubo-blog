@@ -9,10 +9,10 @@ mysql包括很多程序，本章主要对这些程序进行学习。
  - 连接到MySQL服务器的MySQL客户端程序  
  - MySQL管理和实用程序  
  - MySQL程序开发实用程序  
- - 杂项工具  
-
-一个 
-[典型的安装](2-Installing and Upgrading MySQL.md) 
+ - 杂项工具   
+ 
+一个   
+[典型的安装](2-Installing and Upgrading MySQL.md)   
 后，包含的程序如下：  
 ```shell
 [root@localhost bin]# pwd
