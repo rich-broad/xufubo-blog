@@ -424,17 +424,17 @@ CMake选项主要包括儒如下几类：
 
 ### 2.2.2 安装布局选项
  - -DCMAKE_INSTALL_PREFIX=dir_name     
- 安装基础目录。该值可以在服务器启动时使用--basedir选项进行设置。默认为/usr/local/mysql
+ 安装基础目录。该值可以在服务器启动时使用--basedir选项进行设置。默认为/usr/local/mysql  
  - -DINSTALL_BINDIR=dir_name  
- 安装用户程序的目录，一般使用默认值。DCMAKE_INSTALL_PREFIX/bin
+ 安装用户程序的目录，一般使用默认值。DCMAKE_INSTALL_PREFIX/bin  
  - -DINSTALL_DOCDIR=dir_name  
- 文档安装目录。
+ 文档安装目录。  
  - -DINSTALL_DOCREADMEDIR=dir_name  
- README文件安装目录。
+ README文件安装目录。  
  - -DINSTALL_INCLUDEDIR=dir_name  
- 头文件安装目录。
+ 头文件安装目录。  
  - -DINSTALL_INFODIR=dir_name  
- Info文件安装目录
+ Info文件安装目录  
  - -DINSTALL_LAYOUT=name  
  选择预定义的安装布局。name取值如下：  
  > - STANDALONE: 与.tar.gz和.zip软件包使用的布局相同。默认值。  
@@ -442,9 +442,22 @@ CMake选项主要包括儒如下几类：
  > - SVR4: Solaris软件包布局。  
  > - DEB: DEB软件包布局。  
  你可以选择预定义的安装布局，同时可以通过指定其他选项来修改各个组件的安装位置。例如：  
- ```s
+ ```shell
  shell> cmake . -DINSTALL_LAYOUT=SVR4 -DMYSQL_DATADIR=/var/mysql/data
  ```
+ INSTALL_LAYOUT的值决定了secure_file_priv，keyring_encrypted_file_data和keyring_file_data系统变量的默认值。  
+ - -DINSTALL_LIBDIR=dir_name  
+ 库文件安装目录。  
+ - -DINSTALL_MANDIR=dir_name  
+ 手册页安装目录。  
+ - -DINSTALL_MYSQLKEYRINGDIR=dir_path  
+ 用作keyring_file插件数据文件位置的默认目录。默认值是平台相关的并且取决于INSTALL_LAYOUT CMake选项的值。  
+ - -DINSTALL_MYSQLSHAREDIR=dir_name  
+ share数据文件安装目录。  
+ - -DINSTALL_MYSQLTESTDIR=dir_name  
+ 在哪里安装mysql-test目录。要禁止安装此目录，请将该选项显式设置为空值（-DINSTALL_MYSQLTESTDIR =）。  
+ - -DINSTALL_PKGCONFIGDIR=dir_name  
+ 
 
 
 ### 2.2.3 存储引擎选项
