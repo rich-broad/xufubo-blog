@@ -159,8 +159,63 @@ shell> mysqldump -u root personnel
  password=your_pass
  ```
  - 2、你可以使用环境变量指定一些连接参数。可以使用MYSQL_HOST为mysql指定要链接的主机 。可以使用USER（仅适用于Windows）指定MySQL用户名 。密码可以使用MYSQL_PWD指定（虽然这是不安全的）。 等等。  
+### 2.3 指定mysql程序选项
+有几种方法可以为MySQL程序指定选项：  
+ - 在程序名称后列出命令行中的选项。  
+ - 通过选项文件。  
+ - 通过环境变量。  
 
+选项按顺序处理，所以如果多次指定选项，则最后一个选项优先。以下命令会导致mysql连接到运行的服务器localhost：  
+```shell
+shell> mysql -h example.com -h localhost
+```
+如果给出冲突或相关选项，以后的选项优先于早期的选项。以下命令在“ 无列名 ”模式下运行 mysql：  
+```shell
+shell> mysql --column-names --skip-column-names
+```
+MySQL程序通过检查环境变量，然后处理选项文件，最后检查命令行来确定首先给出哪些选项。这意味着环境变量的优先级最低，命令行选项最高。对于服务器来说，有一个例外：***数据目录中的 mysqld-auto.cnf选项文件是最后处理的，所以它优先于命令行选项***。  
+你可以合理的利用MySQL程序处理选项的方式，方法是在选项文件中指定程序的默认选项值。这使你可以避免在每次运行程序时输入它们，同时你也可以使用命令行选项覆盖默认值（如有必要）。  
 
+### 2.4 在命令行上使用选项
+本节简单的列举几个例子，一看就会用：   
+```shell
+shell> mysql -p test  --skip-grant-tables
+# 和
+shell> mysql -p test  --skip_grant_tables
+# 等价
 
+shell> mysqladmin --count=1K/M/G --sleep=10 ping
 
+shell> mysql -u root -p --execute="SELECT User, Host FROM mysql.user"
+Enter password: ******
++------+-----------+
+| User | Host      |
++------+-----------+
+|      | gigan     |
+| root | gigan     |
+|      | localhost |
+| jon  | localhost |
+| root | localhost |
++------+-----------+
+shell>
+
+shell> mysql -u root -p -e "SELECT VERSION();SELECT NOW()"
+Enter password: ******
++---------------------+
+| VERSION()           |
++---------------------+
+| 5.8.0-m17-debug-log |
++---------------------+
++---------------------+
+| NOW()               |
++---------------------+
+| 2015-11-05 20:00:20 |
++---------------------+
+
+```
+### 2.5 程序选项修饰符
+
+### 2.6 使用选项(配置)文件
+
+### 2.7 
 ## 3、重要的mysql程序
