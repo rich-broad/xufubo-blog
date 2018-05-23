@@ -158,4 +158,30 @@ SELECT COALESCE(NULL,NULL,NULL);
 AND, &&；NOT, !；||, OR；XOR都很熟悉，不再详述。  
 
 ### 3.4 赋值操作符
+包含=和:=，不再详细介绍。  
 
+---
+
+## 4、控制流函数
+控制流函数和操作符如下表：  
+  
+|名字|描述|  
+|-|-|  
+|CASE|Case 操作符|  
+|IF()|If/else construct|  
+|IFNULL()|Null if/else construct|  
+|NULLIF()|Return NULL if expr1 = expr2|  
+
+ - CASE value WHEN [compare_value] THEN result [WHEN [compare_value] THEN result ...] [ELSE result] END  
+ CASE WHEN [condition] THEN result [WHEN [condition] THEN result ...] [ELSE result] END
+
+
+
+ - IF(expr1,expr2,expr3)  
+
+
+
+ - IFNULL(expr1,expr2)  
+
+
+ - NULLIF(expr1,expr2)  
