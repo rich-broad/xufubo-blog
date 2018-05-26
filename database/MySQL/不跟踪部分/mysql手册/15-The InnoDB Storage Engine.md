@@ -212,3 +212,17 @@ InnoDB中，在将缓冲池中的数据刷新到磁盘时是以页面（InnoDB�
 如果系统表空间文件（“ ibdata文件 ”）位于支持原子写入的Fusion-io设备上，则自动禁用Doublewrite Buffer，并将Fusion-io原子写入用于所有数据文件。因为双写缓冲区设置是全局的，因此对非Fusion-io硬件上的数据文件也将禁用Doublewrite Buffer。此功能仅在Fusion-io硬件上并且仅在Linux上启用Fusion-io NVMFS下受支持。要充分利用此功能，建议使用innodb_flush_method设置 O_DIRECT。  
 因此最好不要禁用Doublewrite Buffer。除非可以忍受数据丢失。  
 ### 4.7 撤销日志(Undo Logs)
+
+
+
+## 5 InnoDB锁和事务模型
+### 5.1 InnoDB锁
+
+
+### 5.2 InnoDB事务模型
+在InnoDB事务中，目标是将多版本技术和传统的两阶段锁结合起来，实现的事务系统。默认情况下，InnoDB为行级锁，并且通过多版本技术提供了非锁定情况下的一致性读。InnoDB中的锁信息以节省空间的方式存储，因此不需要锁升级(***这句话有些没理解***)。通常，允许多个用户锁定InnoDB表中的每一行，或任何行的随机子集，而不会导致InnoDB内存耗尽。  
+
+#### 5.2.1 事务隔离级别
+
+
+

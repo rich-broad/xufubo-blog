@@ -67,7 +67,7 @@ MySQL-server-8.0.13-0.linux_glibc2.5.i386.rpm: md5 gpg OK
 不同的安装类型，不同的系统，布局不同，具体见官方手册[安装布局](https://dev.mysql.com/doc/refman/8.0/en/installation-layouts.html)。我们后边会详细学习源码的安装。并且学习源码安装的布局。
 
 ## 2、源码安装mysql
-## 2.1 源码安装
+### 2.1 源码安装
 在使用源码安装mysql之前，请先检查Oracle是否为你的平台生成了预编译的二进制分发版本，以及是否适合你的需求，因为Oracle官方花费了大量的精力来优化和构建mysql的二进制版本。有两种方式从源代码安装mysql：   
  - 使用标准的MySQL源码分发。即：mysql-VERSION.tar.gz, mysql-VERSION.zip这种文件，源代码文件不包含平台信息，二进制文件会包含平台信息，例如：pc-linux-i686、winx64
  - 使用MySQL开发树。
@@ -410,9 +410,9 @@ CMake选项主要包括儒如下几类：
  - 功能特性选项
  - 编译器标志  
 对于布尔类型的选项，可以将该值指定为1或ON以启用该选项，或将其指定为0或OFF以禁用该选项。  
-许多编译时选项可以在安装后服务器启动时通过选项文件或者命令行进行覆盖。例如：默认安装基础目录位置选项：CMAKE_INSTALL_PREFIX，TCP/IP端口号选项MYSQL_TCP_PORT, 和Unix套接字文件选项MYSQL_UNIX_ADDR可以在服务器启动时通过 --basedir, --port, 和--socket来指定。下边我们对一些重要的CMake编译选项进行描述，完整的列表可以参考mysql的官方手册或者使用cmake .. -LAH列出来，篇幅原因不再完整列出。
+***许多编译时选项可以在安装后服务器启动时通过选项文件或者命令行进行覆盖***。例如：默认安装基础目录位置选项：CMAKE_INSTALL_PREFIX，TCP/IP端口号选项MYSQL_TCP_PORT, 和Unix套接字文件选项MYSQL_UNIX_ADDR可以在服务器启动时通过 --basedir, --port, 和--socket来指定。下边我们对一些重要的CMake编译选项进行描述，完整的列表可以参考mysql的官方手册或者使用cmake .. -LAH列出来，篇幅原因不再完整列出。
 
-### 2.2.1 常规选项
+#### 2.2.1 常规选项
  - -DBUILD_CONFIG=mysql_release  
  该选项配置一个源代码发行版，其中包含与Oracle使用相同的构建选项来生成官方MySQL版本的二进制发行版。  
  - -DCMAKE_BUILD_TYPE=type  
@@ -422,7 +422,7 @@ CMake选项主要包括儒如下几类：
  - -DCPACK_MONOLITHIC_INSTALL=bool  
  影响make是生成一个安装文件还是多个文件。默认值为OFF，表示生成多个安装文件。
 
-### 2.2.2 安装布局选项
+#### 2.2.2 安装布局选项
  - -DCMAKE_INSTALL_PREFIX=dir_name     
  安装基础目录。该值可以在服务器启动时使用--basedir选项进行设置。默认为/usr/local/mysql  
  - -DINSTALL_BINDIR=dir_name  
@@ -457,14 +457,121 @@ CMake选项主要包括儒如下几类：
  - -DINSTALL_MYSQLTESTDIR=dir_name  
  在哪里安装mysql-test目录。要禁止安装此目录，请将该选项显式设置为空值（-DINSTALL_MYSQLTESTDIR =）。  
  - -DINSTALL_PKGCONFIGDIR=dir_name  
- 
+ 用于安装pkg-config使用的mysqlclient.pc文件的目录。默认值是INSTALL_LIBDIR/pkgconfig（除非INSTALL_LIBDIR以/mysql结尾，在这种情况下，首先删除它）。  
+ - -DINSTALL_PLUGINDIR=dir_name  
+ 插件的位置。该值可以在服务器启动时使用--plugin_dir选项进行设置。  
+ - -DINSTALL_SBINDIR=dir_name  
+ 安装mysqld的目录。  
+ - -DINSTALL_SECURE_FILE_PRIVDIR=dir_name  
+ secure_file_priv系统变量的默认值。默认值是平台特定的，取决于INSTALL_LAYOUT CMake选项的值。  
+ - -DINSTALL_STATIC_LIBRARIES=bool  
+ 是否安装静态库。默认为ON。如果设置为OFF，则不安装这些库：libmysqlclient.a，libmysqlservices.a。  
+ - -DMYSQL_DATADIR=dir_name  
+ MySQL数据目录的位置。该值可以在服务器启动时使用--datadir选项进行设置。  
+ - -DSYSCONFDIR=dir_name  
+ 默认的my.cnf选项文件位置。可以使用--defaults-file = file_name给定的选项文件启动服务器来进行修改。  
+ 其他的选项参考mysql的手册。  
+
+#### 2.2.3 存储引擎选项
+存储引擎作为插件来构建。可以将插件构建为静态模块（编译到服务器中）或者动态模块（构建为动态库时，为了使用它，必须使用INSTALL PLUGIN语句或--plugin-load选项将其安装到服务器中），一些插件不能支持静态或动态构建。  
+InnoDB， MyISAM， MERGE， MEMORY，和 CSV存储引擎是强制性静态的（总是编译到服务器中）无需显式安装。
+要将存储引擎静态编译到服务器中，请使用-DWITH_engine_STORAGE_ENGINE=1，engine的值可以是：ARCHIVE, BLACKHOLE, EXAMPLE, 和 FEDERATED，例如：  
+```s
+-DWITH_ARCHIVE_STORAGE_ENGINE=1 \
+-DWITH_BLACKHOLE_STORAGE_ENGINE=1
+```
+要从构建中排除某个引擎，请使用-DWITH_engine_STORAGE_ENGINE=0或者-DWITHOUT_engine_STORAGE_ENGINE=1  
+```s
+-DWITH_ARCHIVE_STORAGE_ENGINE=0
+-DWITH_EXAMPLE_STORAGE_ENGINE=0
+-DWITH_FEDERATED_STORAGE_ENGINE=0
+
+-DWITHOUT_ARCHIVE_STORAGE_ENGINE=1
+-DWITHOUT_EXAMPLE_STORAGE_ENGINE=1
+-DWITHOUT_FEDERATED_STORAGE_ENGINE=1
+```
+
+#### 2.2.4 特性选项
+下边列出重要的选项。  
+ - -DDEFAULT_CHARSET=charset_name  
+ 默认情况下，MySQL使用utf8mb4字符集。该值可以在服务器启动时使用--character_set_server选项进行设置。  
+ - -DDEFAULT_COLLATION=collation_name  
+ 服务器排序规则。默认情况下，MySQL使用utf8mb4_0900_ai_ci。可以在服务器启动时使用--collat​​ion_server选项设置此值。  
+ - -DMAX_INDEXES=num  
+ 每个表的最大索引数。默认值为64.最大值为255.小于64的值将被忽略，并使用默认值64。  
+ - -DMYSQLX_TCP_PORT=port_num  
+ X插件监听TCP/IP连接的端口号。默认值是33060。该值可在服务器启动时使用--mysqlx-port选项进行设置。  
+ - -DMYSQLX_UNIX_ADDR=file_name  
+ 服务器侦听X插件套接字连接的Unix套接字文件路径。这必须是绝对路径名称。默认值是/tmp/mysqlx.sock。该值可以在服务器启动时使用--mysqlx-socket选项进行设置。  
+ - -DMYSQL_TCP_PORT=port_num  
+ 服务器侦听TCP/IP连接的端口号。默认值是3306。该值可以在服务器启动时使用--port选项进行设置。  
+ - -DMYSQL_UNIX_ADDR=file_name  
+ 服务器侦听套接字连接的Unix套接字文件路径。这必须是绝对路径名称。默认是/tmp/mysql.sock。 这个值可以在服务器启动时用--socket选项来设置。  
+ 我们在默认情况下安装的话，使用netstat -an可以看到：  
+ ```
+ [root@localhost tmp]# netstat -an | grep -E '3306|mysql'
+ tcp6       0      0 :::33060                :::*                    LISTEN     
+ tcp6       0      0 :::3306                 :::*                    LISTEN     
+ unix  2      [ ACC ]     STREAM     LISTENING     2139620  /tmp/mysql.sock
+ unix  2      [ ACC ]     STREAM     LISTENING     2139623  /tmp/mysqlx.sock
+ unix  3      [ ]         STREAM     CONNECTED     3731765  /tmp/mysql.sock
+ ```
+ 如上有个CONNECTED状态的unix套接字文件，因为我们本地有个连接。  
+ - -DWITH_BOOST=path_name
+ Boost库是构建MySQL所必需的。这些CMake选项可以控制库的位置，以及是否自动下载它：  
+ > - -DWITH_BOOST=path_name，指定boost库的位置。也可以通过BOOST_ROOT 或者 WITH_BOOST环境变量指定。  
+ > - -DWITH_BOOST=system，只是mysql使用系统安装的boost来构建，而不是使用mysql源代码发行版中包含的任何版本。  
+ > - -DDOWNLOAD_BOOST=bool，是否下载Boost库。默认值为OFF。  
+ > - -DDOWNLOAD_BOOST_TIMEOUT=seconds，下载Boost库的超时时间（秒）。默认为600秒。  
+ 例如自动构建mysql：   
+ ```shell
+ mkdir bld
+ cd bld
+ cmake .. -DDOWNLOAD_BOOST=ON -DWITH_BOOST=$HOME/my_boost
+ ```
+ 这会使Boost下载到你的主目录下的my_boost目录中。如果所需的Boost版本已经存在，则不进行下载。如果所需的Boost版本更改，则会下载较新的版本。如果Boost已经在本地安装，并且编译器自己找到Boost头文件，则可能不需要指定前面的CMake选项。但是，如果MySQL所需的Boost版本已经升级但是本地安装的版本尚未升级，则可能会出现构建问题。通过上述方法将Boost下载到指定的位置，当所需的Boost版本发生更改时，你需要删除bld文件夹并重新创建它，然后再次执行cmake步骤。否则，新的Boost版本可能无法下载，编译可能会失败。  
+ - -DWITH_DEBUG=bool  
+ 是否支持debug。
+ - -DWITH_INNODB_MEMCACHED=bool  
+ 是否生成memcached共享库（libmemcached.so和 innodb_engine.so）。  
+ - -DWITH_LZ4=lz4_type  
+ 使用哪个lz4库。  
+ > - bundled：使用mysql发行版自带的lz4库。  
+ > - system：使用系统lz4库。  
+ - -DWITH_PROTOBUF=protobuf_type  
+ protobuf_type可以是以下值之一：  
+ > - bundled：使用与分发版捆绑在一起的软件包。这是默认设置。
+ > - system：使用系统上安装的软件包。
+ 其他值被忽略，回退到 bundled。
+ -DWITH_SSL={ssl_type|path_name}
+ 编译要使用的SSL库相关的位置信息。  
+ - -DWITH_ZLIB=zlib_type
+ 与-DWITH_LZ4类似。  
+如上我们学习了常用的选项，完整的选项，见[mysql手册](https://dev.mysql.com/doc/refman/8.0/en/source-configuration-options.html)。  
+
+#### 2.2.5 编译器标志
+ - -DCMAKE_C_FLAGS="flags"   
+ C编译器的标志。  
+ - -DCMAKE_CXX_FLAGS="flags"   
+ C ++编译器的标志。  
+ - -DWITH_DEFAULT_COMPILER_OPTIONS=bool  
+ 是否使用 cmake/build_configurations/compiler_options.cmake中的标志。  
+ ***注意：所有优化标志都经过了MySQL编译团队的仔细挑选和测试。因此不要随意的修改，除非你自己经过了严格的测试***。  
+ 例如，要在64位Linux机器上创建32位版本，请执行以下操作：  
+ ```
+ shell> mkdir bld
+ shell> cd bld
+ shell> cmake .. -DCMAKE_C_FLAGS=-m32 \
+         -DCMAKE_CXX_FLAGS=-m32 \
+         -DCMAKE_BUILD_TYPE=RelWithDebInfo
+ ```
+如上我们学习了常用的选项，完整的选项，见[mysql手册](https://dev.mysql.com/doc/refman/8.0/en/source-configuration-options.html)。  
+
+---
+
+## 3 升级或降级mysql
+软件升级是一种常见的过程。在生产环境升级之前，一定要先在测试环境执行升级过程，一切正常后才能在生产环境上进行。降级不常见。  
+***注意：不支持从MySQL 8.0降级到MySQL 5.7（或从一个MySQL 8.0发行版降级到以前的MySQL 8.0发行版）。唯一支持的方法是恢复升级前的备份，因此，在开始升级过程之前备份数据至关重要***   
+具体的见[mysql的手册](https://dev.mysql.com/doc/refman/8.0/en/upgrading-downgrading.html)。  
 
 
-### 2.2.3 存储引擎选项
-
-
-### 2.2.4 功能特性选项
-
-
-### 2.2.5 编译器标志
-  
