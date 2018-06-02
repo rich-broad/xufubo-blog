@@ -566,7 +566,10 @@ select TABLE_NAME from TABLES where TABLE_NAME like 'INNODB_%';
 | INNODB_VIRTUAL             |
 +----------------------------+
 ```
-接下来将意一一学习。  
+接下来将一一学习。  
+
+### 33.1 INNODB_BUFFER_PAGE
+
 
 
 
