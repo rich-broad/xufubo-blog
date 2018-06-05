@@ -569,6 +569,59 @@ select TABLE_NAME from TABLES where TABLE_NAME like 'INNODB_%';
 接下来将一一学习。  
 
 ### 33.1 INNODB_BUFFER_PAGE
+INNODB_BUFFER_PAGE表保存有关InnoDB缓冲池中每个页面的信息。  
+***警告：查询INNODB_BUFFER_PAGE表可能会导致显着的性能开销。不要在生产系统上查询此表，除非你知道你的查询可能具有的性能影响，并确定它可以接受。***  
+我们先看看这个表的定义：  
+```sql
+mysql> show create table INNODB_BUFFER_PAGE;
+CREATE TEMPORARY TABLE `INNODB_BUFFER_PAGE` (
+  `POOL_ID` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `BLOCK_ID` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `SPACE` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `PAGE_NUMBER` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `PAGE_TYPE` varchar(64) DEFAULT NULL,
+  `FLUSH_TYPE` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `FIX_COUNT` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `IS_HASHED` varchar(3) DEFAULT NULL,
+  `NEWEST_MODIFICATION` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `OLDEST_MODIFICATION` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `ACCESS_TIME` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `TABLE_NAME` varchar(1024) DEFAULT NULL,
+  `INDEX_NAME` varchar(1024) DEFAULT NULL,
+  `NUMBER_RECORDS` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `DATA_SIZE` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `COMPRESSED_SIZE` bigint(21) unsigned NOT NULL DEFAULT '0',
+  `PAGE_STATE` varchar(64) DEFAULT NULL,
+  `IO_FIX` varchar(64) DEFAULT NULL,
+  `IS_OLD` varchar(3) DEFAULT NULL,
+  `FREE_PAGE_CLOCK` bigint(21) unsigned NOT NULL DEFAULT '0'
+) ENGINE=MEMORY DEFAULT CHARSET=utf8;
+```
+可以看到，它是个临时表。   
+该表中的列的解释如下：  
+  
+|列名|描述|  
+|-|-|  
+|POOL_ID|缓冲池ID。用于区分多个缓冲池实例的标识符。|  
+|BLOCK_ID|缓冲池块ID。|  
+|SPACE|表空间ID，使用与INNODB_TABLES.SPACE中相同的值|  
+|PAGE_NUMBER|页号|  
+|PAGE_TYPE|页面类型。允许的值为：|  
+|FLUSH_TYPE|Flush 类型|  
+|FIX_COUNT|在缓冲池中使用此块的线程数。当为零时，该区块可以被释放。|  
+|IS_HASHED|哈希索引是否构建在此页面上。|  
+|NEWEST_MODIFICATION||  
+|OLDEST_MODIFICATION||  
+|ACCESS_TIME||  
+|TABLE_NAME||  
+|INDEX_NAME||  
+|NUMBER_RECORDS||  
+|DATA_SIZE||  
+|COMPRESSED_SIZE||  
+|PAGE_STATE||  
+|IO_FIX||  
+|IS_OLD||  
+|FREE_PAGE_CLOCK||  
 
 
 

@@ -226,3 +226,24 @@ InnoDB中，在将缓冲池中的数据刷新到磁盘时是以页面（InnoDB�
 
 
 
+## 7 InnoDB表空间
+### 7.1 调整InnoDB系统表空间的大小
+InnoDB的系统表空间
+
+
+## 8 InnoDB表和索引
+### 8.1 InnoDB表
+#### 8.1.1 创建InnoDB表
+```sql
+CREATE TABLE t1 (a INT, b CHAR (20), PRIMARY KEY (a)) ENGINE=InnoDB;
+```
+即：创建表时指定ENGINE=InnoDB，如果默认的存储引擎就是InnoDB，那么可以不用指定。确定默认存储引擎：  
+```sql
+mysql> SELECT @@default_storage_engine;
++--------------------------+
+| @@default_storage_engine |
++--------------------------+
+| InnoDB                   |
++--------------------------+
+```
+InnoDB表及其索引可以创建在 system tablespace,file-per-table tablespace 或者 general tablespace中。默认情况下，innodb_file_per_table是启用的。InnoDB表被创建在file-per-table tablespace中。相反，当innodb_file_per_table被禁用时，InnoDB表被创建在系统表空间中。要在常规表空间中创建表，请使用 CREATE TABLE ... TABLESPACE语法。更多信息参见[15.7.10 InnoDB General Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/general-tablespaces.html)。  
