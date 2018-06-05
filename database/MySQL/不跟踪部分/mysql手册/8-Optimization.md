@@ -175,7 +175,7 @@ mysql> explain select * from t1;
 ```sql
 mysql> show create table t2;
 +-------+---------------------------------------------------------------------------+
-| Table | Create Table                                                                                                       |
+| Table | Create Table                                                              |
 +-------+---------------------------------------------------------------------------+
 | t2    | CREATE TABLE `t2` (
   `id` int(11) DEFAULT NULL,
