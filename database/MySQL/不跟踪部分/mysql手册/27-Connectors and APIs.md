@@ -166,6 +166,101 @@ mysql客户端库的版本取决于库的分发类型：
  - my_bool：bool类型，0为false，非0为true。my_bool类型在MySQL 8.0之前使用。从MySQL 8.0开始，改为使用bool或int C类型。  
 这些结构体的定义包含在mysql.h中。这里不详细列出。  
 
+### 7.6 C API函数概述
+C API函数很多，关于它们的描述这里并不详细列出来，主要是说明使用上遵循的基本大纲：  
+ - 1、调用mysql_library_init（）来初始化MySQL客户端库。  
+ - 2、调用mysql_init（）来初始化连接处理程序，并通过调用mysql_real_connect（）连接到服务器。  
+ - 3、发出SQL语句并处理它们的结果。（下边会详细解释）。  
+ - 4、调用mysql_close（）关闭与MySQL服务器的连接。  
+ - 5、调用mysql_library_end（）。
+调用mysql_library_init（）和mysql_library_end（）的目的是为了正确初始化和销毁MySQL客户端库。在非多线程环境中，可以省略对mysql_library_init（）的调用，因为mysql_init（）将根据需要自动调用它。但是，在多线程环境中，mysql_library_init（）不是线程安全的，因此你必须在创建任何线程之前调用该函数，或者在mutex的保护下来调用该函数（不管是直接还是间接的）。这应该在任何其他客户端库调用之前完成。  
+要连接到服务器，请调用mysql_init（）来初始化连接处理程序（MYSQL），然后使用该处理程序调用mysql_real_connect（）。连接时，mysql_real_connect（）在5.0.3以前的API版本中将重连标志（MYSQL结构的一部分）设置为1，在较新版本中设置为0。重连标志的值为1表示如果由于连接丢失而无法执行语句时，mysql客户端会在放弃之前尝试重新连接到服务器。也可以使用mysql_options（）的MYSQL_OPT_RECONNECT选项来控制重新连接行为。当你使用完成后调用mysql_close（）来终止连接。  
+当连接处于活动状态时，客户端可以使用mysql_query（）或mysql_real_query（）向服务器发送SQL语句。两者之间的区别是：mysql_query接收的参数为C风格字符串，mysql_real_query接收的参数为带有计数的字符串。如果字符串包含二进制数据（可能包含空字节），则必须使用 mysql_real_query()。**在此，建议只用mysql_real_query()函数**。  
+对于每个非SELECT查询（例如，INSERT，UPDATE，DELETE），通过调用mysql_affected_rows（）可以找出有多少行被更改（受影响）。  
+客户端有两种处理结果集的方法。一种方法是通过调用mysql_store_result（）来一次性接收整个结果集。该函数从服务器获取查询返回的所有行并将它们存储在客户端中。第二种方法是让客户端通过调用mysql_use_result（）来启动逐行获取结果集，该函数初始化获取必要的操作，但实际上并未从服务器获取任何行。在这两种情况下，通过调用mysql_fetch_row（）来获取行。 对于mysql_store_result（）而言，mysql_fetch_row（）将访问之前从服务器获取的并存储在客户端的结果集(不在需要网络通信，mysql服务器的通信缓冲区可以释放并处理更多的查询，最为常用)。对于mysql_use_result（），mysql_fetch_row（）将从服务器获取行(将进行网络通信，并占用服务器资源，不常用)。不过具体使用哪种行为，还得看具体情况。有关每行数据大小的信息可通过调用mysql_fetch_lengths（）获得。  
+处理完结果集之后，调用mysql_free_result（）来释放它占用的内存。  
+mysql_store_result（）的一个优点是，因为所有的行都被存储到客户端，所以你不仅可以顺序访问行，也可以使用mysql_data_seek（）或mysql_row_seek（）在结果集中来回移动以更改结果集中的当前行位置来访问行。你也可以通过调用mysql_num_rows（）来查看一共有多少行。另一方面，对于大型结果集，mysql_store_result（）的内存要求可能非常高，你更可能遇到内存不足的情况。  
+mysql_use_result（）的一个优点是客户端对结果集所需的内存较少，因为它一次只维护一行。缺点是你必须快速处理每一行以避免客户端捆绑服务器，来占用服务器资源，对于繁忙的数据库服务器通常不这么做。你也不能随机访问结果集中的行（只能按顺序访问行），并且结果集中的行数是未知的，直到全部检索完为止。此外，即使你在检索过程中确定找到了你要查找的信息，也必须检索所有行，因为如果你不全部从服务器检索完，服务器不知道你是否需要剩下的行，服务器无法释放资源，会一直保留，并且返回给下一次查询，这会导致错误发生，因此必须检索完毕。  
+API可以判断出我们通过 mysql_query()或mysql_real_query()执行的是否是一个SELECT语句。你可以通过在每个mysql_query（）（或mysql_real_query（））之后调用mysql_store_result（）来完成此操作。如果结果集调用成功，则该语句是一个SELECT，你可以读取这些行。如果结果集调用失败，请调用mysql_field_count（）来确定结果是否确实是预期的。如果mysql_field_count（）返回零，则语句不返回任何数据（表示它是INSERT，UPDATE，DELETE等等这些非SELECT语句，注意：像 SHOW, DESCRIBE, EXPLAIN都是SELECT类语句，因为它们都返回结果集），并不希望返回数据行。如果mysql_field_count（）不为零，则表示该语句应该返回数据行，却没有返回。这表明该语句是一个失败的SELECT类语句，这个过程如下：  
+```C
+MYSQL_RES *result;
+unsigned int num_fields;
+unsigned int num_rows;
+
+if (mysql_query(&mysql,query_string))
+{
+    // error
+}
+else // query succeeded, process any data returned by it
+{
+    result = mysql_store_result(&mysql);
+    if (result)  // there are rows
+    {
+        num_fields = mysql_num_fields(result);
+        // retrieve rows, then call mysql_free_result(result)
+    }
+    else  // mysql_store_result() returned nothing; should it have?
+    {
+        if(mysql_field_count(&mysql) == 0)
+        {
+            // query does not return data
+            // (it was not a SELECT)
+            num_rows = mysql_affected_rows(&mysql);
+        }
+        else // mysql_store_result() should have returned data
+        {
+            fprintf(stderr, "Error: %s\n", mysql_error(&mysql));
+        }
+    }
+}
+```
+更加详细的说明，见：[27.7.7.22 mysql_field_count()](https://dev.mysql.com/doc/refman/8.0/en/mysql-field-count.html)。  
+如上，我们看到，当mysql_store_result返回NULL时会调用mysql_field_count来判断是否真的发生了错误，可见mysql_store_result返回为NULL不一定表示失败，具体的见：[27.7.25.1 Why mysql_store_result() Sometimes Returns NULL After mysql_query() Returns Success](https://dev.mysql.com/doc/refman/8.0/en/null-mysql-store-result.html)。  
+mysql_store_result（）和mysql_use_result（）都使你可以获得有关组成结果集的字段（字段数，它们的名称和类型等）的信息。你可以通过重复调用mysql_fetch_field（）来依次访问行内的字段信息，也可以通过行的字段号调用mysql_fetch_field_direct()来获取字段信息。通过调用mysql_field_seek（）可以更改当前字段位置。设置字段位置会影响对mysql_fetch_field（）的后续调用（可见，mysql_fetch_field（）依赖于结果集中字段的游标位置，只是每次简单的往前移动）。你也可以通过调用mysql_fetch_fields（）一次获得所有字段的信息。这些例子如下：  
+```C
+MYSQL_FIELD *field;
+
+while((field = mysql_fetch_field(result)))
+{
+    printf("field name %s\n", field->name);
+}
+```
+
+```C
+unsigned int num_fields;
+unsigned int i;
+MYSQL_FIELD *field;
+
+num_fields = mysql_num_fields(result);
+for(i = 0; i < num_fields; i++)
+{
+    field = mysql_fetch_field_direct(result, i);
+    printf("Field %u is %s\n", i, field->name);
+}
+```
+```C
+unsigned int num_fields;
+unsigned int i;
+MYSQL_FIELD *fields;
+
+num_fields = mysql_num_fields(result);
+fields = mysql_fetch_fields(result);
+for(i = 0; i < num_fields; i++)
+{
+   printf("Field %u is %s\n", i, fields[i].name);
+}
+```
+
+为了检测和报告错误，MySQL通过mysql_errno（）和mysql_error（）函数提供对错误信息的访问.这些将返回最近调用的函数的错误代码或错误消息。从而使你能够确定何时发生错误以及它是什么。  
+
+以上是C API使用的基本大纲，至于每一个函数详细的描述这里不在啰嗦，现用现查。后边会从源码的角度分析一下一些非常重要的函数的实现。  
+  
+### 7.7 
+
+
+
+
+
 
 
 
