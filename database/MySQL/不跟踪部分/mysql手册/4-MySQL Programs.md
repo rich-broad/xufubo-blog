@@ -218,4 +218,68 @@ Enter password: ******
 ### 2.6 使用选项(配置)文件
 
 ### 2.7 
-## 3、重要的mysql程序
+
+## 3、MySQL服务器和服务器启动程序 
+ - [mysqld](https://dev.mysql.com/doc/refman/8.0/en/mysqld.html) — The MySQL Server
+ - [mysqld_safe](https://dev.mysql.com/doc/refman/8.0/en/mysqld-safe.html) — MySQL Server Startup Script
+ - [mysql.server](https://dev.mysql.com/doc/refman/8.0/en/mysql-server.html) — MySQL Server Startup Script
+ - [mysqld_multi](https://dev.mysql.com/doc/refman/8.0/en/mysqld-multi.html) — Manage Multiple MySQL Servers
+### 3.1 mysqld-MySQL服务器
+mysqld是执行mysql大部分工作的主要程序。一些支持调试的版本为：mysqld-debug（如何构建，参考：[2.8.4 MySQL Source-Configuration Options](https://dev.mysql.com/doc/refman/8.0/en/source-configuration-options.html)）。  
+mysqld程序有许多选项可以在启动时指定。有关选项的完整列表，请运行以下命令：  
+```shell
+shell> mysqld --verbose --help
+```
+MySQL服务器还有一组在运行时影响其操作的系统变量，可以在服务器启动时设置系统变量，并且可以在运行时更改许多系统变量以实现服务器的动态配置。MySQL服务器还有一组状态变量，提供有关其运行的信息。你可以通过监视这些状态变量来获取运行时的性能特征。有关MySQL服务器命令选项，系统变量和状态变量的完整说明，请参阅[The MySQL Server](https://dev.mysql.com/doc/refman/8.0/en/mysqld-server.html)。关于安装MySQL并设置初始配置的信息，请参阅[Chapter 2 Installing and Upgrading MySQL](https://dev.mysql.com/doc/refman/8.0/en/installing.html)。  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 4、MySQL安装相关程序
+
+## 5、MySQL客户端程序
+ - [mysql] — 交互式命令行工具。  
+ - [mysqladmin] — 用于管理MySQL服务器的客户端。  
+ - [mysqlcheck] — 一个表格维护客户端。  
+ - [mysqldump] — 数据库备份程序。  
+ - [mysqlimport] — 数据导入程序。  
+ - [mysqlpump] — 数据库备份程序。  
+ - [mysqlsh] — mysql Shell。  
+ - [mysqlshow] — 显示有关数据库，表，列和索引信息的客户端。  
+ - [mysqlslap] — load模拟客户端。  
+
+## 6、MySQL管理和实用程序
+
+## 7、MySQL程序开发实用程序
+
+
+## 8、杂项程序
+
+## 9、MySQL程序环境变量
+
+

@@ -212,6 +212,105 @@ mysql> explain select * from t2 where id = 1;
 +----+-------------+-------+------------+-------+---------------+-------+---------+-------+------+----------+-------+
 1 row in set, 1 warning (0.00 sec)
 ```
+```sql
+mysql> show create table t;
++-------+------------------------------------------------------------------------------+
+| Table | Create Table                                                                 |
++-------+------------------------------------------------------------------------------+
+| t     | CREATE TABLE `t` (
+  `a` int(10) unsigned zerofill DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 |
++-------+------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
 
+mysql> show create table t2;
++-------+------------------------------------------------------------------------------+
+| Table | Create Table                                                                 |
++-------+------------------------------------------------------------------------------+
+| t2    | CREATE TABLE `t2` (
+  `id` int(11) DEFAULT NULL,
+  `col` int(11) DEFAULT NULL,
+  UNIQUE KEY `uk_id` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 |
++-------+------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
 
+mysql> show create table t4;
++-------+------------------------------------------------------------------------------+
+| Table | Create Table                                                                 |
++-------+------------------------------------------------------------------------------+
+| t4    | CREATE TABLE `t4` (
+  `id` int(11) DEFAULT NULL,
+  `col` int(11) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 |
++-------+------------------------------------------------------------------------------+
+1 row in set (0.00 sec)
+
+mysql> select * from t;
++------------+
+| a          |
++------------+
+| 0000001000 |
+| 0000000657 |
+| 0000000657 |
++------------+
+3 rows in set (0.01 sec)
+
+mysql> select * from t2;
++------+------+
+| id   | col  |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    7 |
++------+------+
+3 rows in set (0.00 sec)
+
+mysql> select * from t4;
++------+------+
+| id   | col  |
++------+------+
+|    1 |    1 |
+|    2 |    2 |
+|    3 |    7 |
++------+------+
+3 rows in set (0.00 sec)
+mysql> explain select * from t4, t where t4.id = t.a;
++----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+----------------------------------------------------+
+| id | select_type | table | partitions | type | possible_keys | key  | key_len | ref  | rows | filtered | Extra                                              |
++----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+----------------------------------------------------+
+|  1 | SIMPLE      | t     | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    2 |   100.00 | NULL                                               |
+|  1 | SIMPLE      | t4    | NULL       | ALL  | NULL          | NULL | NULL    | NULL |    3 |    33.33 | Using where; Using join buffer (Block Nested Loop) |
++----+-------------+-------+------------+------+---------------+------+---------+------+------+----------+----------------------------------------------------+
+2 rows in set, 1 warning (0.00 sec)
+
+mysql> explain select * from t2, t where t2.id = t.a;
++----+-------------+-------+------------+------+---------------+-------+---------+----------+------+----------+-----------------------+
+| id | select_type | table | partitions | type | possible_keys | key   | key_len | ref      | rows | filtered | Extra                 |
++----+-------------+-------+------------+------+---------------+-------+---------+----------+------+----------+-----------------------+
+|  1 | SIMPLE      | t     | NULL       | ALL  | NULL          | NULL  | NULL    | NULL     |    2 |   100.00 | Using where           |
+|  1 | SIMPLE      | t2    | NULL       | ref  | uk_id         | uk_id | 5       | test.t.a |    1 |   100.00 | Using index condition |
++----+-------------+-------+------------+------+---------------+-------+---------+----------+------+----------+-----------------------+
+2 rows in set, 1 warning (0.00 sec)
+
+```
+  
+如上是一些例子，接下来，详细的对各个列的含义进行说明：  
+ - id（JSON名： select_id）：SELECT标识符。这是SELECT查询的内部连续编号。
+ - select_type （JSON名称：无）：可以是下表的任何类型。  
+  
+ |select_type值|JSON名称|含义|  
+ |-|-|-|   
+ |SIMPLE|无|简单SELECT（不使用 UNION或子查询）|  
+ |PRIMARY|无|Outermost SELECT|  
+ |UNION|无||  
+ |DEPENDENT UNION|dependent (true)||  
+ |UNION RESULT|union_result||  
+ |SUBQUERY|无||  
+ |DEPENDENT SUBQUERY|dependent (true)||  
+ |DERIVED|无||  
+ |MATERIALIZED|materialized_from_subquery||  
+ |UNCACHEABLE SUBQUERY|cacheable (false)||  
+ |UNCACHEABLE UNION|cacheable (false)||  
+   
 
