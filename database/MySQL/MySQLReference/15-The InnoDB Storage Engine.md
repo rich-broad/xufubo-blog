@@ -316,3 +316,7 @@ mysql> SELECT @@default_storage_engine;
 +--------------------------+
 ```
 InnoDB表及其索引可以创建在 system tablespace,file-per-table tablespace 或者 general tablespace中。默认情况下，innodb_file_per_table是启用的。InnoDB表被创建在file-per-table tablespace中。相反，当innodb_file_per_table被禁用时，InnoDB表被创建在系统表空间中。要在常规表空间中创建表，请使用 CREATE TABLE ... TABLESPACE语法。更多信息参见[15.7.10 InnoDB General Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/general-tablespaces.html)。  
+
+
+
+
