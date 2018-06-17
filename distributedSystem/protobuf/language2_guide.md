@@ -676,19 +676,3 @@ protoc --proto_path=IMPORT_PATH --cpp_out=DST_DIR --java_out=DST_DIR --python_ou
   - --python_out: 在DST_DIR中生成Python代码。
 为方便起见，如果DST_DIR以.zip或.jar结尾，则编译器会将输出写入一个具有给定名称的ZIP格式存档文件。根据Java JAR规范的要求，.jar输出也会生成一个清单文件在里边。请注意，如果输出文件已经存在，它将被覆盖；编译器不够智能，无法将文件添加到现有的存档文件中。
  - 你必须提供一个或多个.proto文件作为输入。可以一次性指定多个.proto文件。虽然这些文件是相对于当前目录命名的，每个文件必须驻留在其中一个IMPORT_PATH中，以便编译器可以确定其规范名称。
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
