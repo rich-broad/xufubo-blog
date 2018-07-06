@@ -317,6 +317,32 @@ mysql> SELECT @@default_storage_engine;
 ```
 InnoDB表及其索引可以创建在 system tablespace,file-per-table tablespace 或者 general tablespace中。默认情况下，innodb_file_per_table是启用的。InnoDB表被创建在file-per-table tablespace中。相反，当innodb_file_per_table被禁用时，InnoDB表被创建在系统表空间中。要在常规表空间中创建表，请使用 CREATE TABLE ... TABLESPACE语法。更多信息参见[15.7.10 InnoDB General Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/general-tablespaces.html)。  
 
+默认情况下，当在file-per-table tablespace模式下创建一个表时，MySQL会在MySQL数据目录下的数据库目录中创建一个.ibd表空间文件。在InnoDB系统表空间中创建的表是在现有的ibdata文件中创建的，该文件位于MySQL数据目录中。在general tablespace中创建的表被放在general tablespace的.ibd文件中。可以在MySQL数据目录的内部或外部创建general tablespace文件。更多信息参见[15.7.10 InnoDB General Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/general-tablespaces.html)。  
 
+在内部实现层面，InnoDB将每个表的条目添加到数据字典中。该条目包括数据库名称。例如，如果在test数据库中创建了表t1，则数据库名称的数据字典条目为'test/t1'，这意味着在InnoDB内部，你可以在不同的数据库中创建相同的表，而不会冲突。  
+
+**InnoDB表格和行格式**  
+InnoDB表的默认行格式由innodb_default_row_format配置选项定义，其默认值为DYNAMIC。动态(Dynamic)和压缩(Compressed)行格式时你可以充分利用InnoDB的一系列优良特性，例如：表压缩和长列值的高效页外存储。要使用这些行格式，必须启用innodb_file_per_table（默认值）。  
+```sql
+SET GLOBAL innodb_file_per_table=1;
+CREATE TABLE t3 (a INT, b CHAR (20), PRIMARY KEY (a)) ROW_FORMAT=DYNAMIC;
+CREATE TABLE t4 (a INT, b CHAR (20), PRIMARY KEY (a)) ROW_FORMAT=COMPRESSED;
+```
+或者，可以使用CREATE TABLE ... TABLESPACE语法在通用表空间中(general tablespace)创建InnoDB表。通用表空间中(general tablespace)支持所有行格式。
+```sql
+CREATE TABLE t1 (c1 INT PRIMARY KEY) TABLESPACE ts1 ROW_FORMAT=DYNAMIC;
+```
+CREATE TABLE ... TABLESPACE语法还可用于在系统表空间中创建具有动态行格式的InnoDB表，以及具有Compact或Redundant行格式的表。  
+```sql
+CREATE TABLE t1 (c1 INT PRIMARY KEY) TABLESPACE = innodb_system ROW_FORMAT=DYNAMIC;
+```
+有关InnoDB行格式的更多信息，请参阅[15.10 InnoDB Row Storage and Row Formats](https://dev.mysql.com/doc/refman/8.0/en/innodb-row-format.html)。有关如何确定InnoDB表的行格式和InnoDB行格式的物理特征，请参阅[15.8.1.2 The Physical Row Structure of an InnoDB Table](https://dev.mysql.com/doc/refman/8.0/en/innodb-physical-record.html)。  
+
+**InnoDB表和主键**  
+始终为InnoDB表定义主键，特别是指定以下特点的列：  
+ - 被最重要的查询引用。
+ - 永远不会留空。
+ - 永远不会有重复的值。
+ - 一旦插入很少改变的值。  
 
 
