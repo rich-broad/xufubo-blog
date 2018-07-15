@@ -8,7 +8,7 @@ InnoDB的主要优点包括：
  - InnoDB表将数据存放在磁盘上，根据主键优化查询 。每个 InnoDB表都有一个主键索引，称为聚集索引（即：索引和行数据存储在一块，行数据按照主键排序），用于组织数据以使主键查找时的I/O最小化。
  - 为了保证数据完整性， InnoDB支持 FOREIGN KEY约束。使用外键时，将检查插入，更新和删除操作，以确保它们不会导致不同表之间的不一致。  
  **InnoDB存储引擎的主要功能如下：**  
-   
+     
  |特征|是否支持|  
  |-|-|  
  |B树索引|支持|  
@@ -343,6 +343,75 @@ CREATE TABLE t1 (c1 INT PRIMARY KEY) TABLESPACE = innodb_system ROW_FORMAT=DYNAM
  - 被最重要的查询引用。
  - 永远不会留空。
  - 永远不会有重复的值。
- - 一旦插入很少改变的值。  
+ - 一旦插入很少改变的值（这是因为InnoDB将数组组织成索引组织表，即：主键索引树中也包含行记录）。  
 
+**查看InnoDB表属性**  
+要查看InnoDB表的属性，请使用SHOW TABLE STATUS 语句：  
+```sql
+mysql> SHOW TABLE STATUS FROM test LIKE 't%' \G;
+*************************** 1. row ***************************
+           Name: t1
+         Engine: InnoDB
+        Version: 10
+     Row_format: Compact
+           Rows: 0
+ Avg_row_length: 0
+    Data_length: 16384
+Max_data_length: 0
+   Index_length: 0
+      Data_free: 0
+ Auto_increment: NULL
+    Create_time: 2015-03-16 15:13:31
+    Update_time: NULL
+     Check_time: NULL
+      Collation: utf8mb4_0900_ai_ci
+       Checksum: NULL
+ Create_options:
+        Comment:
+```
+也可以使用Information Schema系统表查询表属性：  
+```sql
+mysql> SELECT * FROM INFORMATION_SCHEMA.INNODB_TABLES WHERE NAME='test/t1' \G
+*************************** 1. row ***************************
+     TABLE_ID: 45
+         NAME: test/t1
+         FLAG: 1
+       N_COLS: 5
+        SPACE: 35
+   ROW_FORMAT: Compact
+ZIP_PAGE_SIZE: 0
+   SPACE_TYPE: Single
+```
 
+#### 8.1.2 InnoDB表的物理行结构
+InnoDB表的物理行结构取决于创建表时指定的物理行格式。如果未指定，使用默认行格式，默认行格式由innodb_default_row_format 配置选项定义 ，其默认值为 DYNAMIC。  
+接下来描述InnoDB各种行格式的信息：  
+ - 确定InnoDB表的行格式  
+ - Redundant行格式的特征
+ - COMPACT行格式的特征
+ - DYNAMIC 和 COMPRESSED 行格式的特征
+有关InnoDB行格式的更多信息，见 [Section 15.10 InnoDB Row Storage and Row Formats](https://dev.mysql.com/doc/refman/8.0/en/innodb-row-format.html)。   
+
+**确定InnoDB表的行格式**   
+
+``sql
+mysql> SHOW TABLE STATUS IN test1\G;
+-- 或者
+SELECT NAME, ROW_FORMAT FROM INFORMATION_SCHEMA.INNODB_TABLES WHERE NAME='test1/t1';
+```
+
+**Redundant行格式的特点**    
+REDUNDANT格式可用于保持与旧版MySQL的兼容性。使用REDUNDANT行格式的表具有如下特点：  
+ - 每个索引记录包含一个6字节的标头。标头用于将连续记录链接在一起，也用于行级锁定。  
+ - 聚簇索引中的记录包含用户定义的所有列。此外，还有一个6字节的事务ID字段和一个7字节的滚动指针字段。  
+ - 如果没有为表定义主键，则每个聚簇索引记录还包含一个6字节的行ID字段。  
+ - 
+
+**COMPACT行格式的特征**   
+与REDUNDANT格式相比，COMPACT行格式减少了大约20％的行存储空间，但代价是增加了某些操作的CPU使用。如果你的工作负载是一个受缓存命中率和磁盘速度限制的典型工作负载（受限于内存大小和IO），COMPACT格式可能更快（因为COMPACT格式会增加CPU消耗）。如果工作负载受限于CPU，则COMPACT格式会更慢。COMPACT行格式的特点如下：  
+ - 
+
+**DYNAMIC 和 COMPRESSED 行格式的特征**  
+DYNAMIC和COMPRESSED行格式是COMPACT行格式的变体。有关这些行格式的信息，请参阅[15.10.3 DYNAMIC and COMPRESSED Row Formats](https://dev.mysql.com/doc/refman/8.0/en/innodb-row-format-dynamic.html)。  
+
+#### 8.1.3 移动或复制InnoDB表

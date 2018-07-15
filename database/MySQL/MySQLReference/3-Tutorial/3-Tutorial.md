@@ -14,7 +14,7 @@ Enter password: ********
 shell> mysql -u user -p
 ```
 键入QUIT来退出mysql程序。   
-
+  
 ---
 ## 2、输入查询
 MySQL可以包含多个数据库，如上与服务器建立连接后并未选择任何数据库。此时依然可以与mysqld进行交互。例如像MySQL服务器询问版本和当前日期：  

@@ -127,7 +127,7 @@ rpm -qa | grep -i mysql
 
 # 停止mysql
 /etc/init.d/mysql.server stop
-
+  
 # 删除mysql对应的文件夹
 find / -name mysql
 rm -rf ....
