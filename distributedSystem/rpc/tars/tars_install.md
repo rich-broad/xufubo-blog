@@ -88,7 +88,8 @@ make install
 
 --------------------------------------------------------------------------------------------------------------------
 然后安装mysql:  
-[mysql安装](../../database/MySQL/MySQLReference/2-installing_and_upgrading_mysql/2-Installing and Upgrading MySQL.md)
+
+[mysql安装](../../../database/MySQL/MySQLReference/2-installing_and_upgrading_mysql/2-Installing and Upgrading MySQL.md)
 
 安装完之后，配置mysql，这里是个例子：  
 
@@ -870,7 +871,8 @@ root     103489  0.1  1.1 794040 21088 ?        Sl   Oct15   4:52 /usr/local/app
  - tars框架基础服务依赖的mysql数据库服务器slave部署在另一台虚拟机上；  
  - 我的真实电脑与这两台虚拟机构成了一个分布式环境；  
  - 在防火墙关闭的情况下，在我的真实电脑上输入：http://192.168.58.128:3000 ， 就会出现如下页面：  
- ![tars web管理端][./image/tars_finish.jpg]   
+
+![img][./image/tars_finish.jpg]   
 
 接下就可以使用tars进行业务开发了。  
 
