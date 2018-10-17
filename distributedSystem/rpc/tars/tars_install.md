@@ -35,6 +35,7 @@ drwxr-xr-x 1 fuboxu 1049089     0 十月 13 14:17 tup/
 drwxr-xr-x 1 fuboxu 1049089     0 十月 13 14:17 web/
 ```
 如上tars源码的主要目录如下：  
+  
 |目录|功能|  
 |-|-|   
 |framework|C++语言实现的框架基础服务的源码实现|  
@@ -427,8 +428,8 @@ sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
 # 以下为复制配置
 log-bin=mysql-bin
 server_id=6
-innodb_flush_log_at_trx_commit=1
-sync_binlog=1
+innodb_flush_log_at_trx_commit=1  # 非常重要
+sync_binlog=1     # 对于复制来说非常重要
 ```
 
 **slave**
@@ -623,6 +624,7 @@ drwxr-xr-x.  9 root root 4096 Oct 13 19:33 tarscpp
 drwxr-xr-x.  3 root root 4096 Oct 13 19:24 thirdparty
 ```
 核心服务如下：  
+  
 |目录名称|功能|     
 |-|-|  
 |sql|创建TARS框架运行环境的数据库的脚本和sql工具|   
@@ -639,7 +641,7 @@ drwxr-xr-x.  3 root root 4096 Oct 13 19:24 thirdparty
 |NotifyServer|异常上报统计服务|   
 |deploy|核心基础服务的模版配置和工具脚本|   
 |tarscpp|Tars RPC框架C++语言的源代实现|   
-
+  
 框架服务的安装分两种：  
 一种是核心基础服务(必须的)，必须手工部署的，  
 一种是普通基础服务(可选的)，可以通过管理平台发布的(和普通服务一样）。  
