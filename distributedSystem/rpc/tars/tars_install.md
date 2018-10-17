@@ -872,7 +872,7 @@ root     103489  0.1  1.1 794040 21088 ?        Sl   Oct15   4:52 /usr/local/app
  - 我的真实电脑与这两台虚拟机构成了一个分布式环境；  
  - 在防火墙关闭的情况下，在我的真实电脑上输入：http://192.168.58.128:3000 ， 就会出现如下页面：  
 
-![img][image/tars_finish.jpg]   
+![img][image/tars_finish.png]   
 
 接下就可以使用tars进行业务开发了。  
 
