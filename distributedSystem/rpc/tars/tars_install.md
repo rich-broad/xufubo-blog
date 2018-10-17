@@ -272,39 +272,27 @@ Install the project...
 -- Installing: /usr/local/tars/cpp/tools/pb2tarscpp
 -- Installing: /usr/local/tars/cpp/include/servant
 -- Installing: /usr/local/tars/cpp/include/servant/Transceiver.h
--- Installing: /usr/local/tars/cpp/include/servant/ServantProxy.h
--- Installing: /usr/local/tars/cpp/include/servant/EndpointF.h
 ............
 -- Installing: /usr/local/tars/cpp/include/servant/EndpointInfo.h
 -- Installing: /usr/local/tars/cpp/include/servant/Message.h
--- Installing: /usr/local/tars/cpp/include/servant/TarsCurrent.h
--- Installing: /usr/local/tars/cpp/include/servant/BaseF.h
 -- Installing: /usr/local/tars/cpp/include/tup
 -- Installing: /usr/local/tars/cpp/include/tup/RequestF.tars
--- Installing: /usr/local/tars/cpp/include/tup/Tars.h
--- Installing: /usr/local/tars/cpp/include/tup/CMakeLists.txt
--- Installing: /usr/local/tars/cpp/include/tup/RequestF.h
 -- Installing: /usr/local/tars/cpp/include/jmem
 -- Installing: /usr/local/tars/cpp/include/jmem/jmem_hashmap.h
 -- Installing: /usr/local/tars/cpp/include/jmem/jmem_queue.h
 -- Installing: /usr/local/tars/cpp/include/promise
 -- Installing: /usr/local/tars/cpp/include/promise/promise.h
 ......
--- Installing: /usr/local/tars/cpp/include/promise/promise_exception.h
 -- Installing: /usr/local/tars/cpp/include/promise/tuple.h
 -- Installing: /usr/local/tars/cpp/./script
 -- Installing: /usr/local/tars/cpp/./script/create_tars_server.sh
--- Installing: /usr/local/tars/cpp/./script/http_demo
 ......
 -- Installing: /usr/local/tars/cpp/./script/demo/DemoServer.h
-......
--- Installing: /usr/local/tars/cpp/./script/demo/DemoServer.cpp
 -- Installing: /usr/local/tars/cpp/./makefile
 -- Installing: /usr/local/tars/cpp/./makefile/makefile.tars
 -- Installing: /home/tarsproto/protocol/AdminF.tars
 -- Installing: /home/tarsproto/protocol/AdminF.h
 ..........
--- Installing: /home/tarsproto/protocol/StatF.tars
 -- Installing: /home/tarsproto/protocol/StatF.h
 # -- Installing: /usr/local/tars/cpp/lib/libtarsservant.a
 [root@localhost build]# 
@@ -745,7 +733,9 @@ tarspatch/util/init.sh
 在管理平台上面配置tarspatch，注意需要配置服务的可执行目录(/usr/local/app/tars/tarspatch/bin/tarspatch)  
 在管理平台上面配置tarsconfig，注意需要配置服务的可执行目录(/usr/local/app/tars/tarsconfig/bin/tarsconfig)  
 tarsnode需要配置监控，避免不小心挂了以后会启动，需要在crontab里面配置  
- - * * * * * /usr/local/app/tars/tarsnode/util/monitor.sh   
+```shell
+* * * * * /usr/local/app/tars/tarsnode/util/monitor.sh   
+ ```
 
 
 ### 2.2.4 特殊基础服务--tarsnode
@@ -786,8 +776,9 @@ chmod u+x tarsnode_install.sh
 ./tarsnode_install.sh
 ```
 配置监控，避免不小心挂了以后会启动，需要在crontab里面配置   
-
+```shell
 * * * * * /usr/local/app/tars/tarsnode/util/monitor.sh   
+```
 
 **由于我只在一台机器上部署的tars框架，因此，这一步不需要进行**
 ------------------------------------------------------------------------------------------------------------------
