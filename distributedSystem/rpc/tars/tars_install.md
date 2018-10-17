@@ -89,7 +89,7 @@ make install
 --------------------------------------------------------------------------------------------------------------------
 然后安装mysql:  
 
-[mysql安装](../../../database/MySQL/MySQLReference/2-installing_and_upgrading_mysql/2-Installing and Upgrading MySQL.md)
+[mysql安装](../../../database/MySQL/MySQLReference/2-installing_and_upgrading_mysql/2-Installing-and-Upgrading-MySQL.md)
 
 安装完之后，配置mysql，这里是个例子：  
 
