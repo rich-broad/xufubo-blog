@@ -392,7 +392,7 @@ total 42668
   - > libtarsservant.a：tars RPC CPP实现的核心，最核心的就是网络通信的实现和管理，后续的CPP RPC服务需要连接该库。     
   - > libtarsutil.a：基础库，CPP实现依赖该库，后续如果选择CPP进行业务开发，也会依赖该库。  
  - makefile：包含一个很大的makefile，我们在开发的时候，需要包含这个基础makefile
- - script：demo
+ - script：demo和自动创建代码的脚本create_http_server.sh，create_tars_server.sh
  - tools：将tars协议文件翻译成各种语言文件的工具。  
 
 ### 2.2.2 Tars数据库环境初始化

@@ -302,6 +302,23 @@ sRsp:hello, world!
 ```
 如此，一个完整的客户端和服务端就编写完成了。这个例子的目的就是快速感受一下  
 
+## 小节
+以上是我们手动创建的，其实，这些基础的文件可以通过在安装框架时安装的脚本自动生成，如下：  
+```shell
+/usr/local/tars/cpp/script/create_tars_server.sh TestApp HelloServer Hello  
+```
+以上命令将生成如下目录和文件：  
+```shell
+目录：
+TestApp/
+TestApp/HelloServer
+文件：
+HelloImp.cpp  HelloImp.h  HelloServer.cpp  HelloServer.h  Hello.tars  makefile
+```
+
+你自己可以看看，在这里不再赘述。  
+
+
 ## 部署中遇到的问题
 之前搭建好了开发学习环境，后来在关机之前，将虚拟机挂起了，但是当我再次重启的时候，虚拟机没有网卡，后来重新挂起虚拟机，然后又执行可以了，但是我发现web管理端访问有问题，自己去排查，发现web管理端的进程是在运行的。那肯定就是web管理端调用的服务有问题。通过ps aux | grep tars 发现，tarsnode服务没有启动，后来发现是我的/etc/hosts没有生效，然后重启网络：service network  restart， 启动tarsnode，ok了。  
 
