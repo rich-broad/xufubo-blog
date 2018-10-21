@@ -215,7 +215,7 @@ int HelloImp::testHello(const std::string &sReq, std::string &sRsp, tars::TarsCu
  ![after](./image/hello_svr_apply_after.png)  
  - 发布：  
  ![patch](./image/hello_svr_patch.png)    
- ![patch_suc](./image/hello_svr_patch_suc.png)   
+ ![patch_suc](./image/hello_svr_path_suc.png)   
 
 如上就完成了服务端的编写。接下来编写客户端。  
 
