@@ -8,7 +8,9 @@
 
 ## 编写服务端
 我们是在虚拟机上搭建的开发环境，为了使用windows上的编辑器，我们打算使用虚拟机vmware的共享文件夹功能，vmware默认情况下，共享文件夹过载在：/mnt/hgfs/下，我这里使用的是：/mnt/hgfs/CentOSOne/，并创建了自己学习的目录，最后得到如下目录：  
+  
 1. cd /mnt/hgfs/CentOSOne/tars_study/HelloServer  
+
 2. 创建tars协议文件：Hello.tars，内容如下：  
 ```tars
 module TestApp
