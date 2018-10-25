@@ -524,7 +524,8 @@ mysql> show slave status \G;
 -----------------------------------------------------------------------------------------------------------------------
 这时，在master上的操作就会复制到从机上。   
 
-**注意：在设置slave时要使用MASTER_SSL = 1，否则会出现slave连接master失败的情况。**   
+**注意：在设置slave时要使用MASTER_SSL = 1，否则会出现slave连接master失败的情况。**  
+**为了使通过caching_sha2_password插件进行身份验证的用户帐户连接到主站，你必须按照[Section 17.3.9 Setting Up Replication to Use Encrypted Connections](https://dev.mysql.com/doc/refman/8.0/en/replication-solutions-encrypted-connections.html)**   
 
 配置好主从复制之后，开始初始化框架运行基础服务的数据：  
 
@@ -856,7 +857,7 @@ root     103489  0.1  1.1 794040 21088 ?        Sl   Oct15   4:52 /usr/local/app
 
 至此我们可以看到，如下11个基础服务：  
  - 手工部署的核心基础服务：tarsAdminRegistry, tarsregistry, tarsnode, tarsconfig, tarspatch  
- - 通过管理平台部署的普通基础服务：tarsstat, tarsproperty,tarsnotify, tarslog，tarsquerystat，tarsqueryproperty 
+ - 通过管理平台部署的普通基础服务：tarsstat, tarsproperty,tarsnotify, tarslog，tarsquerystat，tarsqueryproperty   
 都部署好并且成功启动了。    
 
 现在小结一下我构建的环境：  
