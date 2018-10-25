@@ -171,6 +171,49 @@ CHANGE MASTER TO语句也有其他选项。例如，可以使用SSL设置安全�
 #### 再次重要提示 
  - 如果没有使用安全连接，但是MASTER_USER选项中指定的帐户使用caching_sha2_password插件进行身份验证，这时，为了正常连接，你必须在CHANGE MASTER TO语句中指定MASTER_PUBLIC_KEY_PATH或GET_MASTER_PUBLIC_KEY选项以启用基于RSA密钥对的密钥交换。  
 
+## 2.8 将从站添加到复制环境
+ 可以在不停止主站的情况下将另一个从站添加到现有复制配置中。为此，可以通过复制现有从站的数据目录来设置新从站，并为新从站提供不同的服务器ID（用户指定的）和服务器UUID（在启动时生成）。  
+#### 复制现有从站的步骤如下：
+1. 停止现有从站并记录从站状态信息(从站状态信息包括什么？)，特别是主站二进制日志文件和中继日志文件的位置。可以在Performance Schema复制表中查看从站状态，或通过SHOW SLAVE STATUS语句，如下：  
+```sql
+mysql> STOP SLAVE;
+mysql> SHOW SLAVE STATUS\G
+```
+2. 关闭现有从站
+```sql
+shell> mysqladmin shutdown
+```
+3. 将数据目录从现有从站copy到新从站，包括日志文件和中继日志文件。您可以通过使用tar或WinZip创建存档，或使用cp或rsync等工具执行直接复制来完成此操作。  
+**重要提示：**
+ - > 1. copy之前，确认与现有从站相关的所有文件是否都存储在数据目录中。例如，InnoDB系统表空间，撤消表空间和重做日志可能存储在其他位置。InnoDB表空间文件和file-per-table表空间可能已在其他目录中创建。从站的二进制日志和中继日志可能位于数据目录外的其他目录中，你需要检查为现有从站设置的系统变量，并查找已指定的任何其他路径，如果找到任何内容，请同时复制这些目录（*总之就是把从站的所有字节都完整的拷贝到新的从站中*）。    
+ - > 2. 在copy过程中，如果文件已经用于 “主站的信息” 和 “中继日志的信息” 存储库([Section 17.2.4, “Replication Relay and Status Logs”](https://dev.mysql.com/doc/refman/8.0/en/slave-logs.html))，也要确保将这些文件从现有从站复制到新从站，如果表已用于存储库，默认情况下，对于mysql 8.0，这些表存放在数据目录中，因此，复制数据目录就可以（还是强调了要将数据完全拷贝）。  
+ - > 3. copy之后，从新从站上的数据目录副本中删除auto.cnf文件，这样新的从站就会以不同的UUID启动，服务器UUID必须是唯一的。  
+
+添加新从站时遇到的一个常见问题是新从站失败并出现一系列警告和错误消息，如下所示：  
+```sql
+071118 16:44:10 [Warning] Neither --relay-log nor --relay-log-index were used; so
+replication may break when this MySQL server acts as a slave and has his hostname
+changed!! Please use '--relay-log=new_slave_hostname-relay-bin' to avoid this problem.
+071118 16:44:10 [ERROR] Failed to open the relay log './old_slave_hostname-relay-bin.003525'
+(relay_log_pos 22940879)
+071118 16:44:10 [ERROR] Could not find target log during relay log initialization
+071118 16:44:10 [ERROR] Failed to initialize the master info structure
+```
+如果未指定--relay-log选项，则会发生这种情况，因为中继日志文件包含主机名作为其文件名的一部分。如果未使用--relay-log-index选项，则中继日志索引文件也是如此。详见[Section 17.1.6, “Replication and Binary Logging Options and Variables”](https://dev.mysql.com/doc/refman/8.0/en/replication-options.html)。  
+
+要避免此问题，请在新从站上使用与现有从站相同的--relay-log 值。如果未在现有从站上显式设置此选项，请使用 existing_slave_hostname-relay-bin（existing_slave_hostname为现有从站的主机名）。这也就是为什么在配置主站和从站时一定要配置这些信息的原因。如果无法做到这一点，请将现有从站的中继日志索引文件复制到新从站，并在新从站上将--relay-log-index选项的值设置为现有从站上该选项的值。如果未在现有从站上明确设置此选项，使用existing_slave_hostname-relay-bin.index（existing_slave_hostname为现有从站的主机名）。如果你已按照本节中的**其余步骤**尝试启动新从站并遇到前面描述的错误，请这么做：  
+ - > a. 停止现有从站和新从站。  
+ - > b. 将现有从站的中继日志索引文件的内容复制到新从站的中继日志索引文件中，确保覆盖该文件中已有的任何内容。  
+ - > b. 继续本节中的其余步骤。  
+
+4. copy完成后，重新启动现有从站。  
+5. 编辑新从站的配置，设置唯一的server-id（没有被主站和其他从站使用）。  
+6. 指定--skip-slave-start选项启动新的从站以便复制暂时不要启动。通过查询Performance Schema复制表或者发出SHOW SLAVE STATUS语句来确认与现有从站相比，新从站具有正确的设置，同时要注意新从站的server-id和server-UUID正确并且唯一。  
+7. 通过发出START SLAVE语句启动从站线程：  
+```sql
+mysql> START SLAVE;
+```
+完成了，新从站可以开始工作了。  
 
 ## 本节的疑问
 1. 一台主站开始禁用了binlog，后来启用了binlog，这时从站该如何设置？需要先把主站的数据快照同步到从站然后开启复制，还是只需要开启主站日志，配置从站即可？（我的理解是需要先把主站的数据快照同步到从站然后开启复制，后边验证后来回答这个问题）。  
