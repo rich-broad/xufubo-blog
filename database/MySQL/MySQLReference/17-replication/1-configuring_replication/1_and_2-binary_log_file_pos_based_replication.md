@@ -146,7 +146,7 @@ shell> mysqldump --all-databases --master-data > dbdump.db
 
 --------------------------------------------------------------------------------------------------------
 
-从站使用 “主站信息状态日志” 和 “中继日志的信息日志” 来跟踪它已经处理的主站二进制日志的进度（*这两份日志在主站中为空，在从从站中会记录详细的复制进度信息*）。从MySQL 8.0开始，默认情况下，这些从属状态日志的存储库是mysql数据库中名为slave_master_info和slave_relay_log_info的表。也可以设置--master-info-repository = FILE和--relay-log-info-repository = FILE，这时这些信息被存储在master.info和relay-log.info文件中，现在已被弃用，并且会在将来的版本中删除。  
+**从站**使用 “主站信息状态日志” 和 “中继日志的信息日志” 来跟踪它已经处理的主站二进制日志的进度（*这两份日志在主站中为空，在从从站中会记录详细的复制进度信息*）。从MySQL 8.0开始，默认情况下，这些从属状态日志的存储库是mysql数据库中名为slave_master_info和slave_relay_log_info的表。也可以设置--master-info-repository = FILE和--relay-log-info-repository = FILE，这时这些信息被存储在master.info和relay-log.info文件中，现在已被弃用，并且会在将来的版本中删除。  
 
 除非你明确知道自己在做什么并完全理解其含义，否则不要删除或编辑这些表（或文件）。如果真的需要，也最好使用CHANGE MASTER TO语句来更改复制参数。从站使用语句中指定的值自动更新从站状态日志。更多信息见：[Section 17.2.4, “Replication Relay and Status Logs”](https://dev.mysql.com/doc/refman/8.0/en/slave-logs.html).    
 
@@ -205,6 +205,17 @@ changed!! Please use '--relay-log=new_slave_hostname-relay-bin' to avoid this pr
  - > a. 停止现有从站和新从站。  
  - > b. 将现有从站的中继日志索引文件的内容复制到新从站的中继日志索引文件中，确保覆盖该文件中已有的任何内容。  
  - > b. 继续本节中的其余步骤。  
+
+看一下中继日志索引文件的内容和binlog索引文件的内容：  
+```shell
+[root@localhost data]# cat mysql-relay-bin.index 
+/usr/local/mysql/data/mysql-relay-bin.000003
+/usr/local/mysql/data/mysql-relay-bin.000004
+
+[root@localhost data]# cat mysql-bin.index 
+./mysql-bin.000001
+./mysql-bin.000002
+```
 
 4. copy完成后，重新启动现有从站。  
 5. 编辑新从站的配置，设置唯一的server-id（没有被主站和其他从站使用）。  

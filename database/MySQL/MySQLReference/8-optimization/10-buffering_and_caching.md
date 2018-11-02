@@ -3,13 +3,13 @@ mysql使用了一系列的内存缓存策略来提高性能。本节对mysql的b
 # 1、InnoDB缓冲池(buffer pool)优化
 InnoDB维护一个称为缓冲池的存储区域，用于在内存中缓存数据和索引。了解InnoDB缓冲池如何工作，并利用它来将频繁访问的数据保存在内存中，是MySQL调优的一个重要方面（核心思想是将热点数据全都cache在内存中来增快访问速度）。有关InnoDB缓冲池内部工作原理的说明，见[Section 15.9, “InnoDB Buffer Pool”](https://dev.mysql.com/doc/refman/8.0/en/innodb-buffer-pool.html)。   
 更多的bufer pool的调优，可以参考如下章节：  
- - [Section 15.6.3.4, “Configuring InnoDB Buffer Pool Prefetching (Read-Ahead)”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-read_ahead.html)  
- - [Section 15.6.3.5, “Configuring InnoDB Buffer Pool Flushing”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-adaptive_flushing.html)  
- - [Section 15.6.3.3, “Making the Buffer Pool Scan Resistant”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-midpoint_insertion.html)  
- - [Section 15.6.3.2, “Configuring Multiple Buffer Pool Instances”](https://dev.mysql.com/doc/refman/8.0/en/innodb-multiple-buffer-pools.html)  
- - [Section 15.6.3.7, “Saving and Restoring the Buffer Pool State”](https://dev.mysql.com/doc/refman/8.0/en/innodb-preload-buffer-pool.html)  
- - [Section 15.6.3.6, “Fine-tuning InnoDB Buffer Pool Flushing”](https://dev.mysql.com/doc/refman/8.0/en/innodb-lru-background-flushing.html)  
- - [Section 15.6.3.1, “Configuring InnoDB Buffer Pool Size”](https://dev.mysql.com/doc/refman/8.0/en/innodb-buffer-pool-resize.html)  
+ - [Section 15.7.3.4, “Configuring InnoDB Buffer Pool Prefetching (Read-Ahead)”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-read_ahead.html)  
+ - [Section 15.7.3.5, “Configuring InnoDB Buffer Pool Flushing”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-adaptive_flushing.html)  
+ - [Section 15.7.3.3, “Making the Buffer Pool Scan Resistant”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-midpoint_insertion.html)  
+ - [Section 15.7.3.2, “Configuring Multiple Buffer Pool Instances”](https://dev.mysql.com/doc/refman/8.0/en/innodb-multiple-buffer-pools.html)  
+ - [Section 15.7.3.7, “Saving and Restoring the Buffer Pool State”](https://dev.mysql.com/doc/refman/8.0/en/innodb-preload-buffer-pool.html)  
+ - [Section 15.7.3.6, “Fine-tuning InnoDB Buffer Pool Flushing”](https://dev.mysql.com/doc/refman/8.0/en/innodb-lru-background-flushing.html)  
+ - [Section 15.7.3.1, “Configuring InnoDB Buffer Pool Size”](https://dev.mysql.com/doc/refman/8.0/en/innodb-buffer-pool-resize.html)  
 
 # 2、MyISAM键缓存
 为了最小化磁盘I/O，MyISAM存储引擎也使用许多数据库管理系统使用的策略。它采用缓存机制将最常访问的数据保存在内存中：  

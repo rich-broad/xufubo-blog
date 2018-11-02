@@ -81,6 +81,7 @@ RENAME TABLE general_log TO general_log_backup, general_log2 TO general_log;
 ## 4.2 错误日志
 错误日志主要记录服务器本身的错误信息，例如：启动失败，关闭失败，异常退出，需要进行表修复等，这些错误消息都会写入错误日志。  
 
+### 4.2.1 错误日志组件配置
 
 
 
