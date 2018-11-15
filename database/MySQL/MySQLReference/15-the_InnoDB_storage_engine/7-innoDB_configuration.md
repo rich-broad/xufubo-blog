@@ -102,6 +102,32 @@ innodb_data_file_path=/path/to/myibdata/ibdata1:50M;/path/to/myibdata/ibdata2:50
 ```
 ### 7.1.5 重做日志文件配置
 默认情况下，InnoDB会在数据目录中创建两个5MB的重做日志文件：ib_logfile0和ib_logfile1。以下选项可用于修改默认配置：  
+ - innodb_log_group_home_dir定义了InnoDB重做日志文件的路径。如果未配置此选项，则会在MySQL数据目录（datadir）中创建InnoDB重做日志文件。可以使用此选项将InnoDB日志文件放在与InnoDB数据文件不同的物理存储位置，以避免潜在的I / O资源冲突。例如：  
+ ```conf
+[mysqld]
+innodb_log_group_home_dir = /dr3/iblogs
+ ```
+ > **注意：**   
+ > InnoDB不创建目录，因此在启动之前确保目录已经存在。  
+ > 确保MySQL服务器具有在数据目录中创建文件的适当访问权限。更一般地说，服务器必须在需要创建数据文件的任何目录中具有访问权限。  
+
+ - innodb_log_files_in_group定义了重做日志组中的日志文件数。默认值和建议值为2。  
+ - innodb_log_file_size定义重做日志组中每个日志文件的大小（以字节为单位）。日志文件的总大小（innodb_log_file_size * innodb_log_files_in_group）不能超过一个略小于512GB的最大值。例如，一对255 GB的日志文件接近限制但不超过它。默认重做日志文件大小为48MB。通常，日志文件的总大小应该足够大，以至于服务器可以消除工作负载活动中的高峰和低谷，这通常意味着有足够的重做日志空间来处理超过一小时的写入活动。值越大，缓冲池中需要的检查点刷新活动越少，从而节省了磁盘I/O。更多信息见[Section 8.5.4, “Optimizing InnoDB Redo Logging”](https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-logging.html)。    
+
+### 7.1.6 撤消表空间配置
+
+### 7.1.7 全局临时表空间配置
+
+
+### 7.1.8 会话临时表空间配置
+
+
+### 7.1.9 页面大小配置
+innodb_page_size选项用于配置MySQL实例中InnoDB所有表空间的页面大小。创建实例时设置此值之后要保持其不变。有效值包括：64KB，32KB，16KB（默认值），8KB和4KB。也可以直接指定对应的字节数（65536,32768,16384,8192,4096）。   
+
+默认情况下，页面大小为16KB，适用于各种工作负载，特别是涉及表扫描和涉及批量更新的DML查询。对于涉及许多小写入的OLTP工作负载，较小的页面大小可能更有效，其中当单个页面包含许多行时锁争用可能是一个性能问题。较小的页面也可能对SSD存储设备更加有效，后者通常使用较小的块大小。保持InnoDB页面大小接近存储设备块大小可以最大限度地减少将未更改数据重复写到磁盘的数量。    
+
+### 7.1.10 内存配置
 
 
 
