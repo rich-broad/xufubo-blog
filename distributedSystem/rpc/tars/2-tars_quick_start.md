@@ -1,3 +1,6 @@
+---
+title: tars 快速入门
+---
 # 引言
 在 [tars install](./tars_install.md) 中详细的介绍了tars的安装，部署了如下开发环境：  
  - mysql主从环境  

@@ -1,3 +1,6 @@
+---
+title: tars cpp开发指南
+---
 # 引言
 在[tars快速开始](2-tars_quick_start.md) 中，我们通过一个简单的例子介绍了tars的使用，接下来归纳总结一下tars使用时的规范。  
 # 命名规范
