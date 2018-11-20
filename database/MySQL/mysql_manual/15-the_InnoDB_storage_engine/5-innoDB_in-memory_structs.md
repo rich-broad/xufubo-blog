@@ -1,11 +1,135 @@
 ---
 title: InnoDB内存结构
 ---
-# 4、InnoDB内存结构
+# 5、InnoDB内存结构
 本节介绍InnoDB存储引擎体系结构中内存中的主要组件。  
 
-## 4.1 缓冲池(buffer pool)
-缓冲池是内存中的一个缓冲区， InnoDB将表和索引的热点数据缓冲在这里，这样，当访问数据库数据时，就可以直接访问内存中的数据，而无需访问磁盘，这就减少了IO，提高了速度。通常，在专用的数据库服务器上，通常将多达80％的物理内存分配给InnoDB缓冲池。为了实现大容量内存操作的效率，缓冲池被组织为页面的链表，链表使用改进的LRU算法维护。  
+## 5.1 缓冲池(buffer pool)
+缓冲池是内存中的一个缓冲区， InnoDB将表和索引的热点数据缓冲在这里，这样，当访问数据库数据时，就可以直接访问内存中的数据，而无需访问磁盘，这就减少了IO，提高了速度。通常，在专用的数据库服务器上，通常将多达80％的物理内存分配给InnoDB缓冲池。为了实现大容量内存操作的效率，缓冲池被组织为可以容纳多行数据的页面的链表，链表使用改进的LRU算法维护。了解如何利用缓冲池将频繁访问的数据保存在内存中是MySQL调优的一个重要方面。  
+
+#### 缓冲池LRU算法
+使用最近最少使用（LRU）算法的变体将缓冲池作为页面列表进行管理。当需要空间将新页面添加到缓冲池时，最近最少使用的页面被逐出（如果为脏页，则需要刷新到磁盘），将新页面添加到列表的中间。这种中点插入策略将列表视为两个子列表：  
+ - 在头部，是最近访问过的新（“年轻”）页面子列表。  
+ - 在尾部，是最近访问的旧页面子列表（替换的对象）。  
+
+如下：  
+![buffer pool list](../image/innodb-buffer-pool-list.png)  
+
+该算法将查询中大量使用的页面维护在新页面子列表中。旧页面子列表包含较少使用的页面;这些页面将来是被逐出的对象。默认情况下，算法如下运行：  
+ - 3/8的缓冲池专用于旧页面子列表。  
+ - 列表的中点是新子列表的尾部与旧子列表的头部相交的边界。  
+ - 当InnoDB将页面读入缓冲池时，它最初将其插入中点（旧子列表的头部，其实就是访问一次并不代表一定就是热数据，放在这里其实就是说明可能是热数据，如果接下来又有几次访问，那无疑是热数据了）。
+ - 访问旧子列表中的页面会使其变“年轻”，会将其移动到缓冲池的头部（新子列表的头部）。如果因为需要而读入页面，则会立即进行第一次访问，并使页面变得年轻.如果由于预读而读入了页面，则第一次访问不会立即发生（并且在页面被逐出之前可能根本不会发生）。  
+ - 当数据库运行时，缓冲池中的页面通过移动到列表的尾部将不会被“访问”。  
+
+默认情况下，查询读取的页面会立即移动到新的子列表中，这意味着它们会在缓冲池中停留更长时间。表扫描（例如为mysqldump操作执行，或者没有WHERE子句的SELECT语句）可以将大量数据带入缓冲池并驱逐等量的旧数据，即使这些新数据再也不会使用。由预读后台线程加载然后仅访问一次的页面移动到新列表的头部与此类似。这些情况反而将经常使用的页面推送到了旧的子列表中，在那里它们会被驱逐，缓存命中率会降低，性能会降低。有关优化此行为的信息，请参阅：[Section 15.8.3.3, “Making the Buffer Pool Scan Resistant”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-midpoint_insertion.html), [Section 15.8.3.4, “Configuring InnoDB Buffer Pool Prefetching (Read-Ahead)”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-read_ahead.html)。  
+
+InnoDB标准监视器输出包含BUFFER POOL和MEMORY部分中有关缓冲池LRU算法操作的几个字段。有关详情，请参阅[](https://dev.mysql.com/doc/refman/8.0/en/innodb-buffer-pool.html#innodb-buffer-pool-monitoring)。  
+
+#### 缓冲池的配置
+您可以配置缓冲池的各个方面以提高性能。  
+ - 理想情况下，缓冲池越大越好。详见[Section 15.8.3.1, “Configuring InnoDB Buffer Pool Size”](https://dev.mysql.com/doc/refman/8.0/en/innodb-buffer-pool-resize.html)    
+ - 在具有足够内存的64位系统上，建议配置多个缓冲池实例，以最大限度地减少并发操作中内存结构的争用。详见[15.8.3.2 Configuring Multiple Buffer Pool Instances](https://dev.mysql.com/doc/refman/8.0/en/innodb-multiple-buffer-pools.html)  
+ - 可以通过配置缓冲池，避免一次突然的访问高峰将现有的热点数据逐出（例如表扫描，可能很多数据只访问一次再也不会访问，这种数据就不应该保留在缓冲池中），更多信息见[Section 15.8.3.3, “Making the Buffer Pool Scan Resistant”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-midpoint_insertion.html)  
+ - 可以控制何时以及如何执行预读请求，以异步方式将预期很快就会访问的页面预取到缓冲池中。更多信息见：[Section 15.8.3.4, “Configuring InnoDB Buffer Pool Prefetching (Read-Ahead)”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-read_ahead.html)  
+ - 可以控制何时发生后台刷新以及是否根据工作负载动态调整刷新频率。更多信息见：[Section 15.8.3.5, “Configuring InnoDB Buffer Pool Flushing”](https://dev.mysql.com/doc/refman/8.0/en/innodb-performance-adaptive_flushing.html)  
+ - 可以微调缓冲池刷新行为的各个方面以提高性能。更多信息见：[Section 15.8.3.6, “Fine-tuning InnoDB Buffer Pool Flushing”](https://dev.mysql.com/doc/refman/8.0/en/innodb-lru-background-flushing.html)  
+ - 可以配置InnoDB如何保留当前缓冲池状态，以避免服务器重新启动后的长时间预热。更多信息见：[Section 15.8.3.7, “Saving and Restoring the Buffer Pool State”](https://dev.mysql.com/doc/refman/8.0/en/innodb-preload-buffer-pool.html)  
+
+#### 使用InnoDB标准监视器监视缓冲池
+可以使用SHOW ENGINE INNODB STATUS访问InnoDB标准监视器的输出，输出会提供有关缓冲池操作的指标。缓冲池指标位于InnoDB标准监视器输出的BUFFER POOL AND MEMORY部分，显示类似于以下内容：  
+```sql
+mysql> SHOW ENGINE INNODB STATUS \G;
+*************************** 1. row ***************************
+  Type: InnoDB
+  Name: 
+Status: 
+=====================================
+2018-11-20 19:45:10 0x7f112238a700 INNODB MONITOR OUTPUT
+=====================================
+Per second averages calculated from the last 41 seconds
+-----------------
+BACKGROUND THREAD
+-----------------
+srv_master_thread loops: 677997 srv_active, 0 srv_shutdown, 1857554 srv_idle
+......
+6770455 log i/o's done, 3.51 log i/o's/second
+----------------------
+BUFFER POOL AND MEMORY
+----------------------
+Total large memory allocated 137428992
+Dictionary memory allocated 25331364
+Buffer pool size   8192
+Free buffers       1024
+Database pages     7106
+Old database pages 2603
+Modified db pages  9
+Pending reads      0
+Pending writes: LRU 0, flush list 0, single page 0
+Pages made young 2539, not young 69298
+0.00 youngs/s, 0.00 non-youngs/s
+Pages read 2918, created 39878, written 9717963
+0.00 reads/s, 0.02 creates/s, 5.15 writes/s
+Buffer pool hit rate 1000 / 1000, young-making rate 0 / 1000 not 0 / 1000
+Pages read ahead 0.00/s, evicted without access 0.00/s, Random read ahead 0.00/s
+LRU len: 7106, unzip_LRU len: 0
+I/O sum[231]:cur[0], unzip sum[0]:cur[0]
+--------------
+ROW OPERATIONS
+--------------
+0 queries inside InnoDB, 0 queries in queue
+......
+----------------------------
+END OF INNODB MONITOR OUTPUT
+============================
+```
+**注意：InnoDB标准监视器输出中提供的每秒平均值基于自上次打印InnoDB标准监视器输出以来经过的时间。**   
+下表描述了InnoDB Standard Monitor报告的缓冲池指标。  
+*Table 15.2 InnoDB Buffer Pool Metrics(度量)*  
+
+|名字|描述|  
+|-|-|  
+|Total memory allocated|为缓冲池分配的总内存（以字节为单位）|  
+|Dictionary memory allocated|为InnoDB数据字典分配的总内存（以字节为单位）|  
+|Buffer pool size|分配给缓冲池的页面的总大小（页面数）|  
+|Free buffers|缓冲池空闲列表的页面总数|  
+|Database pages|缓冲池LRU列表的页面总数|  
+|Old database pages|缓冲池旧LRU子列表的页面总数|  
+|Modified db pages|缓冲池中当前修改的页数（脏页，刷新之后就是0）|  
+|Pending reads|等待读入缓冲池的缓冲池页数。|  
+|Pending writes LRU|要从LRU列表底部写入磁盘的缓冲池中的旧脏页数|  
+|Pending writes flush list|在检查点期间要刷新的缓冲池页数|  
+|Pending writes single page|缓冲池中挂起的独立页面写入次数|  
+|Pages made young|缓冲池LRU列表中年轻的总页数（位于新子列表）|  
+|Pages made not young|缓冲池LRU列表中老的总页数（位于旧子列表）|  
+|youngs/s|缓冲池的LRU列表中导致页面变年轻的每秒访问旧页面的平均值。有关详细信息，请参阅此表后面的注释。|  
+|non-youngs/s|缓冲池的LRU列表中不会导致页面变年轻的每秒访问旧页面的平均值。有关详细信息，请参阅此表后面的注释。|  
+|Pages read|从缓冲池中读取的总页数|  
+|Pages created|缓冲池中创建的总页数|  
+|Pages written|从缓冲池写入磁盘的总页数。|  
+|reads/s|缓冲池页面每秒读取次数的平均值|  
+|creates/s|每秒创建的缓冲池页面的平均数|  
+|writes/s|缓冲池页面每秒被写入磁盘次数的平均值|  
+|Buffer pool hit rate|从缓冲池内存中读取的页面与从磁盘存储中读取的页面的缓冲池页面命中率|  
+|young-making rate|导致页面变年轻的页面访问的平均命中率。有关详细信息，请参阅此表后面的注释|  
+|not (young-making rate)|没有导致页面变年轻的页面访问的平均命中率。有关详细信息，请参阅此表后面的注释|  
+|Pages read ahead|每秒预读操作的平均值|  
+|Pages evicted without access|在没有从缓冲池访问的情况下被逐出的页面的每秒平均值|  
+|Random read ahead|随机预读操作的每秒平均值。|  
+|LRU len|缓冲池LRU列表的页面总数|  
+|unzip_LRU len|缓冲池unzip_LRU列表的页面总数|  
+|I/O sum|最近50秒访问的缓冲池LRU列表页面总数|  
+|I/O cur|当前访问的缓冲池LRU列表页面的总数|  
+|I/O unzip sum|最近50秒访问的缓冲池unzip_LRU列表页面总数|  
+|I/O unzip cur|当前访问的缓冲池unzip_LRU列表页面的总数|  
+  
+**注释：**  
+ - youngs/s仅适用于旧页面。它基于页面访问次数而不是页数。可以对给定页面进行多次访问，所有这些访问都被计算在内。如果在没有发生大型扫描时看到非常低的youngs / s值，则可能需要减少延迟时间或增加用于旧子列表的缓冲池的百分比。因为增加百分比使旧的子列表变大，因此该子列表中的页面需要更长的时间才能移动到尾部，这增加了再次访问这些页面并使其变得年轻的可能性。  
+ - non-youngs/s仅适用于旧页面。它基于页面访问次数而不是页数。可以对给定页面进行多次访问，所有这些访问都被计算在内。如果在执行大型表扫描时没有看到更高的non-youngs/s值（以及更高的youngs/s值），请增加延迟时间。
+ - young-making rate 统计对所有的缓冲池页面的访问（新和旧），young-making rate和not (young-making rate)加起来通常小于缓冲池整体命中率（Buffer pool hit rate）。因为旧子列表中的页面命中会导致页面移动到新的子列表。但是，新子列表中的页面命中会导致页面仅在距离头部一定距离时才移动到列表的头部。  
+ - not (young-making rate) 是由于innodb_old_blocks_time定义的延迟未被满足而导致页面访问未导致页面变年轻的平均命中率，或者由于新子列表中页面的访问不会导致页面移动到头部的命中率。该指标也统计对所有的缓冲池页面的访问（新和旧）。  
+
+ 缓冲池服务器状态变量和INNODB_BUFFER_POOL_STATS表也提供InnoDB Standard Monitor输出的很多指标，详见[Example 15.10, “Querying the INNODB_BUFFER_POOL_STATS Table”](https://dev.mysql.com/doc/refman/8.0/en/innodb-information-schema-buffer-pool-tables.html#innodb-information-schema-buffer-pool-stats-example)。  
 
 ## 4.2 改变缓冲(Change Buffer)
 存储引擎设计中的一个挑战是写入操作期间的随机I/O。在InnoDB中，一个表将具有一个聚集索引和零个或多个辅助索引。这些索引中的每一个都是一个B+树。将记录插入到表中时，首先将该记录插入到聚簇索引中，然后再插入到每个辅助索引中。因此，所产生的I/O操作将随机分布在磁盘上。对于更新和删除操作，I/O模式也是随机的。为了减轻这个问题，InnoDB存储引擎使用一种称为Change Buffer的特殊数据结构（因为以前称为插入缓冲区，因此你将看到内部在很多场景下用ibuf和IBUF表示Change Buffer）。Change Buffer是另一个B+树，用于缓冲对辅助索引以及辅助索引页面相关的改变。InnoDB中只有一个Change Buffer，并且保留在系统表空间中。Change Buffer树的根页面在系统表空间（空间id为0）中，固定为FSP_IBUF_TREE_ROOT_PAGE_NO（等于4）。当服务器启动时，通过使用此固定页码来加载Change Buffer树。你可以参考函数ibuf_init_at_db_start() 了解更多详细信息。Change Buffer的总大小是可配置的，旨在确保完整的Change Buffer树可以驻留在内存中。使用innodb_change_buffer_max_size系统变量配置Change Buffer的大小。
@@ -80,85 +204,3 @@ MySQL [(none)]> SHOW variables like '%innodb_adaptive_hash_index%';
 重做日志文件的主要目的是，万一实例或者介质失败（media failure），重做日志文件就能派上用场。如数据库由于所在主机掉电导致实例失败，InnoDB存储引擎会使用重做日志恢复到掉电前的时刻，以此来保证数据的完整性。默认情况下会有两个文件，名称分别为ib_logfile0和ib_logfile1。MySQL官方手册中将其称为InnoDB存储引擎的日志文件，不过更准确的定义应该是重做日志文件（redo log file）。   
 重做日志缓冲区是用来保存要写入[重做日志(redo log)](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_redo_log)的数据的内存区域。重做日志缓冲区大小由innodb_log_buffer_size 配置选项定控制。重做日志缓冲区会定期刷新到磁盘上的重做日志文件。大型重做日志缓冲区可以实现大型事务的运行，无需在事务提交之前不断的将重做日志写入磁盘。因此，如果有更新，插入或删除许多行的事务，使日志缓冲区更大，可以节省磁盘I/O。  
 innodb_flush_log_at_trx_commit 选项控制如何将重做日志缓冲区的内容写入日志文件。innodb_flush_log_at_timeout 选项控制重做日志缓冲区刷新频率。  
-
-## 4.5 系统表空间(System Tablespace)
-InnoDB系统表空间包含InnoDB的数据字典（InnoDB数据对象的元数据），并且也是doublewrite buffer, change buffer, and undo logs的存储区域，系统表空间还包含用户创建的表和索引的数据，因此系统表空间是一个共享表空间，因为它被多个表（包括不同数据库中的表）共享。  
-系统表空间由一个或多个数据文件表示。默认情况下，MySQL 在data目录中创建一个名为ibdata1的系统数据文件。系统数据文件的大小和数量由innodb_data_file_path启动选项控制 。   
-
-## 4.6 双写缓冲(Doublewrite Buffer)
-InnoDB中，在将缓冲池中的数据刷新到磁盘时是以页面（InnoDB的页面，通常为16KB）为单位的，这时可能会出现部分页面写入的问题。所谓部分页面写入是指向操作系统提交的页面写入请求仅部分完成。例如，在16K 的Innodb页面中，只有第一个4KB（文件系统的块通常为4KB）的块被写入磁盘，其他部分保持原来的状态。最常见的部分页面写入一般在发生电源故障时发生。也可能发生在操作系统崩溃时。另外，如果使用软件RAID，页面可能会出现在需要多个IO请求的条带边界上。如果硬件RAID没有电池备份，电源故障时也会发生这种情况。如果对磁盘本身发出单个写入，即使电源掉电，在理论上也应完成写入，因为驱动器内部应该有足够的电源来完成它。但是真的很难检查是否总是这样，因为它不是部分页面写入的唯一原因。在Innodb Doublewrite Buffer实施之前，确实会有数据损坏。  
-有的人会问，数据损坏可以使用重做日志来恢复呀，但是，请注意，InnoDB并不会将整个页面的内容写入重做日志，而是记录的对页面的操作，例如将某个偏移量处的值加2，使用重做日志进行恢复的基础是表空间中的实际数据页面在内部是完整的一致的，它是哪个页面版本无关紧要 ，但是如果页面不一致，则无法继续恢复，因为你的基础数据就是不一致的。为此引入了Doublewrite Buffer来解决问题。  
-理解了为什么需要Doublewrite Buffer，也就不难理解Doublewrite Buffer如何工作了。具体来说就是：你可以将Doublewrite Buffer视为系统表空间中的一个短期日志文件，它包含100个页的空间。当Innodb从Innodb缓冲池中刷新页面时，InnoDB首先会将页面写入双写缓冲区（顺序），然后调用fsync（）以确保它们保存到磁盘，然后将页面写入真正的数据文件并第二次调用fsync（））。现在Innodb恢复的时候会检查表空间中数据页面的内容和Doublewrite Buffer中页面的内容。如果在双写缓冲区中的页面不一致，则简单地丢弃它，如果表空间中的数据页面不一致，则从双写缓冲区中恢复。那么会不会出现都不一致的情况呢？这个不会，以内是先写Doublewrite Buffer，后写表空间中真实的数据页面，这样，当Doublewrite Buffer中不一致时表示系统崩溃了，也就无法继续执行了，就不会收到Doublewrite Buffer是否写成功的响应，也就不会发出真实的数据页面的写操作，这样的话必然不会出现二者都损坏的情况。  
-虽然Doublewrite Buffer的加入会使每次刷新数据时写两次磁盘，但是性能不会大幅下降，因为Doublewrite Buffer的写入是顺序的。所以一般来说，由于使用Doublewrite而不会超过5-10％的性能损失。但是数据是无价之宝，比起这个，这点损失可以接受。  
-那么Doublewrite是否可以禁用的？默认是开启的，要禁用Doublewrite，可以设置innodb_doublewrite=0。当然了前提是你可以忍受数据丢失。  
-如果系统表空间文件（“ ibdata文件 ”）位于支持原子写入的Fusion-io设备上，则自动禁用Doublewrite Buffer，并将Fusion-io原子写入用于所有数据文件。因为双写缓冲区设置是全局的，因此对非Fusion-io硬件上的数据文件也将禁用Doublewrite Buffer。此功能仅在Fusion-io硬件上并且仅在Linux上启用Fusion-io NVMFS下受支持。要充分利用此功能，建议使用innodb_flush_method设置 O_DIRECT。  
-因此最好不要禁用Doublewrite Buffer。除非可以忍受数据丢失。  
-
-## 4.7 撤销日志(Undo Logs)
-撤消日志是与单个事务关联的撤消日志记录的集合，撤销日志记录包含有关如何撤消事务对聚集索引记录的最新更改的信息。如果另一个事务需要查看原始数据（为了实现一致性读），未修改的数据将从撤消日志记录中检索，撤销日志存在于撤消日志段中，撤消日志段包含在回滚段中，回滚段位于撤消表空间和临时表空间中。有关撤消表空间的更多信息，见：[15.7.8 Configuring Undo Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/innodb-undo-tablespace.html)。有关多版本的信息，请参阅[15.3 InnoDB Multi-Versioning](https://dev.mysql.com/doc/refman/8.0/en/innodb-multi-versioning.html)。临时表空间和每个撤消表空间分别支持最多128个回滚段。innodb_rollback_segments配置选项定义了回滚段的数量。每个回滚段最多支持1023个并发的数据修改事务。  
-
-## 4.8 File-Per-Table 表空间
-File-Per-Table 表空间的意思就是mysql为每一个表创建一个表空间，并使用单独的文件存储表的数据和索引，而不是将这些数据存储在系统表空间中。这个功能由innodb_file_per_table选项控制。如果innodb_file_per_table选项没有启用，InnoDB表将在系统表空间中创建。File-Per-Table 表空间由一个.ibd数据文件表示，默认情况下该数据文件在数据库目录中创建。File-Per-Table 表空间支持DYNAMIC和COMPRESSED行格式。有关File-Per-Table 表空间的优点，见[15.7.4 InnoDB File-Per-Table Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/innodb-multiple-tablespaces.html)。  
-
-## 4.9 一般表空间
-使用CREATE TABLESPACE语法创建InnoDB的共享表空间。一般表空间可以在MySQL数据目录之外创建，一般表空间能够容纳多个表格，并支持所有行格式。使用CREATE TABLE tbl_name ... TABLESPACE [=] tablespace_name或ALTER TABLE tbl_name TABLESPACE [=] tablespace_name语法将表添加到一般表空间中。更多信息，请参阅[15.7.10 InnoDB General Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/general-tablespaces.html)。  
-
-## 4.10 撤销(undo)表空间
-撤消表空间包含一个或多个包含撤消日志的文件。innodb_undo_tablespaces(已弃用，将在未来版本中删除)选项定义了InnoDB撤销表空间的数量。更多信息，见：[15.7.8 Configuring Undo Tablespaces](https://dev.mysql.com/doc/refman/8.0/en/innodb-undo-tablespace.html)。  
-
-## 4.11 临时表空间
-用户创建的临时表和磁盘内部临时表在共享的临时表空间中创建。innodb_temp_data_file_path配置选项定义临时表空间数据文件的相对路径，名称，大小和其他属性。如果没有为innodb_temp_data_file_path指定值，默认情况下将在innodb_data_home_dir目录中创建一个名为ibtmp1的自动扩展数据文件。临时表空间在正常关闭或者被中断的初始化(aborted initialization)的情况下将被删除，并在每次启动服务器时重新创建。临时表空间在创建时接收动态生成的表空间ID。如果无法创建临时表空间，将无法启动。如果服务器意外停止，则不会删除临时表空间。在这种情况下，数据库管理员可以手动删除临时表空间或重新启动服务器。这会自动删除并重新创建临时表空间。  
-临时表空间不能驻留在原始(raw)设备上。  
-INFORMATION_SCHEMA.FILES提供有关InnoDB临时表空间的元数据。  
-```sql
-mysql> SELECT * FROM INFORMATION_SCHEMA.FILES WHERE TABLESPACE_NAME='innodb_temporary'\G
-```
-INFORMATION_SCHEMA.INNODB_TEMP_TABLE_INFO提供有关在InnoDB实例中当前处于活动状态的用户创建的临时表的元数据。更多信息，见[15.14.7 InnoDB INFORMATION_SCHEMA Temporary Table Info Table](https://dev.mysql.com/doc/refman/8.0/en/innodb-information-schema-temp-table-info.html)。  
-**管理临时表空间数据文件大小：**  
-默认情况下，临时表空间数据文件是自动扩展的，并根据需要增加大小以存储磁盘上的临时表。例如，如果某个操作创建了一个大小为20 MB的临时表，这就会导致临时表空间数据文件的自动增长。当临时表被删除时，释放的空间可以重新用于新的临时表，但是临时表空间的数据文件不会缩小。  
-通过上边的描述，可以知道：在使用大型临时表或广泛使用临时表的环境中，自动扩展使得临时表空间数据文件可能会变的很大（例如同时创建了100个1GB的临时表，那么临时表空间的数据文件将达到100GB，而且不其大小不会缩小，除非mysql的实例重启）。  
-要确定临时表空间数据文件是否自动扩展，请检查innodb_temp_data_file_path设置：  
-```sql
-mysql> SELECT @@innodb_temp_data_file_path;
-+------------------------------+
-| @@innodb_temp_data_file_path |
-+------------------------------+
-| ibtmp1:12M:autoextend        |
-+------------------------------+
-```
-要检查临时表空间数据文件的大小，请使用与此类似的查询来查询INFORMATION_SCHEMA.FILES表：  
-```sql
-mysql> SELECT FILE_NAME, TABLESPACE_NAME, ENGINE, INITIAL_SIZE, TOTAL_EXTENTS*EXTENT_SIZE 
-    ->        AS TotalSizeBytes, DATA_FREE, MAXIMUM_SIZE FROM INFORMATION_SCHEMA.FILES 
-    ->        WHERE TABLESPACE_NAME = 'innodb_temporary';
-+-----------+------------------+--------+--------------+----------------+-----------+--------------+
-| FILE_NAME | TABLESPACE_NAME  | ENGINE | INITIAL_SIZE | TotalSizeBytes | DATA_FREE | MAXIMUM_SIZE |
-+-----------+------------------+--------+--------------+----------------+-----------+--------------+
-| ./ibtmp1  | innodb_temporary | InnoDB |     12582912 |       12582912 |   6291456 |         NULL |
-+-----------+------------------+--------+--------------+----------------+-----------+--------------+
-1 row in set (0.02 sec)
-```
-TotalSizeBytes值报告临时表空间数据文件的当前大小。有关其他字段值的信息，见[24.9 The INFORMATION_SCHEMA FILES Table](https://dev.mysql.com/doc/refman/8.0/en/files-table.html)。  
-要回收临时表空间数据文件占用的磁盘空间，可以重新启动MySQL服务器。重新启动服务器时将根据innodb_temp_data_file_path定义的属性删除并重新创建临时表空间数据文件。  
-为防止临时表空间数据文件变得过大，你可以配置innodb_temp_data_file_path选项以指定最大文件大小。例如：  
-```
-[mysqld]
-innodb_temp_data_file_path=ibtmp1:12M:autoextend:max:500M
-```
-当数据文件达到最大时，查询将失败，并显示表已满的错误。配置innodb_temp_data_file_path需要重新启动服务器。  
-也可以配置default_tmp_storage_engine和internal_tmp_disk_storage_engine选项，它们分别定义了用户创建临时表和磁盘内部临时表的存储引擎。这两个选项默认设置为InnoDB。MyISAM存储引擎为每个临时表使用单独的数据文件，临时表被删除时将删除该文件。  
-**临时表撤消日志(Temporary Table Undo Logs)**  
-在[15.4.7 Undo Logs](https://dev.mysql.com/doc/refman/8.0/en/innodb-undo-logs.html)中，我们知道，**撤销日志存在于撤消日志段中，撤消日志段包含在回滚段中，回滚段位于撤消表空间和临时表空间中。**你可能会问，为什么undo log还会存在于临时表空间呢？因为临时表的撤消日志驻留在临时表空间中，用于临时表和相关对象。***临时表撤消日志不会被记录到redo log中，因为它们不是崩溃恢复所必需的，它们仅用于服务器运行时的回滚。这种特殊类型的撤消日志通过避免重做日志I/O来提高性能***。innodb_rollback_segments配置选项定义临时表空间使用的回滚段的数量(撤销表空间的回滚段数量也由这个定义，从名字就看得出这是一个通用选项，并不专用与临时表空间的回滚段)。  
-
-## 4.12 重做日志(Redo Log)
-重做日志是在**崩溃恢复**期间使用的基于磁盘的数据结构，用于纠正由不完整事务写入的数据。在正常操作中，重做日志对由SQL语句或低级API调用引起InnoDB表更改的数据进行编码。在服务器初始化过程中，将会做崩溃恢复操作，在这完成之前，不能接受数据库连接。有关重做日志在崩溃恢复中的角色的信息，参见[15.17.2 InnoDB Recovery](https://dev.mysql.com/doc/refman/8.0/en/innodb-recovery.html)。  
-默认情况下，重做日志在物理上表现为一组名为**ib_logfile0**和**ib_logfile1**的文件。MySQL以循环方式写入重做日志文件。重做日志中的数据按受影响的记录进行编码;这些数据统称为重做。数据通过重做日志的过程由不断增加的[LSN(log sequence number)](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_lsn)值表示。  
-可见：redo log对于事务的实现非常重要，相关的信息，见：  
- - [Section 15.6.1, InnoDB Startup Configuration](https://dev.mysql.com/doc/refman/8.0/en/innodb-init-startup-configuration.html)。  
- - [Section 8.5.4, Optimizing InnoDB Redo Logging](https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-logging.html)。  
- - [Section 15.7.2, Changing the Number or Size of InnoDB Redo Log Files](https://dev.mysql.com/doc/refman/8.0/en/innodb-data-log-reconfiguration.html)。  
- - [InnoDB Crash Recovery](https://dev.mysql.com/doc/refman/8.0/en/innodb-recovery.html#innodb-crash-recovery)。  
-
-### 4.12.1 重做日志刷新的组提交
-与任何其他ACID兼容的数据库引擎一样，InnoDB在提交之前刷新事务的重做日志。InnoDB使用组提交功能将多个这样的刷新请求组合在一起，以避免每次提交刷新一次磁盘。这可以大量减少IO操作，从而增加吞吐量。有关COMMIT和其他事务操作性能的更多信息，请参阅：[8.5.2 Optimizing InnoDB Transaction Management](https://dev.mysql.com/doc/refman/8.0/en/optimizing-innodb-transaction-management.html)。  
-  
