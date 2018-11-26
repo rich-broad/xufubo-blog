@@ -131,11 +131,35 @@ END OF INNODB MONITOR OUTPUT
 
  缓冲池服务器状态变量和INNODB_BUFFER_POOL_STATS表也提供InnoDB Standard Monitor输出的很多指标，详见[Example 15.10, “Querying the INNODB_BUFFER_POOL_STATS Table”](https://dev.mysql.com/doc/refman/8.0/en/innodb-information-schema-buffer-pool-tables.html#innodb-information-schema-buffer-pool-stats-example)。  
 
-## 4.2 改变缓冲(Change Buffer)
-存储引擎设计中的一个挑战是写入操作期间的随机I/O。在InnoDB中，一个表将具有一个聚集索引和零个或多个辅助索引。这些索引中的每一个都是一个B+树。将记录插入到表中时，首先将该记录插入到聚簇索引中，然后再插入到每个辅助索引中。因此，所产生的I/O操作将随机分布在磁盘上。对于更新和删除操作，I/O模式也是随机的。为了减轻这个问题，InnoDB存储引擎使用一种称为Change Buffer的特殊数据结构（因为以前称为插入缓冲区，因此你将看到内部在很多场景下用ibuf和IBUF表示Change Buffer）。Change Buffer是另一个B+树，用于缓冲对辅助索引以及辅助索引页面相关的改变。InnoDB中只有一个Change Buffer，并且保留在系统表空间中。Change Buffer树的根页面在系统表空间（空间id为0）中，固定为FSP_IBUF_TREE_ROOT_PAGE_NO（等于4）。当服务器启动时，通过使用此固定页码来加载Change Buffer树。你可以参考函数ibuf_init_at_db_start() 了解更多详细信息。Change Buffer的总大小是可配置的，旨在确保完整的Change Buffer树可以驻留在内存中。使用innodb_change_buffer_max_size系统变量配置Change Buffer的大小。
-当更改的记录所在的页面不在buff pool（缓冲池）中时，这时按道理来说就要读写磁盘了，但是正如前面分析的，如果涉及到辅助索引页的修改（INSERT, UPDATE, DELETE），将会引起随机I/O操作，为此，InnoDB将这些更改缓冲到Change Buffer中，积累一段时间之后，将这些I/O操作进行合并，这样，将避免从磁盘读入辅助索引页面所需的大量随机访问I / O以及将辅助索引页面写入磁盘的随机写I/O。
-在内存中，更改缓冲区占用InnoDB缓冲池的一部分 。在磁盘上，更改缓冲区是系统表空间的一部分，因此索引更改在数据库重新启动之间保持缓冲。缓存在更改缓冲区中的数据类型由 innodb_change_buffering 配置选项控制。  
-**监控Change Buffer：**  
+## 5.2 改变缓冲(Change Buffer)
+存储引擎设计中的一个挑战是写入操作期间的随机I/O。在InnoDB中，一个表包含一个聚簇索引和零个或多个辅助索引。这些索引中的每一个都是一个B+树。*将记录插入到表中时，首先将该记录插入到聚簇索引中，然后再插入到每个辅助索引中。与聚簇索引不同，辅助索引（也叫二级索引，我们也常常互换使用）通常不是唯一的，并且插入二级索引的顺序相对随机。同样的，删除和更新也有类似的问题。因此，所产生的I/O操作将随机分布在磁盘上。*为了减轻这个问题，InnoDB存储引擎使用一种称为Change Buffer的特殊数据结构（因为以前称为插入缓冲区，因此你将看到内部在很多场景下用ibuf和IBUF表示Change Buffer）。Change Buffer是一种特殊的数据结构，用于缓存对**不在buffer pool中**的*辅助索引*以及*辅助索引页面*的改变（两个点：不在buffer，辅助索引）。这些被缓存的改变可能来自INSERT, UPDATE, or DELETE，这些操作会在将来当这些被改变的页面因为其他操作被装载到buffer pool时被合并，稍后这些更新会被刷新到磁盘。这样就避免了从磁盘读取二级索引页到buffer pool时所需的大量随机I/O。因为它可以减少磁盘I/O，所以Change Buffer对于I/O-bound类型的工作负载很有价值，例如具有大量DML操作的应用程序（如批量插入）。  
+小结一下：Change Buffer的核心思想是将对未在buffer pool的辅助索引页面的更改缓存起来，等到这些页面被load到buffer pool时合并这些更改，从而减少大量随机I/O。这也与InnoDB的存储数据的格式决定的（InnoDB通过聚簇索引的方式组织行数据，而且通过主键排序，因此最好建的主键的特点也是这些主键随着插入在递增）。    
+Change Buffer的图示如下：  
+![Change Buffer](../image/innodb-change-buffer.png)  
+
+系统在大部分空闲时，InnoDB主线程会定期的或在慢速关闭期间运行的清除操作会将更新的索引页写入磁盘。与每个值立即写入磁盘的情况相比，清除操作可以更有效地将一系列索引值写入磁盘块。  
+
+当有许多受影响的行和许多要更新的辅助索引时，Change buffer的合并可能需要几个小时。在此期间，磁盘I/O增加，disk-bound类的查询会变得很慢。提交事务后，或者甚至在服务器关闭并重新启动后，也可能发生Change Buffer的合并（更多信息见：[Section 15.20.2, “Forcing InnoDB Recovery”](https://dev.mysql.com/doc/refman/8.0/en/forcing-innodb-recovery.html)）。  
+
+在内存中，Change Buffer占用buffer pool的一部分。在磁盘上，Change Buffer是系统表空间的一部分，其中在关闭数据库服务器时缓冲索引更改。如果索引包含降序索引列或主键包含降序索引列，则Change Buffer不支持对辅助索引的更改进行缓存。  
+
+#### 配置Change Buffering
+如上我们可以看到，Change buffer占用buffer pool的一部分，这就减少了可用于缓存数据页的内存。如果buffer pool大小几乎与工作集相同，或者你的表具有相对较少的辅助索引，则禁用Change Buffer通常是有用的。如果工作数据集完全在buffer pool中，则Change buffer不会产生额外开销，因为它仅适用于不在buffer pool中的页面。  
+
+可以使用innodb_change_buffering配置参数控制InnoDB执行Change buffer的程度。允许的innodb_change_buffering值包括：  
+ - all: 默认值。  
+ - none: 不要缓冲任何操作。
+ - inserts: 缓冲插入操作
+ - deletes: 缓冲删除标记操作。
+ - changes: 缓冲插入和删除标记操作。
+ - purges: 缓冲后台发生的物理删除操作。  
+
+可以在MySQL配置文件（my.cnf或my.ini）中设置innodb_change_buffering参数，或者使用SET GLOBAL语句动态更改它，这需要具有设置全局系统变量的权限。更改设置会影响新操作的缓冲情况;现有缓冲条目的合并不受影响。  
+
+#### 配置Change Buffer的最大大小
+innodb_change_buffer_max_size变量用于指定Change Buffer的最大大小占buffer pool总大小的百分比。默认情况下，innodb_change_buffer_max_size设置为25.最大设置为50。在具有大量插入，更新和删除操作的MySQL服务器上增加innodb_change_buffer_max_size的值。特别是合并Change Buffer改变的速度落后于产生新Change Buffer条目的速度的时候。在几乎只是静态数据用于查询的MySQL服务器上，或者发现由于Change Buffer太大导致buffer pool命中率下降的时候，减小innodb_change_buffer_max_size的值。确定innodb_change_buffer_max_size的值要经过充分的测试以确定最佳大小。innodb_change_buffer_max_size的设置是动态的，允许在不重新启动服务器的情况下修改设置。  
+
+#### 监控Change Buffer 
  - InnoDB的标准监视器的输出包括Change Buffer的状态信息。要查看监控数据，请发出SHOW ENGINE INNODB STATUS命令。Change Buffer的状态信息位于INSERT BUFFER AND ADAPTIVE HASH INDEX 标题下方。输出的具体含义后边解释。内容与下边类似：  
  ```
  -------------------------------------
@@ -187,7 +211,7 @@ SELECT * FROM performance_schema.setup_instruments
 +-------------------------------------------------------+---------+-------+
 ```
 
-## 4.3 自适应哈希索引(Adaptive Hash Index)
+## 5.3 自适应哈希索引(Adaptive Hash Index)
 自适应哈希索引是InnoDB基于对查询的统计分析，在内存中基于表上现有的B树索引构建的哈希索引 （自适应哈希索引始终基于表上现有的B树索引构建）。 InnoDB可以根据InnoDB针对B树索引的搜索模式，为B树键的任意长度的前缀创建哈希索引。哈希索引可以仅覆盖经常访问的索引对应的那些页面。如果一个表刚好完全可以载入内存，那么自适应哈希索引通常是有益的。不过自适应哈希索引页的维护也要消耗资源，而且对于范围查找、LIKE运算，自适应哈希索引常常是无效的，而且，在多并发的情况下，对自适应哈希索引相关的锁的争用也比较严重，此时，关闭自适应哈希索引通常可以减少很多性能开销。由于难以预先确定此功能是否应该开启，因此请使用实际的工作负载进行基准测试来决定是启用还是禁用。由innodb_adaptive_hash_index 选项启用 ，--skip-innodb_adaptive_hash_index禁用。默认为启用。  
 ```sql
 MySQL [(none)]> SHOW variables like '%innodb_adaptive_hash_index%';
@@ -200,7 +224,7 @@ MySQL [(none)]> SHOW variables like '%innodb_adaptive_hash_index%';
 ```
 在早期，自适应哈希索引由单个锁保护，这就会导致并发性不足，为此，从5.7开始，将自适应哈希索引分为多个区，每个区一个锁，通过将锁粒度变细来增加并发性。分区由innodb_adaptive_hash_index_parts 配置选项控制，默认为8，最大为512。如上语句输出。在SHOW ENGINE INNODB STATUS命令的SEMAPHORES输出部分可以监视自适应哈希索引的使用和锁的争用，如果看到很多线程正在等待锁，那么禁用自适应哈希索引通常是有益的。  
 
-## 4.4 重做日志缓冲区(Redo Log Buffer)
+## 5.4 重做日志缓冲区(Redo Log Buffer)
 重做日志文件的主要目的是，万一实例或者介质失败（media failure），重做日志文件就能派上用场。如数据库由于所在主机掉电导致实例失败，InnoDB存储引擎会使用重做日志恢复到掉电前的时刻，以此来保证数据的完整性。默认情况下会有两个文件，名称分别为ib_logfile0和ib_logfile1。MySQL官方手册中将其称为InnoDB存储引擎的日志文件，不过更准确的定义应该是重做日志文件（redo log file）。   
 重做日志缓冲区是用来保存要写入[重做日志(redo log)](https://dev.mysql.com/doc/refman/8.0/en/glossary.html#glos_redo_log)的数据的内存区域。重做日志缓冲区大小由innodb_log_buffer_size 配置选项定控制。重做日志缓冲区会定期刷新到磁盘上的重做日志文件。大型重做日志缓冲区可以实现大型事务的运行，无需在事务提交之前不断的将重做日志写入磁盘。因此，如果有更新，插入或删除许多行的事务，使日志缓冲区更大，可以节省磁盘I/O。  
 innodb_flush_log_at_trx_commit 选项控制如何将重做日志缓冲区的内容写入日志文件。innodb_flush_log_at_timeout 选项控制重做日志缓冲区刷新频率。  
