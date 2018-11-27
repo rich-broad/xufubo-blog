@@ -4,11 +4,100 @@ title: InnoDB磁盘结构
 # 6、InnoDB磁盘结构
 本节介绍InnoDB存储引擎体系结构中磁盘中的主要组件。   
 
-## 4.5 系统表空间(System Tablespace)
+## 6.1 表(Tables)
+本节介绍与InnoDB表相关的主题。  
+
+### 6.1.1 创建InnoDB表
+要创建InnoDB表，请使用CREATE TABLE语句：  
+```sql
+CREATE TABLE t1 (a INT, b CHAR (20), PRIMARY KEY (a)) ENGINE=InnoDB;
+```
+如果将InnoDB定义为默认存储引擎（默认情况下为默认存储引擎），则无需指定ENGINE = InnoDB子句。检查默认存储引擎：  
+```sql
+mysql> SELECT @@default_storage_engine;
++--------------------------+
+| @@default_storage_engine |
++--------------------------+
+| InnoDB                   |
++--------------------------+
+```
+如果你计划使用mysqldump或复制来重放默认存储引擎不是InnoDB的服务器上的CREATE TABLE语句，你仍可以使用ENGINE = InnoDB子句。  
+可以在system tablespace（系统表空间），file-per-table tablespace（每表一文件表空间）或general tablespace（通用表空间）中创建InnoDB表及其索引。当启用innodb_file_per_table（默认值）时，会在file-per-table tablespace中创建InnoDB表，如果innodb_file_per_table被禁用，则在system tablespace中创建InnoDB表。要在general tablespace中创建表，请使用CREATE TABLE ... TABLESPACE语法。更多信息见[Section 15.6.3.3, “General Tablespaces”](https://dev.mysql.com/doc/refman/8.0/en/general-tablespaces.html).  
+
+默认情况下，在file-per-table tablespace中创建表时，InnoDB会在mysql数据目录中的数据库目录下（一个数据库在mysql数据目录下对应一个目录）创建一个表对应的 .ibd 表空间文件。在InnoDB系统表空间中创建的表在现有的ibdata文件中创建，系统表空间文件驻留在MySQL数据目录中。在通用表空间中创建的表在现有的通用表空间.ibd文件中创建，通用表空间文件可以在MySQL数据目录的内部或外部创建。
+例如：  
+```shell
+[root@localhost xufubo]# ll -h  /usr/local/mysql/data/
+total 1.3G
+-rw-r-----. 1 mysql mysql   56 Oct 14 15:29 auto.cnf
+-rw-r-----. 1 mysql mysql  178 Oct 14 15:32 binlog.000001
+-rw-r-----. 1 mysql mysql 1.5K Oct 14 15:45 binlog.000002
+-rw-r-----. 1 mysql mysql   32 Oct 14 15:32 binlog.index
+-rw-------. 1 mysql mysql 1.7K Oct 14 15:29 ca-key.pem
+-rw-r--r--. 1 mysql mysql 1.1K Oct 14 15:29 ca.pem
+-rw-r--r--. 1 mysql mysql 1.1K Oct 14 15:29 client-cert.pem
+-rw-------. 1 mysql mysql 1.7K Oct 14 15:29 client-key.pem
+drwxr-x---. 2 mysql mysql 4.0K Oct 17 15:35 db_tars
+drwxr-x---. 2 mysql mysql 4.0K Oct 17 17:16 db_tars_web
+-rw-r-----. 1 mysql mysql 3.2K Oct 14 15:58 ib_buffer_pool
+-rw-r-----. 1 mysql mysql  12M Nov 27 17:38 ibdata1  # 系统表空间
+-rw-r-----. 1 mysql mysql  48M Nov 27 17:38 ib_logfile0
+-rw-r-----. 1 mysql mysql  48M Nov 27 12:57 ib_logfile1
+-rw-r-----. 1 mysql mysql  12M Oct 30 20:44 ibtmp1
+-rw-r-----. 1 mysql mysql  34K Nov 17 12:15 localhost.localdomain.err
+-rw-r-----. 1 mysql mysql    7 Oct 14 15:58 localhost.localdomain.pid
+drwxr-x---. 2 mysql mysql 4.0K Oct 14 15:29 mysql
+-rw-r-----. 1 mysql mysql 1.1G Nov 27 12:09 mysql-bin.000002
+-rw-r-----. 1 mysql mysql 6.9M Nov 27 17:38 mysql-bin.000003
+-rw-r-----. 1 mysql mysql   38 Nov 27 12:09 mysql-bin.index
+-rw-r-----. 1 mysql mysql  88M Nov 27 17:38 mysql.ibd
+drwxr-x---. 2 mysql mysql 4.0K Oct 14 15:29 performance_schema
+-rw-------. 1 mysql mysql 1.7K Oct 14 15:29 private_key.pem
+-rw-r--r--. 1 mysql mysql  452 Oct 14 15:29 public_key.pem
+-rw-r--r--. 1 mysql mysql 1.1K Oct 14 15:29 server-cert.pem
+-rw-------. 1 mysql mysql 1.7K Oct 14 15:29 server-key.pem
+drwxr-x---. 2 mysql mysql 4.0K Oct 14 15:29 sys
+drwxr-x---. 2 mysql mysql  52K Nov 27 00:05 tars_property
+drwxr-x---. 2 mysql mysql  44K Nov 27 00:05 tars_stat
+drwxr-x---. 2 mysql mysql 4.0K Oct 19 14:43 test
+-rw-r-----. 1 mysql mysql  12M Nov 27 17:38 undo_001
+-rw-r-----. 1 mysql mysql  12M Nov 27 17:38 undo_002
+[root@localhost xufubo]# ll -h  /usr/local/mysql/data/db_tars  # 数据库中每个表一个idb文件
+total 43M
+-rw-r-----. 1 mysql mysql 160K Oct 24 16:33 t_adapter_conf.ibd
+-rw-r-----. 1 mysql mysql 112K Oct 17 15:32 t_ats_cases.ibd
+-rw-r-----. 1 mysql mysql 128K Oct 17 15:32 t_ats_interfaces.ibd
+-rw-r-----. 1 mysql mysql 128K Oct 17 15:32 t_config_files.ibd
+-rw-r-----. 1 mysql mysql 112K Oct 17 15:32 t_config_history_files.ibd
+-rw-r-----. 1 mysql mysql 128K Oct 17 15:32 t_config_references.ibd
+-rw-r-----. 1 mysql mysql 112K Oct 17 15:32 t_group_priority.ibd
+-rw-r-----. 1 mysql mysql 144K Oct 17 15:32 t_machine_tars_info.ibd
+-rw-r-----. 1 mysql mysql 144K Nov 27 20:47 t_node_info.ibd
+-rw-r-----. 1 mysql mysql 128K Oct 17 15:32 t_profile_template.ibd
+-rw-r-----. 1 mysql mysql 128K Nov 27 20:47 t_registry_info.ibd
+-rw-r-----. 1 mysql mysql 176K Nov 27 20:47 t_server_conf.ibd
+-rw-r-----. 1 mysql mysql 128K Oct 17 15:32 t_server_group_relation.ibd
+-rw-r-----. 1 mysql mysql 128K Oct 17 15:32 t_server_group_rule.ibd
+-rw-r-----. 1 mysql mysql  40M Nov 27 20:47 t_server_notifys.ibd
+-rw-r-----. 1 mysql mysql 160K Oct 19 15:26 t_server_patchs.ibd
+-rw-r-----. 1 mysql mysql 128K Nov 14 11:57 t_task.ibd
+-rw-r-----. 1 mysql mysql 160K Nov 14 11:57 t_task_item.ibd
+-rw-r-----. 1 mysql mysql 144K Oct 17 15:32 t_web_release_conf.ibd
+[root@localhost xufubo]# 
+
+```
+在内部，InnoDB将每个表的条目添加到数据字典中。该条目包括数据库名称。例如，如果在test数据库中创建了表t1，则数据字典条目为“test/t1”，这意味着，在InnoDB中你可以在不同的数据库中创建同名表（t1）而不会发生冲突。  
+
+#### InnoDB表和行格式
+
+
+## 6.2 索引(Indexs)
+
+## 6.3 表空间(Tablespaces)
 InnoDB系统表空间包含InnoDB的数据字典（InnoDB数据对象的元数据），并且也是doublewrite buffer, change buffer, and undo logs的存储区域，系统表空间还包含用户创建的表和索引的数据，因此系统表空间是一个共享表空间，因为它被多个表（包括不同数据库中的表）共享。  
 系统表空间由一个或多个数据文件表示。默认情况下，MySQL 在data目录中创建一个名为ibdata1的系统数据文件。系统数据文件的大小和数量由innodb_data_file_path启动选项控制 。   
 
-## 4.6 双写缓冲(Doublewrite Buffer)
+## 6.4 双写缓冲(Doublewrite Buffer)
 InnoDB中，在将缓冲池中的数据刷新到磁盘时是以页面（InnoDB的页面，通常为16KB）为单位的，这时可能会出现部分页面写入的问题。所谓部分页面写入是指向操作系统提交的页面写入请求仅部分完成。例如，在16K 的Innodb页面中，只有第一个4KB（文件系统的块通常为4KB）的块被写入磁盘，其他部分保持原来的状态。最常见的部分页面写入一般在发生电源故障时发生。也可能发生在操作系统崩溃时。另外，如果使用软件RAID，页面可能会出现在需要多个IO请求的条带边界上。如果硬件RAID没有电池备份，电源故障时也会发生这种情况。如果对磁盘本身发出单个写入，即使电源掉电，在理论上也应完成写入，因为驱动器内部应该有足够的电源来完成它。但是真的很难检查是否总是这样，因为它不是部分页面写入的唯一原因。在Innodb Doublewrite Buffer实施之前，确实会有数据损坏。  
 有的人会问，数据损坏可以使用重做日志来恢复呀，但是，请注意，InnoDB并不会将整个页面的内容写入重做日志，而是记录的对页面的操作，例如将某个偏移量处的值加2，使用重做日志进行恢复的基础是表空间中的实际数据页面在内部是完整的一致的，它是哪个页面版本无关紧要 ，但是如果页面不一致，则无法继续恢复，因为你的基础数据就是不一致的。为此引入了Doublewrite Buffer来解决问题。  
 理解了为什么需要Doublewrite Buffer，也就不难理解Doublewrite Buffer如何工作了。具体来说就是：你可以将Doublewrite Buffer视为系统表空间中的一个短期日志文件，它包含100个页的空间。当Innodb从Innodb缓冲池中刷新页面时，InnoDB首先会将页面写入双写缓冲区（顺序），然后调用fsync（）以确保它们保存到磁盘，然后将页面写入真正的数据文件并第二次调用fsync（））。现在Innodb恢复的时候会检查表空间中数据页面的内容和Doublewrite Buffer中页面的内容。如果在双写缓冲区中的页面不一致，则简单地丢弃它，如果表空间中的数据页面不一致，则从双写缓冲区中恢复。那么会不会出现都不一致的情况呢？这个不会，以内是先写Doublewrite Buffer，后写表空间中真实的数据页面，这样，当Doublewrite Buffer中不一致时表示系统崩溃了，也就无法继续执行了，就不会收到Doublewrite Buffer是否写成功的响应，也就不会发出真实的数据页面的写操作，这样的话必然不会出现二者都损坏的情况。  
