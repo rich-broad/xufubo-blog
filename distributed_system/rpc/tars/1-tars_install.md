@@ -707,11 +707,13 @@ drwxr-xr-x. 5 root root     4096 Oct 14 17:10 tarsregistry
 [root@localhost tars]# 
 ```
 修改各个服务对应conf目录下配置文件，注意将配置文件中的ip地址修改为本机ip地址，如下：  
-cd /usr/local/app/tars
+```shell
+cd /usr/local/app/tars  
 sed -i "s/192.168.2.131/${your_machine_ip}/g" `grep 192.168.2.131 -rl ./*`  
 sed -i "s/db.tars.com/${your_machine_ip}/g" `grep db.tars.com -rl ./*`  
 sed -i "s/registry.tars.com/${your_machine_ip}/g" `grep registry.tars.com -rl ./*`  
 sed -i "s/web.tars.com/${your_machine_ip}/g" `grep web.tars.com -rl ./*`  
+```
 
 192.168.2.131这个ip是tars开发团队当时部署服务测试的ip信息，替换成本机的部署地址即可，不要是127.0.0.1   
 db.tars.com是tars框架数据库部署的地址信息，替换成自己数据库的部署地址即可  
@@ -875,4 +877,58 @@ root     103489  0.1  1.1 794040 21088 ?        Sl   Oct15   4:52 /usr/local/app
 
 在遇到问的时候，不要随便乱猜，乱想，要静下心来仔细的分析和考虑。  
 
+
+### 2.2.7 遇到的问题
+1. 安装web管理端的时候，在各种node模块都安装好的情况下，node app.js 的时候，会出现如下错误：  
+```
+Error: ER_NOT_SUPPORTED_AUTH_MODE: Client does not support authentication protocol requested by server; consider upgrading MySQL client
+    at Handshake.Sequence._packetToError (C:\Users\mysql-
+test\node_modules\mysql\lib\protocol\sequences\Sequence.js:52:14)
+    at Handshake.ErrorPacket (C:\Users\mysql-test\node_mo
+dules\mysql\lib\protocol\sequences\Handshake.js:130:18)
+    at Protocol._parsePacket (C:\Users\mysql-test\node_mo
+dules\mysql\lib\protocol\Protocol.js:279:23)
+......
+```
+解决办法：  
+```
+ALTER USER 'username'@'host info' IDENTIFIED WITH mysql_native_password BY 'your password';
+flush privileges;
+```
+ - 即：username为你是用的mysql账号；  
+ - host info 为创建mysql账号时的主机信息；  
+ - your password 为账户对应的密码；  
+如此之后再次启动就ok了。  
+
+2. 手动安装核心基础服务后，会出错，查看日志：  
+```
+tail -f /root/software/Tars/web/log/20181220.error.log
+# 发现：
+{"level":"error","message":"163.177.68.30||NotifyController.js:47|[getServerNotifyList] SequelizeDatabaseError: Table 'db_tars.t_server_notifys' doesn't exist\n    at Query.formatError (/root/software/Tars/web/node_modules/sequelize/lib/dialects/mysql/query.js:247:16)\n    at Query.handler [as onResult] (/root/software/Tars/web/node_modules/sequelize/lib/dialects/mysql/query.js:68:23)\n    at Query.execute (/root/software/Tars/web/node_modules/mysql2/lib/commands/command.js:30:14)\n    at Connection.handlePacket (/root/software/Tars/web/node_modules/mysql2/lib/connection.js:455:32)\n    at PacketParser.onPacket (/root/software/Tars/web/node_modules/mysql2/lib/connection.js:73:18)\n    at PacketParser.executeStart (/root/software/Tars/web/node_modules/mysql2/lib/packet_parser.js:75:16)\n    at Socket.<anonymous> (/root/software/Tars/web/node_modules/mysql2/lib/connection.js:80:31)\n    at emitOne (events.js:116:13)\n    at Socket.emit (events.js:211:7)\n    at addChunk (_stream_readable.js:263:12)\n    at readableAddChunk (_stream_readable.js:250:11)\n    at Socket.Readable.push (_stream_readable.js:208:10)\n    at TCP.onread (net.js:597:20)  ","timestamp":"2018-12-20 20:47:03.003"}
+```
+很明显是db_tars.t_server_notifys不存在，不知道为什么腾讯官方给的部署sql中没有这个表，但是这个表在多个地方使用了，我记得之前的老版本的tars是有的，不知道新的怎么删除了，代码中却还在使用。还好自己有之前的备份，创建好之后就可以了。  
+
+3. 添加新账户以便后续开发  
+```shell
+#首先登录 root 账号
+
+#新建用户
+useradd username
+#更改用户密码，激活使用
+passwd username
+
+# 添加 sudo 权限
+#首先登录 root 账户
+#
+visudo
+
+#找到如下行数
+root  ALL=(ALL)   ALL
+# 添加
+username ALL=(ALL) ALL
+# 退出 vi 编辑器，完成操作。
+```
+
+4. centos下安装配置samba  
+[centos下安装配置samba](https://github.com/zhangmazi/CentOS/blob/master/samba%20%E5%AE%89%E8%A3%85%E3%80%81%E9%85%8D%E7%BD%AE%E5%92%8C%E4%BD%BF%E7%94%A8) .
 
