@@ -1,3 +1,6 @@
+---
+title: protobuf language 指南（proto2）
+---
 # Language Guide（proto2）
 本文是proto2语言的描述，具体包含如下内容：  
 - 页内跳转如何实现，

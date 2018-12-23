@@ -1,3 +1,6 @@
+---
+title: python3 安装
+---
 # python3升级
 
 ## 引言

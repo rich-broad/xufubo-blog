@@ -1,3 +1,6 @@
+---
+title: INFORMATION_SCHEMA 表
+---
 # INFORMATION_SCHEMA的表
 INFORMATION_SCHEMA提供对数据库元数据的访问 ，这些元数据又称为数据字典或者系统目录。INFORMATION_SCHEMA是每个MySQL实例中的一个数据库，它存储有关MySQL服务器维护的所有其他数据库对象的信息。INFORMATION_SCHEMA数据库包含多个只读表。它们实际上是视图，而不是基表，因此没有与它们关联的文件，并且也无法在它们上设置触发器。此外，没有该名称的数据库目录。INFORMATION_SCHEMA中的表（视图）只能select，而不能insert、update、delete语句。  
 INFORMATION_SCHEMA也是show语句的替代方案，使用INFORMATION_SCHEMA替代show具有如下优点：  
