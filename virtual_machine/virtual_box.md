@@ -1,5 +1,11 @@
 ---
 title: VirtualBox 快速使用手册
+comments: true #是否可评论 
+toc: true #是否显示文章目录 
+categories: "虚拟化" #分类 
+tags:
+ - 虚拟化
+ - virtualbox
 ---
 
 # 前言
@@ -75,14 +81,15 @@ VirtualBox扩展包有 .vbox-extpack文件扩展名。要安装扩展程序，�
  - 在Mac OS X主机上，在Finder中，双击“Applications”文件夹中的“VirtualBox”项目。  
  - 在Linux或Solaris主机上，根据你的桌面环境，“VirtualBox”项可能已放置在“应用程序”菜单的“系统”或“系统工具”组中。或者，你可以在终端键入 VirtualBox。  
 当你第一次启动VirtualBox时，应该出现以下窗口：  
-![首次启动](./image/vb_first_start.png)  
+![首次启动](/image/vb_first_start.png)  
 
 这个窗口叫做“VirtualBox Manager”。在左侧，你可以看到一个稍后会列出所有虚拟机的窗格。由于你尚未创建任何内容，因此列表为空。上面的按钮允许您创建新的VM并在现有的虚拟机上工作，一旦你有一些VM之后。右侧的窗格显示当前选择的虚拟机的属性。由于你还没有任何虚拟机，窗格将显示欢迎消息。
 为了给你一个直观的感受，VirtualBox创建了许多虚拟机之后可能看起来像下边的样子：  
 
-![创建vm之后](./image/vb_create_after.png)    
+![创建vm之后](/image/vb_create_after.png)    
 
 ## 1.7 创建第一个虚拟机
+
 
 
 
