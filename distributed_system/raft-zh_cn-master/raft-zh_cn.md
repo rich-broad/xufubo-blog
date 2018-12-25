@@ -1,7 +1,7 @@
 ---
 title: raft 中文版
 ---
-**这篇文章是raft中文版，参考了https://github.com/djmpink/raft 的翻译，改链接还有很好的理解raft的网页**
+**这篇文章是raft中文版，参考了https://github.com/djmpink/raft 的翻译，此链接还有很好的理解raft的网页**
 # 寻找一种易于理解的一致性算法（扩展版）
 
 ## 摘要
