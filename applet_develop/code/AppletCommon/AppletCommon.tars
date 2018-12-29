@@ -1,0 +1,135 @@
+
+
+module HardwareApplet
+{
+
+    // 命令字
+    enum CMD
+    {
+        E_CMD_UNKNOW = 0,                        // 0-枚举默认值
+        E_CMD_GET_NEW_ST = 1,                    // 1-获取新的st
+    };
+
+    enum RETCODE
+    {
+        E_RETCODE_SUCCESS = 0,                   // 0-成功
+        E_TARS_ENCODE_ERROR = 1,
+        E_TARS_DECODE_ERROR = 2,
+        E_TICKET_INVALID = 3,
+        E_TICKET_EXPIRED = 4,
+        E_BUSINESS_ERROR = 5,
+        E_BUSINESS_EXCEPTION = 6,
+        E_BUSINESS_SUCCESS = 7,
+        E_ST_EMPTY_ERROR = 8,
+    };
+
+    // 票据
+    struct SecurityTicket
+    {
+        0 require string sessionKey;            // session key
+        1 require long timets;                  // session key时间
+        2 require string signature;             // 签名,用于后台校验
+    };
+
+    //设备信息
+    struct DeviceInfo
+    {
+    	0 require string imei1;			        //主卡槽IMEI
+    	1 require string imei2;			        //副卡槽IMEI
+    	2 require string macAddr;		        //MAC地址
+    	3 require string brand;			        //品牌
+    	4 require string mode;			        //型号
+    };
+
+    // ROM信息
+    struct ROMInfo
+    {
+    	0 require string sysId;			 	    //操作系统Id（如androidId）
+    	1 require string sysVersionName;	 	//操作系统版本名称
+    	2 require string sysVersionCode; 		//操作系统版本号
+    	3 require int rootFlag;			 	    //0——未知；1——已root；2——未root
+    };
+    
+    // 网络信息
+    struct NetInfo
+    {
+    	0 require int netType;			       //网络类型
+    	1 require string wifiSsid;		       //Wifi名称
+    	2 require string wifiBssid;		       //Wifi路由器的Mac地址
+    };
+
+    // 接入层统一头部
+    struct ProxyReqHead
+    {
+	    0 require int requestId;		        // 请求序列号
+        1 require CMD cmd;                      // 需要调用的命令字
+        2 require string st;                    // 请求st  SecurityTicket序列化，加密，base64之后生成
+        3 require long clientTimestamp;	        // sdk当前时间戳，单位毫秒
+    	4 require long svrTimestamp;		    // 根据后台之前协议返回的svrTimestamp校准后计算的近似后台时间戳
+        5 require DeviceInfo deviceInfo;		// 设备信息
+    	6 require ROMInfo romInfo;			    // 系统信息
+    	7 require NetInfo netInfo;			    // 网络信息
+    	
+    };
+
+    // 接入层响应头部
+    struct ProxyRspHead
+    {
+        0 require RETCODE ret;		            //返回码
+    	1 require long svrTimestamp;		    //后台时间戳，单位毫秒
+    	2 require int csTicketState;		    // 0——有效
+    							                // 1——即将过期，前端须发起续票请求
+                                                // 2--无效票据,需要获取新的st
+    							                // 其他——无效
+        3 require string st;                    // 票据，与请求中的一致
+        4 require int requestId;		        // 请求序列号，前端可校验与PkgReqHead.requestId 中的一致
+    };
+
+    // 调到后端服务的统一头部
+    struct AppletCommHead
+    {
+        0 require DeviceInfo deviceInfo;		//设备信息
+    	1 require ROMInfo romInfo;			    //系统信息
+    	2 require NetInfo netInfo;			    //网络信息
+        3 require SecurityTicket st;            //票据
+    	4 require long clientTimestamp;	        //sdk当前时间戳，单位毫秒
+    };
+
+    // 微信回包
+    struct WXJSCodeToSessionRsp
+    {
+        0 require string openid;
+        1 require string session_key;
+        2 require string unionid;
+        3 require int errcode;
+        4 require string errmsg;
+    };
+
+    //===================================以下为具体命令字的协议定义=============================================//
+
+    // 票据即将过期或者已经过期后，获取新票据
+    struct GetNewTicketReq
+    {
+        0 require string wx_code;               // 前端调用wx.login获取的code
+    };
+
+    struct GetNewTicketRsp
+    {
+        0 require int ret = 0;                  // 0-成功，其他失败
+        1 require string errmsg;                // 错误信息
+        2 require string st;                    // 新的业务票据
+    };
+
+    struct ProxyGetNewTicketReq
+    {
+	    0 require ProxyReqHead head;		    //请求头部
+	    1 require GetNewTicketReq body;		    //请求包体
+    };
+
+    struct ProxyGetNewTicketRsp	
+    {
+	    0 require ProxyRspHead head;		    //响应头部
+	    1 require GetNewTicketRsp body;	        //响应包体
+    };
+
+}; 

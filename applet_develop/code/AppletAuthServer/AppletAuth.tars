@@ -1,0 +1,19 @@
+#include "../AppletCommon/AppletCommon.tars"
+
+module HardwareApplet
+{
+	enum AARspErrorCode
+    {
+        E_AA_SUCCESS = 0,
+		E_AA_BAD_IMEI = 1,				// IMEI异常
+    };
+
+	interface AppletAuth
+	{
+		//获取游戏app列表
+		int getNewTicket(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+
+
+    };
+};
