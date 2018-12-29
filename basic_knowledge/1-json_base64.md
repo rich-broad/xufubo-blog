@@ -46,17 +46,16 @@ JSON值具体包含如下几种：
 ```json
 {
 	"body": {
-		"appIdList": [10415519,
-		1242153]
+		"appIdList": [10415519, 1242153]
 	},
 	"head": {
-		"businessId": "qq_dynamic_search",
+		"businessId": "my_json_study",
 		"client_ip": "",
-		"cmd": "getPkgNameByAppId",
+		"cmd": "test",
 		"nonce": 1469423984,
 		"requestId": 3,
 		"timestamp": 1469423984,
-		"uniqueId": "qq_dynamic_search"
+		"uniqueId": "my_json_study"
 	}
 }
 ```
