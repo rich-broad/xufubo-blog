@@ -43,8 +43,7 @@ int AppletProxyImp::doRequest(tars::TarsCurrentPtr current, vector<char>& respon
             << REQ_HEAD_ALL_INFO(ctx->_reqHead) << "|"
             << ctx->_beginTime << "|"
             << ctx->_clienIp << "|"
-            << ctx->_funcName << "|"
-            << AppletCommUtils::Value2Str(ctx->_reqJsonBody) << endl); 
+            << ctx->_funcName << endl); 
 	}
 
 	ctx->logRequset();

@@ -72,10 +72,21 @@ int32_t AppletContext::parseHttpReq(const vector<char>& httpReqData)
 
 int32_t AppletContext::parseHttpBody(const string & content)
 {
-    Document document;
-    document.Parse(content.c_str());
-    const Value& head = document["head"];
-    _reqJsonBody.CopyFrom(document["body"], document.GetAllocator());
+    _document.Parse(content.c_str());
+    if(_document.FindMember("head") == _document.MemberEnd() || _document.FindMember("body") == _document.MemberEnd())
+    {
+        ERRORLOG("find member head or body err" << endl);
+        return -1;
+    }
+    _reqBodyStr = AppletCommUtils::Value2Str(_document["body"]);
+    const Value& head = _document["head"];
+    if (head.FindMember("requestId") == head.MemberEnd() || head.FindMember("cmd") == head.MemberEnd() ||
+        head.FindMember("st") == head.MemberEnd() || head.FindMember("clientTimestamp") == head.MemberEnd() ||
+        head.FindMember("svrTimestamp") == head.MemberEnd())
+    {
+        ERRORLOG("head member find err" << endl);
+        return -1;
+    }
     _reqHead.requestId = head["requestId"].GetInt();
     _reqHead.cmd = head["cmd"].GetString();
     if (DEF_CFG_SINGLETON->_mpFunc.find(_reqHead.cmd) == DEF_CFG_SINGLETON->_mpFunc.end())
@@ -83,29 +94,38 @@ int32_t AppletContext::parseHttpBody(const string & content)
         ERRORLOG("cmdToFuncName err" << endl);
         return -1;
     }
-
+    _funcName = _reqHead.cmd;
     _reqHead.st = head["st"].GetString();
     _reqHead.clientTimestamp = head["clientTimestamp"].GetInt64();
     _reqHead.svrTimestamp = head["svrTimestamp"].GetInt64();
 
-    const Value& deviceInfo = head["deviceInfo"];
-    const Value& romInfo = head["romInfo"];
-    const Value& netInfo = head["netInfo"];
-
-    _reqHead.deviceInfo.imei1 = deviceInfo["imei1"].GetString();
-    _reqHead.deviceInfo.imei2 = deviceInfo["imei2"].GetString();
-    _reqHead.deviceInfo.macAddr = deviceInfo["macAddr"].GetString();
-    _reqHead.deviceInfo.brand = deviceInfo["brand"].GetString();
-    _reqHead.deviceInfo.mode = deviceInfo["mode"].GetString();
-
-    _reqHead.romInfo.sysId = romInfo["sysId"].GetString();
-    _reqHead.romInfo.sysVersionName = romInfo["sysVersionName"].GetString();
-    _reqHead.romInfo.sysVersionCode = romInfo["sysVersionCode"].GetString();
-    _reqHead.romInfo.rootFlag = romInfo["rootFlag"].GetInt();
-
-    _reqHead.netInfo.netType = netInfo["netType"].GetInt();
-    _reqHead.netInfo.wifiSsid = netInfo["wifiSsid"].GetString();
-    _reqHead.netInfo.wifiBssid = netInfo["wifiBssid"].GetString();
+    Value::ConstMemberIterator iter;
+    if (head.FindMember("deviceInfo") != head.MemberEnd())
+    {
+        const Value& deviceInfo = head["deviceInfo"];
+        _reqHead.deviceInfo.imei1 = (iter = deviceInfo.FindMember("imei1")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.deviceInfo.imei2 = (iter = deviceInfo.FindMember("imei2")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.deviceInfo.macAddr = (iter = deviceInfo.FindMember("macAddr")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.deviceInfo.brand = (iter = deviceInfo.FindMember("brand")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.deviceInfo.mode = (iter = deviceInfo.FindMember("mode")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
+    }
+    
+    if (head.FindMember("romInfo") != head.MemberEnd())
+    {
+        const Value& romInfo = head["romInfo"];
+        _reqHead.romInfo.sysId = (iter = romInfo.FindMember("sysId")) != romInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.romInfo.sysVersionName = (iter = romInfo.FindMember("sysVersionName")) != romInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.romInfo.sysVersionCode = (iter = romInfo.FindMember("sysVersionCode")) != romInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.romInfo.rootFlag = (iter = romInfo.FindMember("rootFlag")) != romInfo.MemberEnd() ? iter->value.GetInt() : 0;
+    }
+    
+    if (head.FindMember("netInfo") != head.MemberEnd())
+    {
+        const Value& netInfo = head["netInfo"];
+        _reqHead.netInfo.netType = (iter = netInfo.FindMember("netType")) != netInfo.MemberEnd() ? iter->value.GetInt() : 0;
+        _reqHead.netInfo.wifiSsid = (iter = netInfo.FindMember("wifiSsid")) != netInfo.MemberEnd() ? iter->value.GetString() : "";
+        _reqHead.netInfo.wifiBssid = (iter = netInfo.FindMember("wifiBssid")) != netInfo.MemberEnd() ? iter->value.GetString() : "";
+    }
     return 0;
 }
 
@@ -188,7 +208,7 @@ void AppletContext::logRequset()
         << _beginTime << "|"
         << _clienIp << "|"
         << _funcName << "|"
-        << AppletCommUtils::Value2Str(_reqJsonBody);
+        << _reqBodyStr << "|";
     DEBUGLOG(buf.str() << endl);
 }
 
@@ -251,7 +271,7 @@ void AppletContext::logResponse()
         << _beginTime << "|"
         << _clienIp << "|"
         << _funcName << "|"
-        << AppletCommUtils::Value2Str(_reqJsonBody) << "|"
+        << _reqBodyStr << "|"
         << RSP_HEAD_ALL_INFO(_rspHead) << "|"
         << _tarsRet << "|"
         << _busiRet << "|"

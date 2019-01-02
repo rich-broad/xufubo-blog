@@ -79,8 +79,8 @@ int ProtocolHandler::Tars2Json(string &rspData)
 int ProtocolHandler::ParseGetNewTicketReq(vector<char>& reqData)
 {
     int ret = 0;
-    const Value& jsonValue = _ctx->_reqJsonBody;
-    DEBUGLOG("ParseGetNewTicketReq enter: _reqJsonBody = " << AppletCommUtils::Value2Str(_ctx->_reqJsonBody) << endl);
+    const Value& jsonValue = _ctx->_document["body"];
+    //DEBUGLOG("ParseGetNewTicketReq enter: _reqJsonBody = " << AppletCommUtils::Value2Str(jsonValue) << endl);
     GetNewTicketReq request;
     request.wx_code = jsonValue["wx_code"].GetString();
     ret = TarsEncode<GetNewTicketReq>(request, reqData);
@@ -88,7 +88,7 @@ int ProtocolHandler::ParseGetNewTicketReq(vector<char>& reqData)
     {
         ERRORLOG("ParseGetNewTicketReq TarsEncode err|"<< endl) ;
     }
-    DEBUGLOG("ParseGetNewTicketReq enter: reqData.size = " << reqData.size() << endl);
+    //DEBUGLOG("ParseGetNewTicketReq enter: reqData.size = " << reqData.size() << endl);
     return ret;
 }
 
@@ -106,6 +106,8 @@ int ProtocolHandler::PackGetNewTicketRsp(string &rspData)
      document.SetObject();
      rapidjson::Value body(rapidjson::kObjectType);
      body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+     body.AddMember("ret", response.ret, document.GetAllocator());
      document.AddMember("body", body, document.GetAllocator());
      CreateRspHead(document);
      rspData = AppletCommUtils::Document2Str(document);

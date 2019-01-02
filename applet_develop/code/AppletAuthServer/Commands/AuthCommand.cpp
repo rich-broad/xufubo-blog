@@ -83,6 +83,8 @@ void AsyncHttpCallback::onResponse(bool bClose, TC_HttpResponse &stHttpResponse)
             ERRORLOG("onResponse|code2session error|" << status << "|" << _sUrl << "|" << content << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
             response.ret = ret;
             response.errmsg = wxrsp.errmsg;
+
+            DEBUGLOG(ret << "|" << response.errmsg << "|" << wxrsp.errmsg << "|================" << endl);
             sendReponse(response, _stHead, _funcName, ret, _current);
             return;
         }
@@ -142,29 +144,49 @@ void AsyncHttpCallback::onClose()
 	DEBUGLOG("onClose|" << _sUrl << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
 }
 
-int AsyncHttpCallback::parseCode2SessionRsp(const string & content, HardwareApplet::WXJSCodeToSessionRsp & rsp)
+int AsyncHttpCallback::parseCode2SessionRsp(const string & content, HardwareApplet::WXJSCodeToSessionRsp & wxrsp)
 {
     Document document;
     document.Parse(content.c_str());
-    WXJSCodeToSessionRsp wxrsp;
 
     Value::ConstMemberIterator errCodeiter = document.FindMember("errcode");
-    wxrsp.errcode = (errCodeiter == document.MemberEnd()) ? 0 : errCodeiter->value.GetInt();
-
+    if (errCodeiter != document.MemberEnd())
+    {
+        wxrsp.errcode = errCodeiter->value.GetInt();
+    }
+    
     Value::ConstMemberIterator openidCodeiter = document.FindMember("openid");
-    wxrsp.openid = (openidCodeiter == document.MemberEnd()) ? "" : openidCodeiter->value.GetString();
-
+    if (openidCodeiter != document.MemberEnd())
+    {
+        wxrsp.openid = openidCodeiter->value.GetString();
+    }
 
     Value::ConstMemberIterator sessionKeyCodeiter = document.FindMember("session_key");
-    wxrsp.openid = (sessionKeyCodeiter == document.MemberEnd()) ? "" : sessionKeyCodeiter->value.GetString();
+    if (sessionKeyCodeiter != document.MemberEnd())
+    {
+        wxrsp.session_key = sessionKeyCodeiter->value.GetString();
+    }
 
     Value::ConstMemberIterator unionidCodeiter = document.FindMember("unionid");
-    wxrsp.openid = (unionidCodeiter == document.MemberEnd()) ? "" : unionidCodeiter->value.GetString();
+    if (unionidCodeiter != document.MemberEnd())
+    {
+        wxrsp.unionid = unionidCodeiter->value.GetString();
+    }
 
     Value::ConstMemberIterator msgCodeiter = document.FindMember("errmsg");
-    wxrsp.openid = (msgCodeiter == document.MemberEnd()) ? "" : msgCodeiter->value.GetString();
+    if (msgCodeiter != document.MemberEnd())
+    {
+        DEBUGLOG(msgCodeiter->value.GetString() << endl);
+        wxrsp.errmsg = msgCodeiter->value.GetString();
+        DEBUGLOG(wxrsp.errmsg << endl;);
+        DEBUGLOG(msgCodeiter->value.GetString() << endl);
+    }
 
-    return ((errCodeiter == document.MemberEnd()) ? -1 : wxrsp.errcode);
+    if (errCodeiter == document.MemberEnd())
+    {
+        return -1;
+    }
+    return wxrsp.errcode;
 }
 
 int AsyncHttpCallback::updateUserInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST)

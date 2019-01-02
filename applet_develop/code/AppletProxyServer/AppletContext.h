@@ -24,9 +24,10 @@ public:
 public:
     AppletContext(tars::TarsCurrentPtr current)
     {
-		_current = current;
-         _beginTime = TNOW;
+        _current = current;
+        _beginTime = TNOW;
 		_clienIp = current->getIp();
+        _document.SetObject();
     }
 	virtual ~AppletContext()
     {
@@ -38,8 +39,8 @@ public:
     tars::TarsCurrentPtr _current;
 	ProxyReqHead _reqHead;
     SecurityTicket _st;
-    Value _reqJsonBody;
-    vector<char> _vtReq;
+    Document _document;
+    string _reqBodyStr;
 	ProxyRspHead _rspHead;
     vector<char> _vtRsp;
     time_t _beginTime;
