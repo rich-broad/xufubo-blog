@@ -71,9 +71,6 @@ public:
 		return new DefConfiguration(_sFileName);
 	}
 
-	string cmdToFuncName(const HardwareApplet::CMD& cmd);
-	int funcNameToCmd(const string& funcName, HardwareApplet::CMD & cmd);
-
 public:
 	
 	//outdateTime
@@ -90,9 +87,7 @@ public:
 
     string _SVRKEY;
     string _SVRMD5SIGKEY;
-private:
-	map<string, HardwareApplet::CMD> _mpFuncCmd;
-	map<HardwareApplet::CMD, string> _mpCmdFunc;
+	map<string, int> _mpFunc;
 };
 
 class ConfigurationFactory

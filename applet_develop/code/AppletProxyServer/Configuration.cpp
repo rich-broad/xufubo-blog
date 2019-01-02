@@ -22,12 +22,10 @@ void DefConfiguration::Load()
         _printLocal = GetIntConfig("/ServerConf<PrintLocal>", 1);
         _SVRKEY = GetStringConfig("/ServerConf<SVRKEY>", "");
         _SVRMD5SIGKEY = GetStringConfig("/ServerConf<SVRMD5SIGKEY>", "");
-        map<string, string> mpFuncSCmd = _fileConfig->getDomainMap("/FuncCmdMap");
-        for (map<string, string>::iterator iter = mpFuncSCmd.begin(); iter != mpFuncSCmd.end(); ++iter)
+        map<string, string> mpFunc = _fileConfig->getDomainMap("/FuncMap");
+        for (map<string, string>::iterator iter = mpFunc.begin(); iter != mpFunc.end(); ++iter)
         {
-            HardwareApplet::CMD cmd = HardwareApplet::CMD(TC_Common::strto<int32_t>(iter->second));
-            _mpFuncCmd[iter->first] = cmd;
-            _mpCmdFunc[cmd] = iter->first;
+            _mpFunc[iter->first] = 0;
         }
         //Ьиад
         _pParseErrPropery = Application::getCommunicator()->getStatReport()->createPropertyReport("parseErrNum", PropertyReport::sum());
@@ -41,33 +39,6 @@ void DefConfiguration::Load()
         }
     }
     __CATCH_EXCEPTION_WITH__(filepath);
-}
-
-string DefConfiguration::cmdToFuncName(const HardwareApplet::CMD& cmd)
-{
-    map<HardwareApplet::CMD, string>::iterator iter = _mpCmdFunc.find(cmd);
-    if (iter != _mpCmdFunc.end())
-    {
-        return iter->second;
-    }
-    else
-    {
-        return "";
-    }
-}
-
-int DefConfiguration::funcNameToCmd(const string& funcName, HardwareApplet::CMD & cmd)
-{
-    map<string, HardwareApplet::CMD>::iterator iter = _mpFuncCmd.find(funcName);
-    if (iter != _mpFuncCmd.end())
-    {
-        cmd = iter->second;
-        return 0;
-    }
-    else
-    {
-        return -1;
-    }
 }
 
 ConfigurationFactory* volatile ConfigurationFactory::_instance = NULL;

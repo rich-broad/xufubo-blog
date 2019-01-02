@@ -20,31 +20,20 @@ int32_t AppletContext::parseRequestData(const vector<char>& httpReqData)
 	int32_t ret = parseHttpReq(httpReqData);
 	if (ret != 0)
 	{
-		return -1;
+        ERRORLOG("parseHttpReq error");
+		return ret;
 	}
-    if (_reqHead.st.empty())
-    {
-        if ( _funcName != "getNewTicket")
-        {
-            return -4;
-        }
-        return 0;
-    }
     
 	ret = parseST();
 	_rspHead.csTicketState = ret;
-	if (ret == -104)
-	{
-		_rspHead.ret = E_TICKET_EXPIRED;		//票据过期
-		return -2;
-	}
-	else if (ret < 0)
-	{
-		_rspHead.ret = E_TICKET_INVALID;		//票据非法
-		return -3;
+    _rspHead.ret = (HardwareApplet::COMMRETCODE)ret;
+    if (ret == E_TICKET_WILL_EXPIRED )
+    {
+        DEBUGLOG("E_TICKET_WILL_EXPIRED");
+        ret = 0;
     }
-
-	return 0;
+    
+	return ret;
 }
 
 int32_t AppletContext::parseHttpReq(const vector<char>& httpReqData)
@@ -83,19 +72,18 @@ int32_t AppletContext::parseHttpReq(const vector<char>& httpReqData)
 
 int32_t AppletContext::parseHttpBody(const string & content)
 {
-    int ret = 0;
     Document document;
     document.Parse(content.c_str());
     const Value& head = document["head"];
     _reqJsonBody.CopyFrom(document["body"], document.GetAllocator());
     _reqHead.requestId = head["requestId"].GetInt();
-    _reqHead.cmd = (HardwareApplet::CMD)head["cmd"].GetInt();
-    _funcName = DEF_CFG_SINGLETON->cmdToFuncName(_reqHead.cmd);
-    if (_funcName.empty())
+    _reqHead.cmd = head["cmd"].GetString();
+    if (DEF_CFG_SINGLETON->_mpFunc.find(_reqHead.cmd) == DEF_CFG_SINGLETON->_mpFunc.end())
     {
         ERRORLOG("cmdToFuncName err" << endl);
         return -1;
     }
+
     _reqHead.st = head["st"].GetString();
     _reqHead.clientTimestamp = head["clientTimestamp"].GetInt64();
     _reqHead.svrTimestamp = head["svrTimestamp"].GetInt64();
@@ -118,7 +106,7 @@ int32_t AppletContext::parseHttpBody(const string & content)
     _reqHead.netInfo.netType = netInfo["netType"].GetInt();
     _reqHead.netInfo.wifiSsid = netInfo["wifiSsid"].GetString();
     _reqHead.netInfo.wifiBssid = netInfo["wifiBssid"].GetString();
-    return ret;
+    return 0;
 }
 
 int32_t AppletContext::parseST()
@@ -126,8 +114,12 @@ int32_t AppletContext::parseST()
 	int ret = -100;
     if (_reqHead.st.empty())
     {
-        ERRORLOG("parseST error st empty" << endl);
-        return E_ST_EMPTY_ERROR;
+        if (_funcName != "getNewTicket")
+        {
+            ERRORLOG("parseST error st empty" << endl);
+            return E_TICKET_INVALID;
+        }
+        return 0;
     }
     
 	vector<char> vtST;
@@ -141,7 +133,7 @@ int32_t AppletContext::parseST()
 	{
 		ERRORLOG("parseST exception|tea|" << _clienIp << "|" << _reqHead.st.size() 
             << "|" << _reqHead.st << "|" << e.what() << endl);
-		ret = -101;
+		ret = E_TICKET_INVALID;
 	}
 	__COMMON_EXCEPTION_CATCH_EXT__("parseST exception|" << _clienIp << "|" << _reqHead.st.size() << "|" 
         << _reqHead.st)
@@ -153,16 +145,14 @@ int32_t AppletContext::parseST()
 	if (TarsDecode<HardwareApplet::SecurityTicket>(vtST, _st) != 0)
 	{
 		ERRORLOG("TarsDecode ST err|" << _clienIp << "|" << vtST.size() << endl);
-		ret = -102;
-		return ret;
+		return E_TICKET_INVALID;
 	}
 
     string reqSig = TC_MD5::md5str(L2S(_st.timets) + _st.sessionKey + DEF_CFG_SINGLETON->_SVRMD5SIGKEY);
     if (reqSig != _st.signature)
     {
         ERRORLOG("forgery attack err|" << _clienIp << "|" << reqSig << "|" << _st.signature << endl);
-        ret = -105;
-        return ret;
+        return E_TICKET_INVALID;
     }
     
 
@@ -170,16 +160,16 @@ int32_t AppletContext::parseST()
 	if (timeInterval < -60)
 	{
 		ERRORLOG("ticket time err|" << _clienIp << "|" << timeInterval << "|" << _st.timets << endl);
-		ret = -103;
+		ret = E_TICKET_INVALID;
 	}
 	else if (timeInterval > DEF_CFG_SINGLETON->_outdateTime)
 	{
 		ERRORLOG("ticket outdate|" << _clienIp << "|" << timeInterval << "|" << _st.timets << endl);
-		ret = -104;
+		ret = E_TICKET_EXPIRED;             // 票据过期
 	}
-	else if (timeInterval > DEF_CFG_SINGLETON->_preOutedateTime)	//快要过期
+	else if (timeInterval > DEF_CFG_SINGLETON->_preOutedateTime)
 	{
-		ret = 1;
+		ret = E_TICKET_WILL_EXPIRED;  // 票据将要过期
 		DEBUGLOG("ticket need update|" << _clienIp << "|" << timeInterval << "|" << _st.timets << endl);
 	}
 	else

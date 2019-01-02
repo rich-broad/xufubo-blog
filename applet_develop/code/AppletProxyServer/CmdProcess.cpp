@@ -82,10 +82,10 @@ void CmdProcessCallback::callback_excuteCmd(int ret, const string& funcName, con
     }
 
     _ctx->_vtRsp = cmdRsp;
-    _ctx->_rspHead.ret = E_BUSINESS_SUCCESS;
+    _ctx->_rspHead.ret = E_SUCCESS;
     _ctx->respond();
     _ctx->logResponse();
-    tars::StatReport::StatResult statResult = (_ctx->_rspHead.ret == E_BUSINESS_SUCCESS) ? tars::StatReport::STAT_SUCC : tars::StatReport::STAT_EXCE;
+    tars::StatReport::StatResult statResult = (_ctx->_rspHead.ret == E_SUCCESS) ? tars::StatReport::STAT_SUCC : tars::StatReport::STAT_EXCE;
     _ctx->reportMonitorMsg(_ctx->_funcName, statResult, _ctx->_rspHead.ret);
 }
 
