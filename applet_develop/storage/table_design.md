@@ -74,10 +74,10 @@ CREATE TABLE `t_goods_sku_info` (
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
   `stock` int(11) NOT NULL DEFAULT '0' COMMENT '库存',
   `warning_stock` int(11) NOT NULL DEFAULT '0' COMMENT '库存警告',
-  `brand_name` varchar(128) NOT NULL DEFAULT '' COMMENT '品牌名称',
   `price` int(11) NOT NULL DEFAULT '0' COMMENT '商品价格',
   `img_url` varchar(1024) NOT NULL DEFAULT '' COMMENT '图片',
   `is_default` int(11) NOT NULL DEFAULT '0' COMMENT '是否默认sku',
+  `min_count` int(11) NOT NULL DEFAULT '1' COMMENT '最小计数单位，比如扳手最想知道我的库存还有多少盒，这时候就需要填每盒多少个，该字段就是这个意思',
   `spu_id` int(11) NOT NULL DEFAULT '0' COMMENT 'spu_id',
   PRIMARY KEY (`sku_id`),
   CONSTRAINT `fk_spu_id` foreign key(`spu_id`) references `t_goods_spu_info`(`spu_id`)
