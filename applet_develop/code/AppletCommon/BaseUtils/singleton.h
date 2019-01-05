@@ -1,4 +1,12 @@
-
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 随机数
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
 
 #ifndef __SINGLETON_H__
 #define __SINGLETON_H__ 

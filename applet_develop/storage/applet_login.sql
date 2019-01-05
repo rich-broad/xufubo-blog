@@ -25,3 +25,16 @@ CREATE TABLE `t_user_login_data` (
 
 
 
+-- 商品库存信息表
+CREATE TABLE `t_user_base_data` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `open_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
+  `create_time` bigint(20) NOT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_open_id` (`contract_no`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='用户基本信息表';
+
+
+
+

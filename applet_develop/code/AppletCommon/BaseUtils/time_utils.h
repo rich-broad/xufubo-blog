@@ -1,6 +1,15 @@
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 随机数
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
 
-
-#pragma once
+#ifndef __TIME_UTILS_H_
+#define __TIME_UTILS_H_
 
 #include <ctime>
 #include <string>
@@ -294,3 +303,4 @@ bool IsDiffHour(time_t t1,time_t t2);
 
 };
 
+#endif

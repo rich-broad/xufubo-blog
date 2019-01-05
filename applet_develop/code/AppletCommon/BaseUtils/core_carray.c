@@ -1,3 +1,13 @@
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
+
 const unsigned char g_hydra_letter_digit[256] = 
 {
     [0 ... 255] = 0,

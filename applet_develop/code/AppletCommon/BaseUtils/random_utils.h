@@ -1,4 +1,15 @@
-#pragma once
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
+#ifndef __RANDOM_UTILS_H_
+#define __RANDOM_UTILS_H_
+
 #include <vector>
 #include <iterator>
 #include <stdint.h>
@@ -92,3 +103,5 @@ private:
 
 
 }
+
+#endif

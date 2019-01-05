@@ -17,7 +17,7 @@
 #include "str_comm.h"
 
 
-using namespace vas;
+using namespace base_utils;
 
 namespace base_utils
 {

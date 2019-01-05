@@ -1,4 +1,12 @@
-
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 随机数
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
 #include "utf8_utils.h"
 
 namespace base_utils

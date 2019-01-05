@@ -1,12 +1,15 @@
-/**
- * @file utf8_utils.h
- * @brief utf8字符相关操作
- * @author kennyliang, kennyliang@tencent.com
- * @version 1.0
- * @date 2014-03-03
- */
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 随机数
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
 
-#pragma once
+#ifndef __UTF8_UTILS_H
+#define __UTF8_UTILS_H
 
 #include <string>
 
@@ -30,5 +33,6 @@ public:
     static bool IsZh(const char*& input);
 };
 
-}
+};
 
+#endif

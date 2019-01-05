@@ -85,8 +85,8 @@ enum CommonErrNo
     ERR_PARAM_INVALID               = 200202,     // 参数无效一般返回码
 
     //编解码
-    ERR_JCE_DECODE_FAIL        = -200300,  //JCE解码失败
-    ERR_JCE_ENCODE_FAIL        = -200301,  //JCE编码失败
+    ERR_TARS_DECODE_FAIL        = -200300,  //TARS解码失败
+    ERR_TARS_ENCODE_FAIL        = -200301,  //TARS编码失败
 
     ECODE_JSON_PARSE                = -200327,     // JSON PARSE
     ECODE_JSON_EXCEPTION            = -200328,     // JSON 异常

@@ -1,4 +1,12 @@
-
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
 
 #ifndef __HYDRA_MUTEX_LOCK_H__
 #define __HYDRA_MUTEX_LOCK_H__ 
@@ -6,7 +14,8 @@
 #include <pthread.h>
 #include "base_define.h"
 
-namespace hydra {
+namespace base_utils
+{
 
 class CMutex 
 {

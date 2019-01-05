@@ -1,4 +1,12 @@
-
+/*********************************************************************************
+ FileName: 
+ Author: xufubo
+ Date:  2018-12-26
+ Description: 随机数
+ Version:
+ History:
+     <author>        <time>          <version>          <desc>
+ ********************************************************************************/
 
 #ifndef __STR_COMM_H__
 #define __STR_COMM_H__ 
@@ -17,7 +25,8 @@ extern const char  g_hydra_hexadecimal[16];
 }
 #endif
 
-namespace hydra {
+namespace base_utils 
+{
 
 
 static inline bool IsAscii(uchar c)
