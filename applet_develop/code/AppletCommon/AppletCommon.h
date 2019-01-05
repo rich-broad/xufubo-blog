@@ -15,67 +15,46 @@ using namespace std;
 
 namespace HardwareApplet
 {
-    enum CMD
-    {
-        E_CMD_UNKNOW = 0,
-        E_CMD_GET_NEW_ST = 1,
-    };
-    inline string etos(const CMD & e)
-    {
-        switch(e)
-        {
-            case E_CMD_UNKNOW: return "E_CMD_UNKNOW";
-            case E_CMD_GET_NEW_ST: return "E_CMD_GET_NEW_ST";
-            default: return "";
-        }
-    }
-    inline int stoe(const string & s, CMD & e)
-    {
-        if(s == "E_CMD_UNKNOW")  { e=E_CMD_UNKNOW; return 0;}
-        if(s == "E_CMD_GET_NEW_ST")  { e=E_CMD_GET_NEW_ST; return 0;}
+    const std::string getNewTicket = "getNewTicket";
 
-        return -1;
-    }
+    const std::string getGoodsClassifyList = "getGoodsClassifyList";
 
-    enum RETCODE
+    enum COMMRETCODE
     {
-        E_RETCODE_SUCCESS = 0,
+        E_SUCCESS = 0,
         E_TARS_ENCODE_ERROR = 1,
         E_TARS_DECODE_ERROR = 2,
         E_TICKET_INVALID = 3,
         E_TICKET_EXPIRED = 4,
-        E_BUSINESS_ERROR = 5,
-        E_BUSINESS_EXCEPTION = 6,
-        E_BUSINESS_SUCCESS = 7,
-        E_ST_EMPTY_ERROR = 8,
+        E_TICKET_WILL_EXPIRED = 5,
+        E_BUSINESS_ERROR = 6,
+        E_BUSINESS_EXCEPTION = 7,
     };
-    inline string etos(const RETCODE & e)
+    inline string etos(const COMMRETCODE & e)
     {
         switch(e)
         {
-            case E_RETCODE_SUCCESS: return "E_RETCODE_SUCCESS";
+            case E_SUCCESS: return "E_SUCCESS";
             case E_TARS_ENCODE_ERROR: return "E_TARS_ENCODE_ERROR";
             case E_TARS_DECODE_ERROR: return "E_TARS_DECODE_ERROR";
             case E_TICKET_INVALID: return "E_TICKET_INVALID";
             case E_TICKET_EXPIRED: return "E_TICKET_EXPIRED";
+            case E_TICKET_WILL_EXPIRED: return "E_TICKET_WILL_EXPIRED";
             case E_BUSINESS_ERROR: return "E_BUSINESS_ERROR";
             case E_BUSINESS_EXCEPTION: return "E_BUSINESS_EXCEPTION";
-            case E_BUSINESS_SUCCESS: return "E_BUSINESS_SUCCESS";
-            case E_ST_EMPTY_ERROR: return "E_ST_EMPTY_ERROR";
             default: return "";
         }
     }
-    inline int stoe(const string & s, RETCODE & e)
+    inline int stoe(const string & s, COMMRETCODE & e)
     {
-        if(s == "E_RETCODE_SUCCESS")  { e=E_RETCODE_SUCCESS; return 0;}
+        if(s == "E_SUCCESS")  { e=E_SUCCESS; return 0;}
         if(s == "E_TARS_ENCODE_ERROR")  { e=E_TARS_ENCODE_ERROR; return 0;}
         if(s == "E_TARS_DECODE_ERROR")  { e=E_TARS_DECODE_ERROR; return 0;}
         if(s == "E_TICKET_INVALID")  { e=E_TICKET_INVALID; return 0;}
         if(s == "E_TICKET_EXPIRED")  { e=E_TICKET_EXPIRED; return 0;}
+        if(s == "E_TICKET_WILL_EXPIRED")  { e=E_TICKET_WILL_EXPIRED; return 0;}
         if(s == "E_BUSINESS_ERROR")  { e=E_BUSINESS_ERROR; return 0;}
         if(s == "E_BUSINESS_EXCEPTION")  { e=E_BUSINESS_EXCEPTION; return 0;}
-        if(s == "E_BUSINESS_SUCCESS")  { e=E_BUSINESS_SUCCESS; return 0;}
-        if(s == "E_ST_EMPTY_ERROR")  { e=E_ST_EMPTY_ERROR; return 0;}
 
         return -1;
     }
@@ -371,15 +350,16 @@ namespace HardwareApplet
         }
         static string MD5()
         {
-            return "d786400c54cfecca6a465deb7ba79d21";
+            return "b3fe637b4e8503eba08cb9e2d7b79958";
         }
         ProxyReqHead()
-        :requestId(0),cmd(HardwareApplet::E_CMD_UNKNOW),st(""),clientTimestamp(0),svrTimestamp(0)
+        :requestId(0),cmd(""),st(""),clientTimestamp(0),svrTimestamp(0)
         {
         }
         void resetDefautlt()
         {
             requestId = 0;
+            cmd = "";
             st = "";
             clientTimestamp = 0;
             svrTimestamp = 0;
@@ -388,7 +368,7 @@ namespace HardwareApplet
         void writeTo(tars::TarsOutputStream<WriterT>& _os) const
         {
             _os.write(requestId, 0);
-            _os.write((tars::Int32)cmd, 1);
+            _os.write(cmd, 1);
             _os.write(st, 2);
             _os.write(clientTimestamp, 3);
             _os.write(svrTimestamp, 4);
@@ -401,9 +381,7 @@ namespace HardwareApplet
         {
             resetDefautlt();
             _is.read(requestId, 0, true);
-            tars::Int32 eTemp1 = HardwareApplet::E_CMD_UNKNOW;
-            _is.read(eTemp1, 1, true);
-            cmd = (HardwareApplet::CMD)eTemp1;
+            _is.read(cmd, 1, true);
             _is.read(st, 2, true);
             _is.read(clientTimestamp, 3, true);
             _is.read(svrTimestamp, 4, true);
@@ -415,7 +393,7 @@ namespace HardwareApplet
         {
             tars::TarsDisplayer _ds(_os, _level);
             _ds.display(requestId,"requestId");
-            _ds.display((tars::Int32)cmd,"cmd");
+            _ds.display(cmd,"cmd");
             _ds.display(st,"st");
             _ds.display(clientTimestamp,"clientTimestamp");
             _ds.display(svrTimestamp,"svrTimestamp");
@@ -428,7 +406,7 @@ namespace HardwareApplet
         {
             tars::TarsDisplayer _ds(_os, _level);
             _ds.displaySimple(requestId, true);
-            _ds.displaySimple((tars::Int32)cmd, true);
+            _ds.displaySimple(cmd, true);
             _ds.displaySimple(st, true);
             _ds.displaySimple(clientTimestamp, true);
             _ds.displaySimple(svrTimestamp, true);
@@ -439,7 +417,7 @@ namespace HardwareApplet
         }
     public:
         tars::Int32 requestId;
-        HardwareApplet::CMD cmd;
+        std::string cmd;
         std::string st;
         tars::Int64 clientTimestamp;
         tars::Int64 svrTimestamp;
@@ -465,10 +443,10 @@ namespace HardwareApplet
         }
         static string MD5()
         {
-            return "ac189c968bd93dcd7fd87d51933e7a40";
+            return "f97109d2b4f77362b237feb6d47eee78";
         }
         ProxyRspHead()
-        :ret(HardwareApplet::E_RETCODE_SUCCESS),svrTimestamp(0),csTicketState(0),st(""),requestId(0)
+        :ret(HardwareApplet::E_SUCCESS),svrTimestamp(0),csTicketState(0),st(""),requestId(0)
         {
         }
         void resetDefautlt()
@@ -491,9 +469,9 @@ namespace HardwareApplet
         void readFrom(tars::TarsInputStream<ReaderT>& _is)
         {
             resetDefautlt();
-            tars::Int32 eTemp0 = HardwareApplet::E_RETCODE_SUCCESS;
+            tars::Int32 eTemp0 = HardwareApplet::E_SUCCESS;
             _is.read(eTemp0, 0, true);
-            ret = (HardwareApplet::RETCODE)eTemp0;
+            ret = (HardwareApplet::COMMRETCODE)eTemp0;
             _is.read(svrTimestamp, 1, true);
             _is.read(csTicketState, 2, true);
             _is.read(st, 3, true);
@@ -520,7 +498,7 @@ namespace HardwareApplet
             return _os;
         }
     public:
-        HardwareApplet::RETCODE ret;
+        HardwareApplet::COMMRETCODE ret;
         tars::Int64 svrTimestamp;
         tars::Int32 csTicketState;
         std::string st;
@@ -917,6 +895,191 @@ namespace HardwareApplet
         return l.head == r.head && l.body == r.body;
     }
     inline bool operator!=(const ProxyGetNewTicketRsp&l, const ProxyGetNewTicketRsp&r)
+    {
+        return !(l == r);
+    }
+
+    struct GetGoodsClassifyListReq : public tars::TarsStructBase
+    {
+    public:
+        static string className()
+        {
+            return "HardwareApplet.GetGoodsClassifyListReq";
+        }
+        static string MD5()
+        {
+            return "2e45701425f70f0e5c722cbe2c3f508e";
+        }
+        GetGoodsClassifyListReq()
+        :reserved_fields("")
+        {
+        }
+        void resetDefautlt()
+        {
+            reserved_fields = "";
+        }
+        template<typename WriterT>
+        void writeTo(tars::TarsOutputStream<WriterT>& _os) const
+        {
+            if (reserved_fields != "")
+            {
+                _os.write(reserved_fields, 0);
+            }
+        }
+        template<typename ReaderT>
+        void readFrom(tars::TarsInputStream<ReaderT>& _is)
+        {
+            resetDefautlt();
+            _is.read(reserved_fields, 0, false);
+        }
+        ostream& display(ostream& _os, int _level=0) const
+        {
+            tars::TarsDisplayer _ds(_os, _level);
+            _ds.display(reserved_fields,"reserved_fields");
+            return _os;
+        }
+        ostream& displaySimple(ostream& _os, int _level=0) const
+        {
+            tars::TarsDisplayer _ds(_os, _level);
+            _ds.displaySimple(reserved_fields, false);
+            return _os;
+        }
+    public:
+        std::string reserved_fields;
+    };
+    inline bool operator==(const GetGoodsClassifyListReq&l, const GetGoodsClassifyListReq&r)
+    {
+        return l.reserved_fields == r.reserved_fields;
+    }
+    inline bool operator!=(const GetGoodsClassifyListReq&l, const GetGoodsClassifyListReq&r)
+    {
+        return !(l == r);
+    }
+
+    struct GoodsClassifyItem : public tars::TarsStructBase
+    {
+    public:
+        static string className()
+        {
+            return "HardwareApplet.GoodsClassifyItem";
+        }
+        static string MD5()
+        {
+            return "b84e4dd5dd1d7c43dbe702512024405f";
+        }
+        GoodsClassifyItem()
+        :classifyId(0),classifyName("")
+        {
+        }
+        void resetDefautlt()
+        {
+            classifyId = 0;
+            classifyName = "";
+        }
+        template<typename WriterT>
+        void writeTo(tars::TarsOutputStream<WriterT>& _os) const
+        {
+            _os.write(classifyId, 0);
+            _os.write(classifyName, 1);
+        }
+        template<typename ReaderT>
+        void readFrom(tars::TarsInputStream<ReaderT>& _is)
+        {
+            resetDefautlt();
+            _is.read(classifyId, 0, true);
+            _is.read(classifyName, 1, true);
+        }
+        ostream& display(ostream& _os, int _level=0) const
+        {
+            tars::TarsDisplayer _ds(_os, _level);
+            _ds.display(classifyId,"classifyId");
+            _ds.display(classifyName,"classifyName");
+            return _os;
+        }
+        ostream& displaySimple(ostream& _os, int _level=0) const
+        {
+            tars::TarsDisplayer _ds(_os, _level);
+            _ds.displaySimple(classifyId, true);
+            _ds.displaySimple(classifyName, false);
+            return _os;
+        }
+    public:
+        tars::Int32 classifyId;
+        std::string classifyName;
+    };
+    inline bool operator==(const GoodsClassifyItem&l, const GoodsClassifyItem&r)
+    {
+        return l.classifyId == r.classifyId && l.classifyName == r.classifyName;
+    }
+    inline bool operator!=(const GoodsClassifyItem&l, const GoodsClassifyItem&r)
+    {
+        return !(l == r);
+    }
+
+    struct GetGoodsClassifyListRsp : public tars::TarsStructBase
+    {
+    public:
+        static string className()
+        {
+            return "HardwareApplet.GetGoodsClassifyListRsp";
+        }
+        static string MD5()
+        {
+            return "703c0e0a1abc6793d8220e2d6369c55b";
+        }
+        GetGoodsClassifyListRsp()
+        :ret(0),errmsg("")
+        {
+        }
+        void resetDefautlt()
+        {
+            ret = 0;
+            errmsg = "";
+        }
+        template<typename WriterT>
+        void writeTo(tars::TarsOutputStream<WriterT>& _os) const
+        {
+            _os.write(ret, 0);
+            _os.write(errmsg, 1);
+            if (item_list.size() > 0)
+            {
+                _os.write(item_list, 2);
+            }
+        }
+        template<typename ReaderT>
+        void readFrom(tars::TarsInputStream<ReaderT>& _is)
+        {
+            resetDefautlt();
+            _is.read(ret, 0, true);
+            _is.read(errmsg, 1, true);
+            _is.read(item_list, 2, false);
+        }
+        ostream& display(ostream& _os, int _level=0) const
+        {
+            tars::TarsDisplayer _ds(_os, _level);
+            _ds.display(ret,"ret");
+            _ds.display(errmsg,"errmsg");
+            _ds.display(item_list,"item_list");
+            return _os;
+        }
+        ostream& displaySimple(ostream& _os, int _level=0) const
+        {
+            tars::TarsDisplayer _ds(_os, _level);
+            _ds.displaySimple(ret, true);
+            _ds.displaySimple(errmsg, true);
+            _ds.displaySimple(item_list, false);
+            return _os;
+        }
+    public:
+        tars::Int32 ret;
+        std::string errmsg;
+        vector<HardwareApplet::GoodsClassifyItem> item_list;
+    };
+    inline bool operator==(const GetGoodsClassifyListRsp&l, const GetGoodsClassifyListRsp&r)
+    {
+        return l.ret == r.ret && l.errmsg == r.errmsg && l.item_list == r.item_list;
+    }
+    inline bool operator!=(const GetGoodsClassifyListRsp&l, const GetGoodsClassifyListRsp&r)
     {
         return !(l == r);
     }

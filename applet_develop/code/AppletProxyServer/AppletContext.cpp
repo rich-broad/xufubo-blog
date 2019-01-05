@@ -78,8 +78,15 @@ int32_t AppletContext::parseHttpBody(const string & content)
         ERRORLOG("find member head or body err" << endl);
         return -1;
     }
+    if (!_document["head"].IsObject() || _document["body"].IsObject())
+    {
+        ERRORLOG("head or body is not object err" << endl);
+        return -1;
+    }
+    
     _reqBodyStr = AppletCommUtils::Value2Str(_document["body"]);
     const Value& head = _document["head"];
+
     if (head.FindMember("requestId") == head.MemberEnd() || head.FindMember("cmd") == head.MemberEnd() ||
         head.FindMember("st") == head.MemberEnd() || head.FindMember("clientTimestamp") == head.MemberEnd() ||
         head.FindMember("svrTimestamp") == head.MemberEnd())

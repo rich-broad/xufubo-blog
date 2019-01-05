@@ -4,23 +4,19 @@ module HardwareApplet
 {
 
     // 命令字
-    enum CMD
-    {
-        E_CMD_UNKNOW = 0,                        // 0-枚举默认值
-        E_CMD_GET_NEW_ST = 1,                    // 1-获取新的st
-    };
+    const string getNewTicket = "getNewTicket";
+    const string getGoodsClassifyList = "getGoodsClassifyList";
 
-    enum RETCODE
+    enum COMMRETCODE
     {
-        E_RETCODE_SUCCESS = 0,                   // 0-成功
+        E_SUCCESS = 0,                          // 0-成功
         E_TARS_ENCODE_ERROR = 1,
         E_TARS_DECODE_ERROR = 2,
         E_TICKET_INVALID = 3,
         E_TICKET_EXPIRED = 4,
-        E_BUSINESS_ERROR = 5,
-        E_BUSINESS_EXCEPTION = 6,
-        E_BUSINESS_SUCCESS = 7,
-        E_ST_EMPTY_ERROR = 8,
+        E_TICKET_WILL_EXPIRED = 5,
+        E_BUSINESS_ERROR = 6,
+        E_BUSINESS_EXCEPTION = 7,
     };
 
     // 票据
@@ -62,7 +58,7 @@ module HardwareApplet
     struct ProxyReqHead
     {
 	    0 require int requestId;		        // 请求序列号
-        1 require CMD cmd;                      // 需要调用的命令字
+        1 require string cmd;                   // 需要调用的命令字
         2 require string st;                    // 请求st  SecurityTicket序列化，加密，base64之后生成
         3 require long clientTimestamp;	        // sdk当前时间戳，单位毫秒
     	4 require long svrTimestamp;		    // 根据后台之前协议返回的svrTimestamp校准后计算的近似后台时间戳
@@ -75,12 +71,9 @@ module HardwareApplet
     // 接入层响应头部
     struct ProxyRspHead
     {
-        0 require RETCODE ret;		            //返回码
+        0 require COMMRETCODE ret;		        //返回码
     	1 require long svrTimestamp;		    //后台时间戳，单位毫秒
-    	2 require int csTicketState;		    // 0——有效
-    							                // 1——即将过期，前端须发起续票请求
-                                                // 2--无效票据,需要获取新的st
-    							                // 其他——无效
+    	2 require int csTicketState;		    // 0——有效,其他见COMMRETCODE
         3 require string st;                    // 票据，与请求中的一致
         4 require int requestId;		        // 请求序列号，前端可校验与PkgReqHead.requestId 中的一致
     };
@@ -130,6 +123,25 @@ module HardwareApplet
     {
 	    0 require ProxyRspHead head;		    //响应头部
 	    1 require GetNewTicketRsp body;	        //响应包体
+    };
+
+    // 得到商品分类列表
+    struct GetGoodsClassifyListReq
+    {
+        0 optional string reserved_fields;      // 保留字段
+    };
+
+    struct GoodsClassifyItem
+    {
+        0 require int classifyId;
+        1 require string classifyName;
+    };
+
+    struct GetGoodsClassifyListRsp
+    {
+        0 require int ret = 0;                              // 0-成功，其他失败
+        1 require string errmsg;                            // 错误信息
+        2 optional vector<GoodsClassifyItem> item_list;     // item_list
     };
 
 }; 

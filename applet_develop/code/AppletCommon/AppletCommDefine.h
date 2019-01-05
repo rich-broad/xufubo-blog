@@ -1,15 +1,16 @@
 
-#include "TarsEnDecode.h"
-#include "rapidjson/document.h"
-#include "rapidjson/allocators.h"
-#include "rapidjson/istreamwrapper.h"
-#include "rapidjson/ostreamwrapper.h"
-#include "rapidjson/prettywriter.h"
-#include "rapidjson/reader.h"
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-#include "AppletCommon.h"
-#include "servant/Application.h"
+#ifndef _AppletCommDefine_H_
+#define _AppletCommDefine_H_
+
+// std
+#include <string>
+#include <map>
+#include <vector>
+#include <list>
+#include <cmath>
+#include <algorithm>
+
+// tars
 #include "util/tc_base64.h"
 #include "util/tc_tea.h"
 #include "util/tc_common.h"
@@ -20,13 +21,33 @@
 #include "util/tc_thread_mutex.h"
 #include "util/tc_thread_rwlock.h"
 #include "util/tc_sha.h"
+#include "util/tc_encoder.h"
+#include "util/tc_timeprovider.h"
+#include "util/tc_file.h"
+#include "util/tc_cgi.h"
+#include "util/tc_config.h"
+#include "util/tc_functor.h"
+#include "servant/Application.h"
+#include "servant/TarsLogger.h"
 
+// rapidjson
+#include "rapidjson/document.h"
+#include "rapidjson/allocators.h"
+#include "rapidjson/istreamwrapper.h"
+#include "rapidjson/ostreamwrapper.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/reader.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include "rapidjson_util.h"
+
+// ÒµÎñµÄ
+#include "TarsEnDecode.h"
+#include "AppletCommon.h"
 
 using namespace std;
 using namespace tars;
 
-#ifndef _AppletCommDefine_H_
-#define _AppletCommDefine_H_
 
 #define I2S(i) TC_Common::tostr<int>(i)
 #define U2S(i) TC_Common::tostr<unsigned>(i)
@@ -44,6 +65,8 @@ using namespace tars;
 #define DEBUGLOG(info) FDLOG("default") << POSITION << "|DEBUG|" << info
 
 typedef TC_LockT<TC_ThreadMutex> MutexGuard;
+typedef TC_RW_RLockT<TC_ThreadRWLocker> ReadLock;
+typedef TC_RW_WLockT<TC_ThreadRWLocker> WriteLock;
 
 #define __COMMON_EXCEPTION_CATCH_EXT__(customMsg)                           \
     catch(std::exception & e)                                               \

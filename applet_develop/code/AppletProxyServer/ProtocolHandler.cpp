@@ -82,7 +82,11 @@ int ProtocolHandler::ParseGetNewTicketReq(vector<char>& reqData)
     const Value& jsonValue = _ctx->_document["body"];
     //DEBUGLOG("ParseGetNewTicketReq enter: _reqJsonBody = " << AppletCommUtils::Value2Str(jsonValue) << endl);
     GetNewTicketReq request;
-    request.wx_code = jsonValue["wx_code"].GetString();
+    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    {
+        return -1;
+    }
+    DEBUGLOG("ParseGetNewTicketReq enter: request.wx_code = " << request.wx_code << endl);
     ret = TarsEncode<GetNewTicketReq>(request, reqData);
     if (ret)
     {
