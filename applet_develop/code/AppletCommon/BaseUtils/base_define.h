@@ -16,6 +16,8 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 #include <byteswap.h>
+#include <memory.h>
+#include <string.h>
 
 #undef uchar
 #undef ushort
@@ -58,19 +60,19 @@
 # endif
 
 /// 将name或name对应的标识符转换成字符串，
-/// 如#define name value，则HYDRA_NAME_TOSTR(name) => "value",
-/// 如name不是一个宏，则HYDRA_NAME_TOSTR(name) => "name",
-#define HYDRA_NAME_TOSTR(name) HYDRA_NAME_TOSTR2(name)
-#define HYDRA_NAME_TOSTR2(name) #name
+/// 如#define name value，则BASE_UTILS_NAME_TOSTR(name) => "value",
+/// 如name不是一个宏，则BASE_UTILS_NAME_TOSTR(name) => "name",
+#define BASE_UTILS_NAME_TOSTR(name) BASE_UTILS_NAME_TOSTR2(name)
+#define BASE_UTILS_NAME_TOSTR2(name) #name
 
 /// 将两个标识符进行拼接
-/// 如#define a x, #define b y, 则HYDRA_NAME_APPEND(a, b) => xy
-/// 如a, b不是一个宏，则HYDRA_NAME_APPEND(a, b) => ab
-#define HYDRA_NAME_APPEND(a, b) HYDRA_NAME_APPEND2(a, b)
-#define HYDRA_NAME_APPEND2(a, b) a##b
+/// 如#define a x, #define b y, 则BASE_UTILS_NAME_APPEND(a, b) => xy
+/// 如a, b不是一个宏，则BASE_UTILS_NAME_APPEND(a, b) => ab
+#define BASE_UTILS_NAME_APPEND(a, b) BASE_UTILS_NAME_APPEND2(a, b)
+#define BASE_UTILS_NAME_APPEND2(a, b) a##b
 
 /// 判断一个串是否为空
-#define HYDRA_NULLSTR(ptr) (NULL == (ptr) || 0 == *(ptr))
+#define BASE_UTILS_NULLSTR(ptr) (NULL == (ptr) || 0 == *(ptr))
 
 /// gcc/g++的属性
 #define _UNUSED_            __attribute__((__unused__))
@@ -96,13 +98,13 @@
 /// 线程私有类型
 #if 0
 #if __PIC__ || __pic__
-#define HYDRA_TLS __thread __attribute__((tls_model("initial-exec")))
+#define BASE_UTILS_TLS __thread __attribute__((tls_model("initial-exec")))
 #else
-#define HYDRA_TLS __thread __attribute__((tls_model("local-exec")))
+#define BASE_UTILS_TLS __thread __attribute__((tls_model("local-exec")))
 #endif
 #endif
 
-#define HYDRA_TLS __thread
+#define BASE_UTILS_TLS __thread
 
 /// 整数类型定义，只是为了使类型写起来更简洁
 typedef unsigned char  uchar;
@@ -118,10 +120,11 @@ typedef long unsigned uint64;
 #endif
 typedef uint64         qqnum_t; ///< qq号统一类型定义
 
-namespace hydra {
+namespace base_utils 
+{
 
 /// 文本编码统一定义
-enum HydraEncoding
+enum BaseUtilsEncoding
 {
     HE_UNKNOWN      = -1,  ///< unknown
     HE_UTF8         = 0,   ///< utf8
@@ -131,7 +134,7 @@ enum HydraEncoding
 
 /// @brief 字符串/二进制块 单元，最大容量为SIZE，实际长度为len
 template <int SIZE, typename TLen>
-struct HydraStringUnit
+struct BaseUtilsStringUnit
 {
     union
     {
@@ -148,7 +151,7 @@ struct HydraStringUnit
 
 /// @brief 固定大小的 字符串/二进制块 单元, 长度为SIZE
 template <int SIZE>
-struct HydraFixedStrUnit
+struct BaseUtilsFixedStrUnit
 {
     union
     {

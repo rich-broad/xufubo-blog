@@ -12,6 +12,7 @@
 #define __UTF8_UTILS_H
 
 #include <string>
+#include "str_comm.h"
 
 namespace base_utils
 {

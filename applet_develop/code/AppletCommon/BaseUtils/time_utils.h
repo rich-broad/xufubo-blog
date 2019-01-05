@@ -27,23 +27,15 @@ enum
 {
     HD_SECONDS_OF_DAY = 86400 
 };
-class CTimeUtils
+class TimeUtils
 {
 public:
-    static bool IsSameMonth(time_t time1, time_t time2);
-    static bool IsSameDay(time_t time1, time_t time2);
-    static bool IsSameWeek(time_t time1, time_t time2, bool isFromSunDay = true);
 
     static unsigned GetMonth(time_t time);
     static unsigned GetYear(time_t time);
 
     static char* GetYearMonth(time_t time);
-    static uint64_t GetCurrentMSTime(void);
-    static uint64_t GetCurrentUSTime(void);
-    static uint64_t GetMSTime(unsigned sec, unsigned usec);
-    static uint64_t GetUSTime(unsigned sec, unsigned usec);
     static char* GetMinuteFormat(void);
-    static time_t GetDayBeginTime(time_t ts);
     static char* GetTenpayTimeFormat(time_t time);
     static time_t GetTenpayTimeSec(const char *time_str);
     static char* GetYearMonthDay(time_t time);
@@ -85,219 +77,200 @@ public:
     /* static int GetHasPassedMonth(int64_t time_stamp); */
 
 
-    inline uint64_t GetCurrentuTime()
-{
-    uint64_t time=0;
-    struct timeval now;
-    gettimeofday( &now , NULL );
-    time = now.tv_sec;
-    time = time*1000000;
-    time += now.tv_usec;
-    return time;
-}
+static bool IsSameDay( time_t t1, time_t t2 );
+static bool IsSameHour( time_t t1, time_t t2 );
 
-inline uint64_t GetCurrentMSTime()
-{
-    return GetCurrentuTime()/1000;
-}
-
-bool IsSameDay( time_t t1, time_t t2 );
-bool IsSameHour( time_t t1, time_t t2 );
-
-bool IsSameWeek( time_t t1, time_t t2 );
-bool IsSameMonth( time_t t1, time_t t2 );
-bool IsSameYear( time_t t1, time_t t2 );
-
-time_t MakeTime(tm& stTime);
+static bool IsSameWeek( time_t t1, time_t t2, bool isFromSunDay);
+static bool IsSameMonth( time_t t1, time_t t2 );
+static bool IsSameYear( time_t t1, time_t t2 );
 
 //将时间长度转换为HH:MM:SS或者MM:SS字符串
-std::string TimeLengthToStr(int time_length);
-std::string TimeLengthToMMSS(int time_length);
-std::string TimeLengthToHHMMSS(int time_length);
+static std::string TimeLengthToStr(int time_length);
+static std::string TimeLengthToMMSS(int time_length);
+static std::string TimeLengthToHHMMSS(int time_length);
 
-std::pair<time_t, time_t> GetDayBeginEnd(time_t tm_now);
+static std::pair<time_t, time_t> GetDayBeginEnd(time_t tm_now);
 
 
-/*!
- * \brief 获取某时间点之间的天数
+/*
+ * brief 获取某时间点之间的天数
  * 如 2005-01-10 12:00:00 -> 2005-01-11: 06:00:00 = 1天
- * \param[in] tFrom 时间起点
- * \param[in] tTo   时间终点
- * \return int [ 时间天数差, 分正负 ]
- * \remark 以本地时间为准进行处理
+ * param[in] tFrom 时间起点
+ * param[in] tTo   时间终点
+ * return int [ 时间天数差, 分正负 ]
+ * remark 以本地时间为准进行处理
  */
-int GetDayInterval(time_t tFrom,time_t tTo);
+static int GetDayInterval(time_t tFrom,time_t tTo);
 
-/*!
- * \brief 获取某时间点之间的小时数
+/*
+ * brief 获取某时间点之间的小时数
  * 如 2005-01-11 02:04:00 -> 2005-01-11: 06:00:00 = 4小时
- * \param[in] tFrom 时间起点
- * \param[in] tTo   时间终点
- * \return int [ 时间小时数差, 分正负 ]
- * \remark 以本地时间为准进行处理
+ * param[in] tFrom 时间起点
+ * param[in] tTo   时间终点
+ * return int [ 时间小时数差, 分正负 ]
+ * remark 以本地时间为准进行处理
  */
-int GetHourInterval(time_t tFrom,time_t tTo);
+static int GetHourInterval(time_t tFrom,time_t tTo);
 
-/*!
- * \brief 获取当前年份
- * \return 年份
- * \remark 以本地时间为准进行处理
+/*
+ * brief 获取当前年份
+ * return 年份
+ * remark 以本地时间为准进行处理
  */
-int GetCurrentYear( void );
+static int GetCurrentYear( void );
 
-/*!
- * \brief 获取当前月份
- * \return 月份(1,2,3,4,5,6,7,8,9,10,11,12)
- * \remark 以本地时间为准进行处理
+/*
+ * brief 获取当前月份
+ * return 月份(1,2,3,4,5,6,7,8,9,10,11,12)
+ * remark 以本地时间为准进行处理
  */
-int GetCurrentMonth( void );
+static int GetCurrentMonth( void );
 
-/*!
- * \brief 获取当前星期几
- * \return 星期几(0,1,2,3,4,5,6)
- * \remark 以本地时间为准进行处理
+/*
+ * brief 获取当前星期几
+ * return 星期几(0,1,2,3,4,5,6)
+ * remark 以本地时间为准进行处理
  */
-int GetCurrentWeek( void );
+static int GetCurrentWeek( void );
 
-/*!
- * \brief 获取系统微秒数
- * \return int [ 当前微妙 ]
+/*
+ * brief 获取系统微秒数
+ * return int [ 当前微妙 ]
  */
-int64_t GetCurrentuTime();
+static int64_t GetCurrentuTime();
 
-/*!
- * \brief 获取系统毫秒数
- * \return int [ 当前毫秒 ]
+/*
+ * brief 获取系统毫秒数
+ * return int [ 当前毫秒 ]
  */
-int64_t GetCurrentMSTime();
+static int64_t GetCurrentMSTime(void);
 
-/*!
- * \brief 返回时间点所以小时开始时间点:
+/*
+ * brief 返回时间点所以小时开始时间点:
  * 如 2005-01-10 12:10:29 -> 2005-01-10 12:00:00
- * \param[in] tTime 时间点
- * \return int [ 返回一个小时开始时间 ]
- * \remark 以本地时间为准进行处理
+ * param[in] tTime 时间点
+ * return int [ 返回一个小时开始时间 ]
+ * remark 以本地时间为准进行处理
  */
-time_t GetHourBeginTime(time_t tTime);
+static time_t GetHourBeginTime(time_t tTime);
 
-/*!
- * \brief 返回时间点所以日开始时间点:
+/*
+ * brief 返回时间点所以日开始时间点:
  * 如 2005-01-10 12:10:29 -> 2005-01-10 00:00:00
- * \param[in] tTime 时间点
- * \return int [ 返回一天开始时间 ]
- * \remark 以本地时间为准进行处理
+ * param[in] tTime 时间点
+ * return int [ 返回一天开始时间 ]
+ * remark 以本地时间为准进行处理
  */
-time_t GetDayBeginTime(time_t tTime);
+static time_t GetDayBeginTime(time_t tTime);
 
-/*!
- * \brief 返回时间点所在月的第1个周一的开始时间 
- * \param[in] tTIme: 时间点
- * \return int [ 返回第1个周一的开始时间  ]
- * \remark 以本地时间为准进行处理
+/*
+ * brief 返回时间点所在月的第1个周一的开始时间 
+ * param[in] tTIme: 时间点
+ * return int [ 返回第1个周一的开始时间  ]
+ * remark 以本地时间为准进行处理
  */
-time_t GetFirstMondayOfMonth(time_t tTime);
+static time_t GetFirstMondayOfMonth(time_t tTime);
 
-/*!
- * \brief 返回时间点所在周的开始时间 
- * \param[in] tTIme: 时间点
- * \return int [ 返回一周开始时间 ]
- * \remark 以本地时间为准进行处理
+/*
+ * brief 返回时间点所在周的开始时间 
+ * param[in] tTIme: 时间点
+ * return int [ 返回一周开始时间 ]
+ * remark 以本地时间为准进行处理
  */
-time_t GetWeekBeginTime(time_t tTime);
+static time_t GetWeekBeginTime(time_t tTime);
 
-/*!
- * \brief 返回时间点所以日开始时间点:
+/*
+ * brief 返回时间点所以日开始时间点:
  * 如 2005-01-10 12:10:29 -> 2005-01-01 00:00:00
- * \param[in] tTime 时间点
- * \return int [ 返回一个月的始时间 ]
- * \remark 以本地时间为准进行处理	
+ * param[in] tTime 时间点
+ * return int [ 返回一个月的始时间 ]
+ * remark 以本地时间为准进行处理	
  */
 
-time_t GetMonthBeginTime(time_t tTime) ; 
+static time_t GetMonthBeginTime(time_t tTime) ; 
 
-/*!
- * \brief 返回时间点所在年开始时间点: 如 2005-09-10 12:10:29 -> 2005-01-01 00:00:00
- * \param[in] tTIme: 时间点
- * \return int [ 返回一年的开始时间 ]
- * \remark 以本地时间为准进行处理	
+/*
+ * brief 返回时间点所在年开始时间点: 如 2005-09-10 12:10:29 -> 2005-01-01 00:00:00
+ * param[in] tTIme: 时间点
+ * return int [ 返回一年的开始时间 ]
+ * remark 以本地时间为准进行处理	
  */
-time_t GetYearBeginTime(time_t tTime) ; 
+static time_t GetYearBeginTime(time_t tTime) ; 
 
 
-/*!
- * \brief 格式化时间
+/*
+ * brief 格式化时间
  */
-const std::string FormatTime(const std::string& sFmt, const tm& stTime);
+static const std::string FormatTime(const std::string& sFmt, const tm& stTime);
 
 
-/*!
- * \brief 格式化时间
- * \remark 以本地时间为准进行处理
+/*
+ * brief 格式化时间
+ * remark 以本地时间为准进行处理
  */
-const std::string FormatTime(const std::string& sFmt,time_t tTime);
+static const std::string FormatTime(const std::string& sFmt,time_t tTime);
 
 
-/*!
- * \brief 时间结构转换
+/*
+ * brief 时间结构转换
  */
-time_t MakeTime(tm& stTime);
+static time_t MakeTime(tm& stTime);
 
 
-/*!
- * \brief 时间结构转换
+/*
+ * brief 时间结构转换
  */
-time_t MakeTime(int iYear, int iMon, int iDay, int iHour=0,
-        int iMin=0, int iSec=0);
+static time_t MakeTime(int iYear, int iMon, int iDay, int iHour=0, int iMin=0, int iSec=0);
 
-/*!
- * \brief 返回时间代表的年月日
- * \param[out] iYear  年
- * \param[out] iMon   月
- * \param[out] iDay   日
- * \param[in]  iTime  时间, <0 时为当前时间
- * \return int [ 返回iTime, 如 iTime<0, 返回当前时间值 ]
- * \remark 以本地时间为准进行处理
+/*
+ * brief 返回时间代表的年月日
+ * param[out] iYear  年
+ * param[out] iMon   月
+ * param[out] iDay   日
+ * param[in]  iTime  时间, <0 时为当前时间
+ * return int [ 返回iTime, 如 iTime<0, 返回当前时间值 ]
+ * remark 以本地时间为准进行处理
  */
-int GetDate(int& iYear, int& iMon, int& iDay, int iTime=-1);
+static int GetDate(int& iYear, int& iMon, int& iDay, int iTime=-1);
 
-/*!
- * \brief 检查日期合法性并作修正
- * \return int [ 0--合法 !0--不合法并作修正 ]
+/*
+ * brief 检查日期合法性并作修正
+ * return int [ 0--合法 !0--不合法并作修正 ]
  */
-int CheckDate(int& iYear, int& iMonth, int& iDay);
+static int CheckDate(int& iYear, int& iMonth, int& iDay);
 
-/*!
- * \brief 时间格式化为UTC格式: Tue, 21 Feb 2006 02:20:04 UTC
- * \param[in] tTime 时间
- * \remark 返回全球标准时间而非本地时间
+/*
+ * brief 时间格式化为UTC格式: Tue, 21 Feb 2006 02:20:04 UTC
+ * param[in] tTime 时间
+ * remark 返回全球标准时间而非本地时间
  */
-std::string UTCTime(time_t tTime);
+static std::string UTCTime(time_t tTime);
 
-/*!
- * \brief 取当前时间
+/*
+ * brief 取当前时间
  */
-timeval GetTimeOfDay();
+static timeval GetTimeOfDay();
 
-/*!
- * \brief 计算两时间之间微秒差
- * \return time_t[tvto-tvfrom]
+/*
+ * brief 计算两时间之间微秒差
+ * return time_t[tvto-tvfrom]
  */
-time_t GetUSInterval(const timeval& tvfrom, const timeval& tvto);
+static time_t GetUSInterval(const timeval& tvfrom, const timeval& tvto);
 
-/*!
- * \brief 计算两时间之间毫秒差
- * \return time_t[tvto-tvfrom]
+/*
+ * brief 计算两时间之间毫秒差
+ * return time_t[tvto-tvfrom]
  */
-time_t GetMSInterval(const timeval& tvfrom, const timeval& tvto);
+static time_t GetMSInterval(const timeval& tvfrom, const timeval& tvto);
 
-/*!
- * \brief 返回今天零点的时间戳
- * \return time_t[tvto-tvfrom]
+/*
+ * brief 返回今天零点的时间戳
+ * return time_t[tvto-tvfrom]
  */
-time_t GetTodayZero();
+static time_t GetTodayZero();
 
-bool IsDiffDay(time_t t1,time_t t2 );
-bool IsDiffHour(time_t t1,time_t t2);
+static bool IsDiffDay(time_t t1,time_t t2 );
+static bool IsDiffHour(time_t t1,time_t t2);
 
 };
 

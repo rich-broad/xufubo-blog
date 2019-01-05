@@ -95,6 +95,7 @@ enum CommonErrNo
     ECODE_JSON_IS_NOT_STRING        = -200337,     // 不是string
     ECODE_PARSE_JSON_ERROR          = -200338,     // 文件内容不是合法json
     ECODE_JSON_TABLE_NOT_FOUND      = -200339,     // json表不存在
+    ECODE_BASE64_ENCODE          = -200340,     // base64编码错误
 
 
     

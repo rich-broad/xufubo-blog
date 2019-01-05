@@ -1,15 +1,28 @@
 
-#-----------------------------------------------------------------------
+CC := gcc
+CXX := g++
+CFLAGS := -g -O2 -std=c++11 -Wno-deprecated -Wall -fPIC
 
-TARGET = libbase_utils.a
-CONFIG    := 
-STRIP_FLAG:= N
-INCLUDE   += -I../AppletCommon
-LIB       += -lssl -lcrypto
+SOURCES=$(wildcard *.cpp *.c)
 
-#-----------------------------------------------------------------------
+OBJS = $(patsubst %.c,%.o,$(patsubst %.cpp,%.o,$(SOURCES)))
+OUTLIB := libbase_utils.a
 
-include /usr/local/tars/cpp/makefile/makefile.tars
+all: $(OBJS) $(OUTLIB)
 
-#-----------------------------------------------------------------------
+%.o:%.c
+	$(CC) $(CFLAGS) -c $< -o $@
+%.o:%.cpp
+	$(CXX) $(CFLAGS) -c $< -o $@
+
+$(OUTLIB): $(OBJS)
+	$(CC) -shared $(CFLAGS) -o $(OUTLIB) $(OBJS)
+
+.PHONY: clean install
+
+cleanall:
+	rm *.o *.so *.a
+
+
+
 

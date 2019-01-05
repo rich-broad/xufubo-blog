@@ -2,7 +2,7 @@
  FileName: 
  Author: xufubo
  Date:  2018-12-26
- Description: éšæœºæ•°
+ Description: Ëæ»úÊı
  Version:
  History:
      <author>        <time>          <version>          <desc>
@@ -40,19 +40,19 @@ size_t CUTF8_Utils::CountCharacter2(const std::string &str)
     size_t i = 0, w = 0;
     while (i < str.size())
     {
-        if(hydra::IsAscii(str[i]))
+        if(base_utils::IsAscii(str[i]))
         {
             i += 1;
         }
-        else if(hydra::IsUtf8TwoBytesLeading(str[i]))
+        else if(base_utils::IsUtf8TwoBytesLeading(str[i]))
         {
             i += 2;
         }
-        else if(hydra::IsUtf8ThreeBytesLeading(str[i]))
+        else if(base_utils::IsUtf8ThreeBytesLeading(str[i]))
         {
             i += 3;
         }
-        else if(hydra::IsUtf8FourBytesLeading(str[i]))
+        else if(base_utils::IsUtf8FourBytesLeading(str[i]))
         {
             i += 4;
         }

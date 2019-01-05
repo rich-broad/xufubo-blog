@@ -23,9 +23,6 @@
 #include <set>
 #include <string>
 
-#ifndef SWEET_TOOL_20120401_H_
-#define SWEET_TOOL_20120401_H_
-
 using namespace std;
 
 unsigned g_uiSub( unsigned a, unsigned b );

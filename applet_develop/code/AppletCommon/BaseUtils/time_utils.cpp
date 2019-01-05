@@ -44,7 +44,7 @@ namespace base_utils
 #define ONE_WEEK_SECONDS (604800)
 #define ONE_HOUR_SECONDS (3600)
 
-bool CTimeUtils::IsSameMinute(time_t time1, time_t time2)
+bool TimeUtils::IsSameMinute(time_t time1, time_t time2)
 {
     unsigned iDiff = time1 > time2 ? time1 - time2 : time2 - time1;
 
@@ -61,7 +61,7 @@ bool CTimeUtils::IsSameMinute(time_t time1, time_t time2)
     return false;
 }
 
-unsigned int CTimeUtils::MinuteOfDay(time_t ts)
+unsigned int TimeUtils::MinuteOfDay(time_t ts)
 {
     static unsigned int iDayBegin = 0;
     if (iDayBegin + ONE_DAY_SECONDS <= unsigned(ts))
@@ -72,7 +72,7 @@ unsigned int CTimeUtils::MinuteOfDay(time_t ts)
     return iMinute;
 }
 
-time_t CTimeUtils::GetDayBeginTime(time_t ts)
+time_t TimeUtils::GetDayBeginTime(time_t ts)
 {
     struct tm tm_time;
     localtime_r(&ts, &tm_time);
@@ -83,7 +83,7 @@ time_t CTimeUtils::GetDayBeginTime(time_t ts)
     return mktime(&tm_time);
 }
 
-bool CTimeUtils::IsSameWeek(time_t time1, time_t time2, bool isFromSunDay)
+bool TimeUtils::IsSameWeek(time_t time1, time_t time2, bool isFromSunDay)
 {
     struct tm tm1, tm2;
     localtime_r(&time1, &tm1);
@@ -113,34 +113,7 @@ bool CTimeUtils::IsSameWeek(time_t time1, time_t time2, bool isFromSunDay)
     return false;
 }
 
-bool CTimeUtils::IsSameMonth(time_t time1, time_t time2)
-{
-    if (GetYear(time1) != GetYear(time2))
-    {
-        return false;
-    }
-
-    if(GetMonth(time1) != GetMonth(time2))
-    {
-        return false;
-    }
-
-    return true;
-}
-
-bool CTimeUtils::IsSameDay(time_t time1, time_t time2)
-{
-    if (GetDayBeginTime((time_t)time1) == GetDayBeginTime((time_t)time2))
-    {
-        return true;
-    }
-
-    return false;
-
-}
-
-
-char* CTimeUtils::GetMinuteFormat(void)
+char* TimeUtils::GetMinuteFormat(void)
 {
     time_t now  = time(NULL);
     struct tm data;
@@ -154,7 +127,7 @@ char* CTimeUtils::GetMinuteFormat(void)
 }
 
 
-unsigned CTimeUtils::GetMonth(time_t time)
+unsigned TimeUtils::GetMonth(time_t time)
 {
     time_t v = (time_t)time;
     struct tm data;
@@ -162,7 +135,7 @@ unsigned CTimeUtils::GetMonth(time_t time)
     return data.tm_mon+1;
 }
 
-unsigned CTimeUtils::GetYear(time_t time)
+unsigned TimeUtils::GetYear(time_t time)
 {
     time_t v = (time_t)time;
     struct tm data;
@@ -170,7 +143,7 @@ unsigned CTimeUtils::GetYear(time_t time)
     return data.tm_year+1900;
 }
 
-char* CTimeUtils::GetYearMonth(time_t time)
+char* TimeUtils::GetYearMonth(time_t time)
 {
     struct tm data;
     localtime_r(&time, &data);
@@ -180,7 +153,7 @@ char* CTimeUtils::GetYearMonth(time_t time)
     return format_data;
 }
 
-char* CTimeUtils::GetYearMonthDay(time_t time)
+char* TimeUtils::GetYearMonthDay(time_t time)
 {
     struct tm data;
     localtime_r(&time, &data);
@@ -189,7 +162,7 @@ char* CTimeUtils::GetYearMonthDay(time_t time)
     return format_data;
 }
 
-char* CTimeUtils::GetMonthDay(time_t time)
+char* TimeUtils::GetMonthDay(time_t time)
 {
     struct tm data;
     localtime_r(&time, &data);
@@ -198,38 +171,7 @@ char* CTimeUtils::GetMonthDay(time_t time)
     return format_data;
 }
 
-
-uint64_t CTimeUtils::GetCurrentMSTime(void)
-{
-    struct timeval now;
-    gettimeofday( &now, NULL);
-    return GetMSTime(now.tv_sec, now.tv_usec);
-}
-
-uint64_t CTimeUtils::GetMSTime(unsigned sec, unsigned usec)
-{
-    uint64_t ms_time = sec;
-    ms_time *= 1000;
-    ms_time += (usec / 1000);
-    return ms_time;
-}
-
-uint64_t CTimeUtils::GetCurrentUSTime(void)
-{
-    struct timeval now;
-    gettimeofday( &now, NULL);
-    return GetUSTime(now.tv_sec, now.tv_usec);
-}
-
-uint64_t CTimeUtils::GetUSTime(unsigned sec, unsigned usec)
-{
-    uint64_t us_time = sec;
-    us_time *= 1000000;
-    us_time += usec;
-    return us_time;
-}
-
-char* CTimeUtils::GetTenpayTimeFormat(time_t time)
+char* TimeUtils::GetTenpayTimeFormat(time_t time)
 {
     struct tm data;
     localtime_r(&time, &data);
@@ -240,7 +182,7 @@ char* CTimeUtils::GetTenpayTimeFormat(time_t time)
     return format_data;
 }
 
-time_t CTimeUtils::GetTenpayTimeSec(const char *time_str)
+time_t TimeUtils::GetTenpayTimeSec(const char *time_str)
 {
     tm tm1;
     strptime((char*)time_str,"%Y%m%d%H%M%S",&tm1);
@@ -248,7 +190,7 @@ time_t CTimeUtils::GetTenpayTimeSec(const char *time_str)
 }
 
 
-int CTimeUtils::GetDiffDays(time_t uiFirTime, time_t uiSecTime)
+int TimeUtils::GetDiffDays(time_t uiFirTime, time_t uiSecTime)
 {
     unsigned int uiFirBeginTs = GetDayBeginTime(uiFirTime);
     unsigned int uiSecBeginTs = GetDayBeginTime(uiSecTime);
@@ -256,7 +198,7 @@ int CTimeUtils::GetDiffDays(time_t uiFirTime, time_t uiSecTime)
     return (uiSecBeginTs - uiFirBeginTs) / (24 * 3600);
 }
 
-int CTimeUtils::GetDiffMonth(time_t time1, time_t time2)
+int TimeUtils::GetDiffMonth(time_t time1, time_t time2)
 {
     struct tm data;
     localtime_r(&time1, &data);
@@ -269,21 +211,7 @@ int CTimeUtils::GetDiffMonth(time_t time1, time_t time2)
     return month_diff;
 }
 
-
-/* uint32_t CTimeUtils::GetCurrentMonthDayCount(const std::string& ts, const char* format) */
-/* { */
-/*     uint32_t year  = 0; */
-/*     uint32_t month = 0; */
-
-/*     int nSucc = sscanf(ts.c_str(), format, &year, &month); */
-/*     if (nSucc < 2) */
-/*     { */
-/*         return 0; */
-/*     } */
-/*     return GetCurrentMonthDayCount(year, month); */
-/* } */
-
-uint32_t CTimeUtils::GetCurrentMonthDayCount(uint32_t year, uint32_t month)
+uint32_t TimeUtils::GetCurrentMonthDayCount(uint32_t year, uint32_t month)
 {
     uint32_t day_count = 0;
     if( 1==month || 3==month || 5==month || 7==month ||
@@ -306,7 +234,7 @@ uint32_t CTimeUtils::GetCurrentMonthDayCount(uint32_t year, uint32_t month)
     return day_count;
 }
 
-uint32_t CTimeUtils::GetCurrentMonthDayCount(time_t sec)
+uint32_t TimeUtils::GetCurrentMonthDayCount(time_t sec)
 {
     struct tm data;
     localtime_r(&sec, &data);
@@ -315,7 +243,7 @@ uint32_t CTimeUtils::GetCurrentMonthDayCount(time_t sec)
     return GetCurrentMonthDayCount(year, month);
 }
 
-void CTimeUtils::ChangeTmMonth(struct tm &tm_now, int change)
+void TimeUtils::ChangeTmMonth(struct tm &tm_now, int change)
 {
     int year  = tm_now.tm_year;
     int month = tm_now.tm_mon + change;
@@ -337,7 +265,7 @@ void CTimeUtils::ChangeTmMonth(struct tm &tm_now, int change)
 }
 
 //判断从1970-01-01 到目标时间过来多少天
-int64_t CTimeUtils::GetHasPassedDay(int64_t time_stamp, int64_t start_ts)
+int64_t TimeUtils::GetHasPassedDay(int64_t time_stamp, int64_t start_ts)
 {
    int64_t diff_sec = time_stamp - start_ts;
    diff_sec += 8 * ONE_HOUR_SECONDS; //修正东八区时间
@@ -345,7 +273,7 @@ int64_t CTimeUtils::GetHasPassedDay(int64_t time_stamp, int64_t start_ts)
 }
 
 //判断从1970-01-01 到目标时间过了多少个星期
-int64_t CTimeUtils::GetHasPassedWeek(int64_t time_stamp, int64_t start_ts)
+int64_t TimeUtils::GetHasPassedWeek(int64_t time_stamp, int64_t start_ts)
 {
     int64_t diff_sec = time_stamp - start_ts;
     diff_sec += 8 * ONE_HOUR_SECONDS;
@@ -355,11 +283,11 @@ int64_t CTimeUtils::GetHasPassedWeek(int64_t time_stamp, int64_t start_ts)
 
 
 
-int GetDayInterval(time_t tFrom, time_t tTo)
+int TimeUtils::GetDayInterval(time_t tFrom, time_t tTo)
 {
     return ((int)GetDayBeginTime(tTo) - (int)GetDayBeginTime(tFrom)) / (60 * 60 * 24);
 }
-
+/*
 time_t GetDayBeginTime(time_t tTime)
 {
     tm tTm = *localtime(&tTime);
@@ -368,13 +296,13 @@ time_t GetDayBeginTime(time_t tTime)
     tTm.tm_sec  = 0;
     return MakeTime(tTm);
 }
-
-int GetHourInterval(time_t tFrom, time_t tTo)
+*/
+int TimeUtils::GetHourInterval(time_t tFrom, time_t tTo)
 {
     return ((int)GetHourBeginTime(tTo) - (int)GetHourBeginTime(tFrom)) / (60 * 60);
 }
 
-time_t GetHourBeginTime(time_t tTime)
+time_t TimeUtils::GetHourBeginTime(time_t tTime)
 {
     tm tTm = *localtime(&tTime);
     tTm.tm_min  = 0;
@@ -382,7 +310,7 @@ time_t GetHourBeginTime(time_t tTime)
     return MakeTime(tTm);
 }
 
-time_t GetFirstMondayOfMonth(time_t tTime)
+time_t TimeUtils::GetFirstMondayOfMonth(time_t tTime)
 {
     time_t tMonthBegin =  GetMonthBeginTime( tTime) ;
 
@@ -400,7 +328,7 @@ time_t GetFirstMondayOfMonth(time_t tTime)
     return MakeTime(tTm);
 }
 
-time_t GetWeekBeginTime(time_t tTime)
+time_t TimeUtils::GetWeekBeginTime(time_t tTime)
 {
     tm tTm = *localtime(&tTime);
     tTm.tm_hour = 0;
@@ -409,7 +337,7 @@ time_t GetWeekBeginTime(time_t tTime)
     return (MakeTime(tTm) - tTm.tm_wday*HD_SECONDS_OF_DAY);
 }
 
-time_t GetMonthBeginTime(time_t tTime)
+time_t TimeUtils::GetMonthBeginTime(time_t tTime)
 {
     tm tTm = *localtime(&tTime);
     tTm.tm_hour = 0;
@@ -419,7 +347,7 @@ time_t GetMonthBeginTime(time_t tTime)
     return MakeTime(tTm);
 }
 
-time_t GetYearBeginTime(time_t tTime)
+time_t TimeUtils::GetYearBeginTime(time_t tTime)
 {
     tm tTm = *localtime(&tTime);
     tTm.tm_hour = 0;
@@ -430,27 +358,26 @@ time_t GetYearBeginTime(time_t tTime)
     return MakeTime(tTm);
 }
 
-const std::string FormatTime(const std::string& sFmt, const tm& stTime)
+const std::string TimeUtils::FormatTime(const std::string& sFmt, const tm& stTime)
 {
     char buf[255]={};
     strftime(buf, sizeof(buf)-1, sFmt.c_str(), &stTime);
     return buf;
 }
 
-const std::string FormatTime(const std::string& sFmt, time_t tTime)
+const std::string TimeUtils::FormatTime(const std::string& sFmt, time_t tTime)
 {
     char buf[255]={};
     strftime(buf, sizeof(buf)-1, sFmt.c_str(), localtime(&tTime));
     return buf;
 }
 
-time_t MakeTime(tm& stTime)
+time_t TimeUtils::MakeTime(tm& stTime)
 {
     return mktime(&stTime);
 }
 
-time_t MakeTime(int iYear, int iMon, int iDay, int iHour,
-                int iMin, int iSec)
+time_t TimeUtils::MakeTime(int iYear, int iMon, int iDay, int iHour, int iMin, int iSec)
 {
     tm stTime;
     stTime.tm_year  = iYear-1900;
@@ -464,7 +391,7 @@ time_t MakeTime(int iYear, int iMon, int iDay, int iHour,
 }
 
 
-int GetDate(int& iYear, int& iMon, int& iDay, int iTime)
+int TimeUtils::GetDate(int& iYear, int& iMon, int& iDay, int iTime)
 {
     if (iTime < 0)
     {
@@ -480,7 +407,7 @@ int GetDate(int& iYear, int& iMon, int& iDay, int iTime)
     return iTime;
 }
 
-int GetCurrentYear( void )
+int TimeUtils::GetCurrentYear( void )
 {
     int iYear = 0;
     time_t iTime = time(NULL);
@@ -491,7 +418,7 @@ int GetCurrentYear( void )
     return iYear;
 }
 
-int GetCurrentMonth( void )
+int TimeUtils::GetCurrentMonth( void )
 {
     int iMonth = 0;
     time_t iTime = time(NULL);
@@ -500,7 +427,7 @@ int GetCurrentMonth( void )
     return iMonth;
 }
 
-int GetCurrentWeek( void )
+int TimeUtils::GetCurrentWeek( void )
 {
     int iWeek = 0;
     time_t iTime = time(NULL);
@@ -509,7 +436,7 @@ int GetCurrentWeek( void )
     return iWeek;
 }
 
-int CheckDate(int& iYear, int& iMonth, int& iDay)
+int TimeUtils::CheckDate(int& iYear, int& iMonth, int& iDay)
 {
     static int s_nDays[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
     int iRetCode = 0;
@@ -554,31 +481,31 @@ int CheckDate(int& iYear, int& iMonth, int& iDay)
     return iRetCode;
 }
 
-std::string UTCTime(time_t tTime)
+std::string TimeUtils::UTCTime(time_t tTime)
 {
     char buf[255]={};
     strftime(buf, sizeof(buf)-1, "%a, %d %b %Y %H:%M:%S UTC", gmtime(&tTime));
     return buf;
 }
 
-timeval GetTimeOfDay()
+timeval TimeUtils::GetTimeOfDay()
 {
     timeval tv;
     gettimeofday(&tv, 0);
     return tv;
 }
 
-time_t GetUSInterval(const timeval& tvfrom, const timeval& tvto)
+time_t TimeUtils::GetUSInterval(const timeval& tvfrom, const timeval& tvto)
 {
     return (tvto.tv_sec-tvfrom.tv_sec)*1000000+(tvto.tv_usec-tvfrom.tv_usec);
 }
 
-time_t GetMSInterval(const timeval& tvfrom, const timeval& tvto)
+time_t TimeUtils::GetMSInterval(const timeval& tvfrom, const timeval& tvto)
 {
     return (tvto.tv_sec-tvfrom.tv_sec)*1000+(tvto.tv_usec-tvfrom.tv_usec)/1000;
 }
 
-int64_t GetCurrentuTime()
+int64_t TimeUtils::GetCurrentuTime()
 {
     uint64_t time=0;
     struct timeval now;
@@ -589,7 +516,7 @@ int64_t GetCurrentuTime()
     return time;
 }
 
-time_t GetTodayZero()
+time_t TimeUtils::GetTodayZero()
 {
     time_t timep;
     struct tm *p;
@@ -601,13 +528,13 @@ time_t GetTodayZero()
     return mktime(p);
 }
 
-int64_t GetCurrentMSTime()
+int64_t TimeUtils::GetCurrentMSTime()
 {
     return GetCurrentuTime()/1000;
 }
 
 
-bool IsDiffDay( time_t t1, time_t t2 )
+bool TimeUtils::IsDiffDay( time_t t1, time_t t2 )
 {
     // 中国是东八区，比格林威治时间早8小时
     t1 = ( t1 + 8*3600 ) / 86400;
@@ -615,7 +542,7 @@ bool IsDiffDay( time_t t1, time_t t2 )
     return t1 != t2;
 }
 
-bool IsDiffHour( time_t t1, time_t t2 )
+bool TimeUtils::IsDiffHour( time_t t1, time_t t2 )
 {
     if (IsDiffDay(t1, t2))
     {
@@ -628,7 +555,7 @@ bool IsDiffHour( time_t t1, time_t t2 )
     return t1 != t2;
 }
 
-bool IsSameDay( time_t t1, time_t t2 )
+bool TimeUtils::IsSameDay( time_t t1, time_t t2 )
 {
     // 中国是东八区，比格林威治时间早8小时
     t1 = ( t1 + 8*3600 ) / 86400;
@@ -636,7 +563,7 @@ bool IsSameDay( time_t t1, time_t t2 )
     return t1 == t2;
 }
 
-bool IsSameHour( time_t t1, time_t t2 )
+bool TimeUtils::IsSameHour( time_t t1, time_t t2 )
 {
     if (IsDiffDay(t1, t2))
     {
@@ -649,35 +576,7 @@ bool IsSameHour( time_t t1, time_t t2 )
     return t1 == t2;
 }
 
-bool IsSameWeek( time_t t1, time_t t2 )
-{
-    int64_t iDays = 0;
-    int64_t iBeforSeconds = 0;
-    int64_t iAffterSeconds = 0;
-    tm tTm1 = *localtime(&t1);
-
-    if (tTm1.tm_wday == 0)
-    {
-        iDays = 6;
-    }
-    else
-    {
-        iDays = tTm1.tm_wday - 1;
-    }
-
-    iBeforSeconds = iDays * 24 * 3600 + tTm1.tm_hour * 3600 + tTm1.tm_min * 60 + tTm1.tm_sec;
-    iAffterSeconds = 7 * 24 * 3600 - iBeforSeconds;
-
-    if ((static_cast<int64_t>(t2) >= static_cast<int64_t>(t1) - iBeforSeconds)
-        && (static_cast<int64_t>(t2) < static_cast<int64_t>(t1) + iAffterSeconds))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool IsSameMonth( time_t t1, time_t t2 )
+bool TimeUtils::IsSameMonth( time_t t1, time_t t2 )
 {
     tm tTm1 = *localtime(&t1);
     tm tTm2 = *localtime(&t2);
@@ -686,7 +585,7 @@ bool IsSameMonth( time_t t1, time_t t2 )
         && tTm1.tm_mon == tTm2.tm_mon);
 }
 
-bool IsSameYear( time_t t1, time_t t2 )
+bool TimeUtils::IsSameYear( time_t t1, time_t t2 )
 {
     tm tTm1 = *localtime(&t1);
     tm tTm2 = *localtime(&t2);
@@ -694,12 +593,7 @@ bool IsSameYear( time_t t1, time_t t2 )
     return (tTm1.tm_year == tTm2.tm_year);
 }
 
-time_t MakeTime(tm& stTime)
-{
-    return mktime(&stTime);
-}
-
-std::string TimeLengthToMMSS(int time_length)
+std::string TimeUtils::TimeLengthToMMSS(int time_length)
 {
     int minute = time_length / 60;
     int second = time_length % 60;
@@ -710,7 +604,7 @@ std::string TimeLengthToMMSS(int time_length)
     return std::string(buf);
 }
 
-std::string TimeLengthToHHMMSS(int time_length)
+std::string TimeUtils::TimeLengthToHHMMSS(int time_length)
 {
     int hour = time_length / 3600;
     int minute = (time_length / 60) % 60;
@@ -722,7 +616,7 @@ std::string TimeLengthToHHMMSS(int time_length)
     return std::string(buf);
 }
 
-std::string TimeLengthToStr(int time_length)
+std::string TimeUtils::TimeLengthToStr(int time_length)
 {
     if (time_length < 3600)
     {
@@ -731,7 +625,7 @@ std::string TimeLengthToStr(int time_length)
     return TimeLengthToHHMMSS(time_length);
 }
 
-std::pair<time_t, time_t> GetDayBeginEnd(time_t tm_now)
+std::pair<time_t, time_t> TimeUtils::GetDayBeginEnd(time_t tm_now)
 {
     time_t now = tm_now;
     struct tm * timeInfo_now = localtime(&now);

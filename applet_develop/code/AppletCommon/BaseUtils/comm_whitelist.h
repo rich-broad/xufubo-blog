@@ -17,7 +17,11 @@
 #include <vector>
 #include <utility>
 #include <time.h>
+#include <errno.h>
+#include <string.h>
 #include <string>
+#include <stdio.h>
+#include <sys/stat.h>
 #include "singleton.h"
 
 #define VAS_WHITELIST (base_utils::HSingleton<base_utils::CommWhiteList>::Instance())
@@ -46,13 +50,6 @@ class CommWhiteList
 public:
     CommWhiteList();
     ~CommWhiteList();
-
-    //@brief 查找uin是否在文件内
-    //@param[in] file_path,白名单的文件
-    //@param[in] uin,查找它在不在白名单内
-    //@retval 在就true，不在就false
-    bool InWhiteList(const std::string &file_path,const int64_t uin);
-
 
     bool InWhiteList(const std::string &file_path,const std::string &value);
 

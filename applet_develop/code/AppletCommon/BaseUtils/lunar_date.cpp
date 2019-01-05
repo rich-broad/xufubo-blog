@@ -9,9 +9,10 @@
  ********************************************************************************/
 #include "lunar_date.h"
 
-namespace hydra {
+namespace base_utils
+{
 
-const unsigned CLunarDate::LUNAR_YEARS[] = 
+const unsigned LunarDate::LUNAR_YEARS[] = 
 {
         0x06d549, 0x6ed23e, 0x075251, 0x06a546, 0x554aba, 0x054bcd, 0x02abc2, 0x355ab6, 0x056aca, 0x8b693f, // 1891-1900
         0x03a953, 0x0752c8, 0x5b253d, 0x0325d0, 0x054dc4, 0x4aab39, 0x02b54d, 0x05acc2, 0x2ba936, 0x03a94a, // 1901-1910
@@ -33,31 +34,31 @@ const unsigned CLunarDate::LUNAR_YEARS[] =
 };
 
 // 天干名
-const char * CLunarDate::LUNAR_YEAR_PART1[] = 
+const char * LunarDate::LUNAR_YEAR_PART1[] = 
 {
     "甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"
 };
 
 // 地支名
-const char * CLunarDate::LUNAR_YEAR_PART2[] = 
+const char * LunarDate::LUNAR_YEAR_PART2[] = 
 {
     "子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"
 };
 
 // 属相名
-const char * CLunarDate::LUNAR_ANIMAL[] = 
+const char * LunarDate::LUNAR_ANIMAL[] = 
 {
     "鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"
 };
 
 // 农历月份名
-const char * CLunarDate::LUNAR_MONTH_NAMES[] = 
+const char * LunarDate::LUNAR_MONTH_NAMES[] = 
 {
     "闰*", "正月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "冬月", "腊月"
 };
 
 // 农历日名
-const char * CLunarDate::LUNAR_DAYS_NAMES[] = 
+const char * LunarDate::LUNAR_DAYS_NAMES[] = 
 {
     "*", "初一", "初二", "初三", "初四", "初五", "初六", "初七", "初八",
     "初九", "初十", "十一", "十二", "十三", "十四", "十五", "十六",
@@ -66,7 +67,7 @@ const char * CLunarDate::LUNAR_DAYS_NAMES[] =
 };
 
 
-int CLunarDate::from_date(time_t ts)
+int LunarDate::from_date(time_t ts)
 {
     struct tm tm;
     localtime_r(&ts, &tm);
@@ -169,7 +170,7 @@ int CLunarDate::from_date(time_t ts)
 }
 
 
-int CLunarDate::get_date(int & year, int & month, int &day) const
+int LunarDate::get_date(int & year, int & month, int &day) const
 {
         int solar_year = m_year - 1900;
         int year_index = m_year - BEGIN_YEAR;
@@ -218,7 +219,7 @@ int CLunarDate::get_date(int & year, int & month, int &day) const
     return 0;
 }
 
-int CLunarDate::day_of_solar_year(int year, int month, int day)
+int LunarDate::day_of_solar_year(int year, int month, int day)
 {
     // 为了提高效率,记录每月1日是一年中的第几天
     static const int NORMAL_YDAY[] = 
@@ -256,7 +257,7 @@ int CLunarDate::day_of_solar_year(int year, int month, int day)
 #if 0
 int main(int argc, const char * argv[])
 {
-    hydra::CLunarDate lunar;
+    hydra::LunarDate lunar;
     for (int i=1; i<argc; i++) {
         //公历转农历
         time_t ts = atoll(argv[i]);

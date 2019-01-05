@@ -8,8 +8,6 @@
      <author>        <time>          <version>          <desc>
  ********************************************************************************/
 #include "comm_whitelist.h"
-#include <stdio.h>
-#include <sys/stat.h>
 
 using namespace std;
 namespace base_utils
@@ -58,7 +56,7 @@ int CommWhiteList::LoadFile(const string &file_path)
     int ret = stat(file_path.c_str(),&file_stat);
     if(0 != ret)
     {
-        printf("get file stat fail,ret=%d path[%s] errorno[%s]",ret, file_path.c_str(), strerror(errno));
+        //printf( "get file stat fail,ret=%d path[%s] errno[%s]\n",ret, file_path.c_str(), strerror(errno) );
         return ECODE_GET_FILE_STAT_FAIL;
     }
 
@@ -103,17 +101,6 @@ int CommWhiteList::ReloadFile(const std::string &file_path, SWhiteListUnit& whit
 
     return ret;
 }
-
-
-bool CommWhiteList::InWhiteList(const string &file_path,const int64_t uin)
-{
-    if(!LoadData(file_path))
-    {
-        return false;
-    }
-    return (_cache_set->find(FastIntToStr(uin).s) != _cache_set->end());
-}
-
 
 bool CommWhiteList::InWhiteList(const std::string &file_path,const std::string &value)
 {
