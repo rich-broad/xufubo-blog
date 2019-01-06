@@ -132,7 +132,7 @@ CREATE TABLE `t_attribute_value_meta_info` (
   `attr_id` int(11) NOT NULL DEFAULT '0' COMMENT 'attr_id 改值属于哪个属性,一个属性有多个值',
   PRIMARY KEY (`attr_value_id`),
   CONSTRAINT `fk_attr_id` foreign key(`attr_id`) references `t_attribute_meta_info`(`attr_id`),
-  UNIQUE KEY `uk_name` (`name`)
+  UNIQUE KEY `uk_attr_id_name` (`attr_id`, `name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='属性值元数据表';
 insert into t_attribute_value_info(`attr_value_id`, `create_time`, `name`, `attr_id`) values 
 (1, 1500003450, '红色', 1),
@@ -170,7 +170,7 @@ CREATE TABLE `t_category_meta_info` (
   `parent_id` int(11) NOT NULL DEFAUTL'0' COMMENT '父类id',
   `level` int(11) NOT NULL DEFAUTL'0' COMMENT '1-一级分类，2-二级分类，3-三级分类 以此类推.....',
   PRIMARY KEY (`category_id`),
-  UNIQUE KEY `uk_name` (`name`)
+  UNIQUE KEY `uk_name_parent_id` (`name`, `parent_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='分类元数据表';
 ```
 
@@ -188,6 +188,34 @@ CREATE TABLE `t_goods_category_info` (
   CONSTRAINT `fk_category_id` foreign key(`category_id`) references `t_category_meta_info`(`category_id`),
   CONSTRAINT `fk_spu_id` foreign key(`spu_id`) references `t_goods_sku_info`(`spu_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品分类信息';
+```
+
+## 9. 品牌表(t_brand_info)  
+```sql
+-- 品牌表
+CREATE TABLE `t_brand_info` (
+  `brand_id` int(11) NOT NULL AUTO_INCREMENT,
+  `create_time` bigint(20) NOT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `name` varchar(128) NOT NULL DEFAULT '' COMMENT '品牌名称',
+  `desc` varchar(512) NOT NULL DEFAULT '' COMMENT '品牌描述',
+  PRIMARY KEY (`brand_id`),
+  UNIQUE KEY `uk_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='品牌表';
+```
+
+## 10. 生产商表(t_maker_info)  
+```sql
+-- 生产商表
+CREATE TABLE `t_maker_info` (
+  `maker_id` int(11) NOT NULL AUTO_INCREMENT,
+  `create_time` bigint(20) NOT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `name` varchar(128) NOT NULL DEFAULT '' COMMENT '生产商名称',
+  `desc` varchar(512) NOT NULL DEFAULT '' COMMENT '生产商描述',
+  PRIMARY KEY (`maker_id`),
+  UNIQUE KEY `uk_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='生产商表';
 ```
 
 至此，商品相关的存储表就设计好了。  
