@@ -30,34 +30,34 @@
 namespace base_utils 
 {
 
-struct SIpBuf
+struct SBaseUtilsIpBuf
 {
     char ip[16];
-    SIpBuf() { ip[0] = ip[15] = 0; }
+    SBaseUtilsIpBuf() { ip[0] = ip[15] = 0; }
 };
 
-/// @brief 网络地址转换，方便调用, 举例：printf("%s\n", HydraIp(intip).ip)
+/// @brief 网络地址转换，方便调用, 举例：printf("%s\n", BaseUtilsIp(intip).ip)
 /// @param[in] intip 网络字节序整数ip
 /// @return 字符串ip结构体
-inline SIpBuf HydraIp(uint intip)
+inline SBaseUtilsIpBuf BaseUtilsIp(uint intip)
 {
-    SIpBuf buf;
+    SBaseUtilsIpBuf buf;
     inet_ntop(AF_INET, &intip, buf.ip, 16); 
     return buf;
 }
 
-/// @brief 网络地址转换，方便调用, 举例：printf("%s\n", HydraIp(addr).ip)
+/// @brief 网络地址转换，方便调用, 举例：printf("%s\n", BaseUtilsIp(addr).ip)
 /// @param[in] addr 网络地址结构体
 /// @return 字符串ip结构体
-inline SIpBuf HydraIp(const sockaddr_in& addr)
+inline SBaseUtilsIpBuf BaseUtilsIp(const sockaddr_in& addr)
 {
-    return HydraIp(addr.sin_addr.s_addr);
+    return BaseUtilsIp(addr.sin_addr.s_addr);
 }
 
-/// @brief 端口转换，方便调用, 举例: printf("%d\n", HydraPort(addr));
+/// @brief 端口转换，方便调用, 举例: printf("%d\n", BaseUtilsPort(addr));
 /// @param[in] addr 网络地址结构体
 /// @return 主机序端口
-inline int HydraPort(const sockaddr_in& addr)
+inline int BaseUtilsPort(const sockaddr_in& addr)
 {
     return ntohs(addr.sin_port);
 }

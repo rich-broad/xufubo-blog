@@ -56,7 +56,7 @@ int CommWhiteList::LoadFile(const string &file_path)
     int ret = stat(file_path.c_str(),&file_stat);
     if(0 != ret)
     {
-        //printf( "get file stat fail,ret=%d path[%s] errno[%s]\n",ret, file_path.c_str(), strerror(errno) );
+        printf( "get file stat fail,ret=%d path[%s] errno[%s]\n",ret, file_path.c_str(), strerror(errno) );
         return ECODE_GET_FILE_STAT_FAIL;
     }
 

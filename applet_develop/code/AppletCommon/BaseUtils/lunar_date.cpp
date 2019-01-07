@@ -97,8 +97,7 @@ int LunarDate::from_date(time_t ts)
                         spring_month_in_lunar_year, spring_day_in_lunar_year);
 
     // 计算今天是农历年的第几天
-    int days_since_lunar_year_begin = days_since_solar_year_begin -
-                        days_since_solar_year_begin_to_spring_festival + 1;
+    int days_since_lunar_year_begin = days_since_solar_year_begin - days_since_solar_year_begin_to_spring_festival + 1;
 
     // 如果今天在春节前面,重新计算daysSinceLunarYearBegin
     if (days_since_lunar_year_begin <= 0) 
@@ -185,9 +184,13 @@ int LunarDate::get_date(int & year, int & month, int &day) const
 
         int m = 0; // 要计算到第几月的天数
         if (leap_month == 0 || (m_month <= leap_month && !m_is_leap_month))
+        {
             m = m_month;
+        }
         else
+        {
             m = m_month + 1;
+        }
 
         for (int i = 1; i < m; i++) 
         {
@@ -257,21 +260,20 @@ int LunarDate::day_of_solar_year(int year, int month, int day)
 #if 0
 int main(int argc, const char * argv[])
 {
-    hydra::LunarDate lunar;
+    base_utils::LunarDate lunar;
     for (int i=1; i<argc; i++) {
         //公历转农历
         time_t ts = atoll(argv[i]);
         int ret = lunar.from_date(ts);
-        if (ret) {
+        if (ret) 
+        {
             printf("%u from_date err %d\n", ts, ret);
             continue;
         }
-        printf ("%u lunar date %d - %d -%d\n", ts,
-            lunar.get_year(), lunar.get_month(), lunar.get_day());
+        printf ("%u lunar date %d - %d -%d\n", ts, lunar.get_year(), lunar.get_month(), lunar.get_day());
 
         //农历转公历，先设置农历年 月 日 是否闰月
-        lunar.set_lunar(lunar.get_year(), lunar.get_month(), lunar.get_day(),
-                lunar.is_leap_month());
+        lunar.set_lunar(lunar.get_year(), lunar.get_month(), lunar.get_day(), lunar.is_leap_month());
         int year = 0, month = 0, day = 0;
         lunar.get_date(year, month, day);
         printf("solar date %d - %d - %d\n", year, month, day);

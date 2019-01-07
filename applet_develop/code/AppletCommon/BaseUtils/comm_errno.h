@@ -8,8 +8,8 @@
      <author>        <time>          <version>          <desc>
  ********************************************************************************/
 
-#ifndef __BITSTRING_H__
-#define __BITSTRING_H__
+#ifndef __COMM_ERRNO_H_
+#define __COMM_ERRNO_H_
 
 namespace base_utils
 {
@@ -43,28 +43,21 @@ enum CommonErrNo
     ERR_DOWUP_BUFFER_SIZE         = -100406,     //接收空间不够
     ERR_DOWUP_CONN_CLOSED         = -100407,     //后端主动关闭连接
 
-    //-------json请求参数错误-----
-    ECODE_INVALID_JSON_REQ_DATA        = 120025,      //json请求参数错误
-
     //-----------------------------------逻辑错误-------------------------------------
     ERR_URL_CHECK_PACK     =  200001,   // url check pack
     ERR_URL_CHECK_UNPACK   =  200002,   // url check unpack
-    ERR_URL_CHECK_API      =  -200001,  // url check api
-    ERR_DATE_TIME_FORMAT   =  200003,   // 时间格式不对
-    ERR_PACKET_TOO_LARGE   =  -200004,  // 包太大
-    ECODE_CMD_NOT_REGISTER = 200005,    // cmd未注册
-    ERR_PACKET_TOO_SMALL   =  -200005,  // 包太小
-    ERR_INVALID_CMD        = 200006,    // 非法cmd
-
-    ERR_SC_REQ_PACKAGE_INVALID  = 200016,       //请求包异常
-    ERR_SC_REQ_PACKAGE_TOO_LONG  = 200018,       //请求内容过长
-    ERR_SC_REQ_PACKAGE_TYPE_WRONG  = 200019,       //请求账号类型错误
-    ERR_SC_REQ_PACKAGE_BODY_WRONG  = 200020,       //请求包体错误
-    ERR_SC_RSP_PACKAGE_INVALID  = 200017,      //回复包异常
-    ERR_SC_RSP_PACKAGE_TOO_SHORT  = 200021,      //回复包过短
-    ERR_SC_RSP_PACKAGE_HEADER_WORONG  = 200022,      //回复头错误
-    ERR_SC_RSP_PACKAGE_DATA_WORONG  = 200023,      //回复数据字段
-    ERR_SC_RSP_PACKAGE_BODY_WORONG  = 200024,      //回复包体
+    ERR_URL_CHECK_API      =  -200003,  // url check api
+    ERR_DATE_TIME_FORMAT   =  200004,   // 时间格式不对
+    ERR_INVALID_CMD        = 200005,    // 非法cmd
+    ERR_SC_REQ_PACKAGE_INVALID  = 200006,       //请求包异常
+    ERR_SC_REQ_PACKAGE_TOO_LONG  = 200007,       //请求内容过长
+    ERR_SC_REQ_PACKAGE_TYPE_WRONG  = 200008,       //请求账号类型错误
+    ERR_SC_REQ_PACKAGE_BODY_WRONG  = 200009,       //请求包体错误
+    ERR_SC_RSP_PACKAGE_INVALID  = 200010,      //回复包异常
+    ERR_SC_RSP_PACKAGE_TOO_SHORT  = 200011,      //回复包过短
+    ERR_SC_RSP_PACKAGE_HEADER_WORONG  = 200012,      //回复头错误
+    ERR_SC_RSP_PACKAGE_DATA_WORONG  = 200013,      //回复数据字段
+    ERR_SC_RSP_PACKAGE_BODY_WORONG  = 200014,      //回复包体
 
     //-----------------------------------系统错误-------------------------------------
     //内存错误
@@ -80,22 +73,19 @@ enum CommonErrNo
     ERR_PACKET_FORMAT       = -200205,     // 参数无效一般返回码
     ERR_PARAM_SECTION_ID_NULL  = -200206,  //在话别列表里找不到section id
 
-    ECODE_UIN_PARAM                 = 200200,     // cgi中uin参数错误
-    ECODE_URL_PARAM                 = 200201,     // cgi中URL参数错误
-    ERR_PARAM_INVALID               = 200202,     // 参数无效一般返回码
 
     //编解码
     ERR_TARS_DECODE_FAIL        = -200300,  //TARS解码失败
     ERR_TARS_ENCODE_FAIL        = -200301,  //TARS编码失败
 
-    ECODE_JSON_PARSE                = -200327,     // JSON PARSE
-    ECODE_JSON_EXCEPTION            = -200328,     // JSON 异常
-    ECODE_JSON_IS_NOT_MEMBER        = -200335,     // 不是member成员
-    ECODE_JSON_IS_NOT_ARRAY         = -200336,     // 不是array对象
-    ECODE_JSON_IS_NOT_STRING        = -200337,     // 不是string
-    ECODE_PARSE_JSON_ERROR          = -200338,     // 文件内容不是合法json
-    ECODE_JSON_TABLE_NOT_FOUND      = -200339,     // json表不存在
-    ECODE_BASE64_ENCODE          = -200340,     // base64编码错误
+    ECODE_JSON_PARSE                = -200302,     // JSON PARSE
+    ECODE_JSON_EXCEPTION            = -200303,     // JSON 异常
+    ECODE_JSON_IS_NOT_MEMBER        = -200304,     // 不是member成员
+    ECODE_JSON_IS_NOT_ARRAY         = -200305,     // 不是array对象
+    ECODE_JSON_IS_NOT_STRING        = -200306,     // 不是string
+    ECODE_PARSE_JSON_ERROR          = -200307,     // 文件内容不是合法json
+    ECODE_JSON_TABLE_NOT_FOUND      = -200308,     // json表不存在
+    ECODE_BASE64_ENCODE          = -200309,     // base64编码错误
 
 
     
