@@ -190,6 +190,9 @@ CREATE TABLE `t_goods_category_info` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品分类信息';
 ```
 
+此外还需要品牌表和生产商表，不过这个两个表只是信息的存储，不像SKU那么核心，因此不在表之间的关系图中画出了，在此给出他们的表定义。  
+
+
 ## 9. 品牌表(t_brand_info)  
 ```sql
 -- 品牌表
