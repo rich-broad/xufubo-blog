@@ -3,13 +3,13 @@
 module HardwareApplet
 {
 
-    // ������
+    // 命令字
     const string getNewTicket = "getNewTicket";
-    const string getGoodsClassifyList = "getGoodsClassifyList";
+    const string getCategoryList = "getCategoryList";
 
     enum COMMRETCODE
     {
-        E_SUCCESS = 0,                          // 0-�ɹ�
+        E_SUCCESS = 0,                          // 0-成功
         E_TARS_ENCODE_ERROR = 1,
         E_TARS_DECODE_ERROR = 2,
         E_TICKET_INVALID = 3,
@@ -19,76 +19,76 @@ module HardwareApplet
         E_BUSINESS_EXCEPTION = 7,
     };
 
-    // Ʊ��
+    // 票据
     struct SecurityTicket
     {
         0 require string sessionKey;            // session key
-        1 require long timets;                  // session keyʱ��
-        2 require string signature;             // ǩ��,���ں�̨У��
+        1 require long timets;                  // session key时间
+        2 require string signature;             // 签名,用于后台校验
     };
 
-    //�豸��Ϣ
+    //设备信息
     struct DeviceInfo
     {
-    	0 require string imei1;			        //������IMEI
-    	1 require string imei2;			        //������IMEI
-    	2 require string macAddr;		        //MAC��ַ
-    	3 require string brand;			        //Ʒ��
-    	4 require string mode;			        //�ͺ�
+    	0 require string imei1;			        //主卡槽IMEI
+    	1 require string imei2;			        //副卡槽IMEI
+    	2 require string macAddr;		        //MAC地址
+    	3 require string brand;			        //品牌
+    	4 require string mode;			        //型号
     };
 
-    // ROM��Ϣ
+    // ROM信息
     struct ROMInfo
     {
-    	0 require string sysId;			 	    //����ϵͳId����androidId��
-    	1 require string sysVersionName;	 	//����ϵͳ�汾����
-    	2 require string sysVersionCode; 		//����ϵͳ�汾��
-    	3 require int rootFlag;			 	    //0����δ֪��1������root��2����δroot
+    	0 require string sysId;			 	    //操作系统Id（如androidId）
+    	1 require string sysVersionName;	 	//操作系统版本名称
+    	2 require string sysVersionCode; 		//操作系统版本号
+    	3 require int rootFlag;			 	    //0——未知；1——已root；2——未root
     };
     
-    // ������Ϣ
+    // 网络信息
     struct NetInfo
     {
-    	0 require int netType;			       //��������
-    	1 require string wifiSsid;		       //Wifi����
-    	2 require string wifiBssid;		       //Wifi·������Mac��ַ
+    	0 require int netType;			       //网络类型
+    	1 require string wifiSsid;		       //Wifi名称
+    	2 require string wifiBssid;		       //Wifi路由器的Mac地址
     };
 
-    // �����ͳһͷ��
+    // 接入层统一头部
     struct ProxyReqHead
     {
-	    0 require int requestId;		        // �������к�
-        1 require string cmd;                   // ��Ҫ���õ�������
-        2 require string st;                    // ����st  SecurityTicket���л������ܣ�base64֮������
-        3 require long clientTimestamp;	        // sdk��ǰʱ�������λ����
-    	4 require long svrTimestamp;		    // ���ݺ�̨֮ǰЭ�鷵�ص�svrTimestampУ׼�����Ľ��ƺ�̨ʱ���
-        5 require DeviceInfo deviceInfo;		// �豸��Ϣ
-    	6 require ROMInfo romInfo;			    // ϵͳ��Ϣ
-    	7 require NetInfo netInfo;			    // ������Ϣ
+	    0 require int requestId;		        // 请求序列号
+        1 require string cmd;                   // 需要调用的命令字
+        2 require string st;                    // 请求st  SecurityTicket序列化，加密，base64之后生成
+        3 require long clientTimestamp;	        // sdk当前时间戳，单位毫秒
+    	4 require long svrTimestamp;		    // 根据后台之前协议返回的svrTimestamp校准后计算的近似后台时间戳
+        5 require DeviceInfo deviceInfo;		// 设备信息
+    	6 require ROMInfo romInfo;			    // 系统信息
+    	7 require NetInfo netInfo;			    // 网络信息
     	
     };
 
-    // �������Ӧͷ��
+    // 接入层响应头部
     struct ProxyRspHead
     {
-        0 require COMMRETCODE ret;		        //������
-    	1 require long svrTimestamp;		    //��̨ʱ�������λ����
-    	2 require int csTicketState;		    // 0������Ч,������COMMRETCODE
-        3 require string st;                    // Ʊ�ݣ��������е�һ��
-        4 require int requestId;		        // �������кţ�ǰ�˿�У����PkgReqHead.requestId �е�һ��
+        0 require COMMRETCODE ret;		        //返回码
+    	1 require long svrTimestamp;		    //后台时间戳，单位毫秒
+    	2 require int csTicketState;		    // 0——有效,其他见COMMRETCODE
+        3 require string st;                    // 票据，与请求中的一致
+        4 require int requestId;		        // 请求序列号，前端可校验与PkgReqHead.requestId 中的一致
     };
 
-    // ������˷����ͳһͷ��
+    // 调到后端服务的统一头部
     struct AppletCommHead
     {
-        0 require DeviceInfo deviceInfo;		//�豸��Ϣ
-    	1 require ROMInfo romInfo;			    //ϵͳ��Ϣ
-    	2 require NetInfo netInfo;			    //������Ϣ
-        3 require SecurityTicket st;            //Ʊ��
-    	4 require long clientTimestamp;	        //sdk��ǰʱ�������λ����
+        0 require DeviceInfo deviceInfo;		//设备信息
+    	1 require ROMInfo romInfo;			    //系统信息
+    	2 require NetInfo netInfo;			    //网络信息
+        3 require SecurityTicket st;            //票据
+    	4 require long clientTimestamp;	        //sdk当前时间戳，单位毫秒
     };
 
-    // ΢�Żذ�
+    // 微信回包
     struct WXJSCodeToSessionRsp
     {
         0 require string openid;
@@ -98,50 +98,476 @@ module HardwareApplet
         4 require string errmsg;
     };
 
-    //===================================����Ϊ���������ֵ�Э�鶨��=============================================//
+    //===================================以下为具体命令字的协议定义=============================================//
 
-    // Ʊ�ݼ������ڻ����Ѿ����ں󣬻�ȡ��Ʊ��
+    // 票据即将过期或者已经过期后，获取新票据 getNewTicket
     struct GetNewTicketReq
     {
-        0 require string wx_code;               // ǰ�˵���wx.login��ȡ��code
+        0 require string wx_code;               // 前端调用wx.login获取的code
     };
 
     struct GetNewTicketRsp
     {
-        0 require int ret = 0;                  // 0-�ɹ�������ʧ��
-        1 require string errmsg;                // ������Ϣ
-        2 require string st;                    // �µ�ҵ��Ʊ��
+        0 require int ret = 0;                  // 0-成功，其他失败
+        1 require string errmsg;                // 错误信息
+        2 require string st;                    // 新的业务票据
     };
 
     struct ProxyGetNewTicketReq
     {
-	    0 require ProxyReqHead head;		    //����ͷ��
-	    1 require GetNewTicketReq body;		    //�������
+	    0 require ProxyReqHead head;		    //请求头部
+	    1 require GetNewTicketReq body;		    //请求包体
     };
 
     struct ProxyGetNewTicketRsp	
     {
-	    0 require ProxyRspHead head;		    //��Ӧͷ��
-	    1 require GetNewTicketRsp body;	        //��Ӧ����
+	    0 require ProxyRspHead head;		    //响应头部
+	    1 require GetNewTicketRsp body;	        //响应包体
     };
 
-    // �õ���Ʒ�����б�
-    struct GetGoodsClassifyListReq
+    //======================================AppletGoodsManageServer接口定义=================================
+
+    //------------------------------------分类信息管理------------------------------
+    // 得到某层级下的分类列表 getCategoryList
+    struct GetCategoryListReq
     {
-        0 optional string reserved_fields;      // �����ֶ�
+        0 optional int level;           // 分类层级
     };
 
-    struct GoodsClassifyItem
+    struct CategoryItem
     {
-        0 require int classifyId;
-        1 require string classifyName;
+        0 require int categoryId;           // 分类id
+        1 require string categoryName;      // 分类名称
+        2 require int parentId;             // 父类id
+        3 require int level;                // 分类层级
+        4 require string imgUrl;            // 图标
     };
 
-    struct GetGoodsClassifyListRsp
+    struct GetCategoryListRsp
     {
-        0 require int ret = 0;                              // 0-�ɹ�������ʧ��
-        1 require string errmsg;                            // ������Ϣ
-        2 optional vector<GoodsClassifyItem> item_list;     // item_list
+        0 require int ret = 0;                           // 0-成功，其他失败
+        1 require string errmsg;                         // 错误信息
+        2 require map<int, CategoryItem> mpCategory;   // map<k=level, v=CategoryItem>
     };
+
+    struct ProxyGetCategoryListReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require GetCategoryListReq body;		    //请求包体
+    };
+
+    struct ProxyGetCategoryListRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require GetCategoryListRsp body;	        //响应包体
+    };
+
+    // 增加分类信息 addCategoryInfo
+    struct AddCategoryInfoReq
+    {
+        0 require CategoryItem item;
+    };
+
+    struct AddCategoryInfoRsp
+    {
+        0 require int ret = 0;                      // 0-成功，其他失败
+        1 require string errmsg;                    // 错误信息
+    };
+
+    struct ProxyAddCategoryInfoReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require AddCategoryInfoReq body;		    //请求包体
+    };
+
+    struct ProxyAddCategoryInfoRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require AddCategoryInfoRsp body;	        //响应包体
+    };
+
+    //-------------------------属性元数据管理-----------------------------------
+    // 得到属性列表 getAttributeList
+    struct GetAttributeListReq
+    {
+        0 optional string reserved_field;           // 保留字段
+    };
+
+    struct AttributeItem
+    {
+        0 require int attrId;               // 属性id
+        1 require string attrName;          // 分类名称
+    };
+
+    struct GetAttributeListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<AttributeItem> itemList;     // map<k=level, v=CategoryItem>
+    };
+
+    struct ProxyGetAttributeListReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require GetAttributeListReq body;		    //请求包体
+    };
+
+    struct ProxyGetAttributeListRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require GetAttributeListRsp body;	        //响应包体
+    };
+
+    // 增加属性信息 addAttributeInfo
+    struct AddAttributeInfoReq
+    {
+        0 require AttributeItem item;
+    };
+
+    struct AddAttributeInfoRsp
+    {
+        0 require int ret = 0;                      // 0-成功，其他失败
+        1 require string errmsg;                    // 错误信息
+    };
+
+    struct ProxyAddAttributeInfoReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require AddAttributeInfoReq body;		    //请求包体
+    };
+
+    struct ProxyAddAttributeInfoRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require AddAttributeInfoRsp body;	        //响应包体
+    };
+
+    //-------------------------属性值元数据管理-----------------------------------
+    // 得到某个属性下边属性值列表 getAttributeValueList
+    struct GetAttributeValueListReq
+    {
+        0 optional int attrId;           // 属性id
+    };
+
+    struct AttributeValueItem
+    {
+        0 require int attrValueId;            // 属性值id
+        1 require string name;                // 名称
+        3 require int attrId;                 // 属性值属于哪个属性
+    };
+
+    struct GetAttributeValueListRsp
+    {
+        0 require int ret = 0;                              // 0-成功，其他失败
+        1 require string errmsg;                            // 错误信息
+        2 require map<int, AttributeValueItem> mpAttrValue; // map<k=attrId, v=AttributeValueItem>
+    };
+
+    struct ProxyGetAttributeValueListReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetAttributeValueListReq body;		//请求包体
+    };
+
+    struct ProxyGetAttributeValueListRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetAttributeValueListRsp body;	    //响应包体
+    };
+
+    // 增加属性值信息 addAttributeValueInfo
+    struct AddAttributeValueInfoReq
+    {
+        0 require AttributeValueItem item;
+    };
+
+    struct AddAttributeValueInfoRsp
+    {
+        0 require int ret = 0;                      // 0-成功，其他失败
+        1 require string errmsg;                    // 错误信息
+    };
+
+    struct ProxyAddAttributeValueInfoReq
+    {
+	    0 require ProxyReqHead head;		                //请求头部
+	    1 require AddAttributeValueInfoReq body;		    //请求包体
+    };
+
+    struct ProxyAddAttributeValueInfoRsp
+    {
+	    0 require ProxyRspHead head;		                //响应头部
+	    1 require AddAttributeValueInfoRsp body;	        //响应包体
+    };
+
+    //-------------------------品牌数据管理-----------------------------------
+    // 得到属性列表 getBrandList
+    struct GetBrandListReq
+    {
+        0 optional string reserved_field;           // 保留字段
+    };
+
+    struct BrandItem
+    {
+        0 require int brandId;               // 品牌id
+        1 require string brandName;          // 品牌名称
+    };
+
+    struct GetBrandListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<BrandItem> itemList;          // 
+    };
+
+    struct ProxyGetBrandListReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require GetBrandListReq body;		        //请求包体
+    };
+
+    struct ProxyGetBrandListRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require GetBrandListReq body;	            //响应包体
+    };
+
+    // 增加品牌信息 addBrandInfo
+    struct AddBrandInfoReq
+    {
+        0 require BrandItem item;
+    };
+
+    struct AddBrandInfoRsp
+    {
+        0 require int ret = 0;                      // 0-成功，其他失败
+        1 require string errmsg;                    // 错误信息
+    };
+
+    struct ProxyAddBrandInfoReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require AddBrandInfoReq body;		        //请求包体
+    };
+
+    struct ProxyAddBrandInfoRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require AddBrandInfoRsp body;	            //响应包体
+    };
+
+    //-------------------------厂商数据管理-----------------------------------
+    // 得到厂商列表 getMakerList
+    struct GetMakerListReq
+    {
+        0 optional string reserved_field;           // 保留字段
+    };
+
+    struct MakerItem
+    {
+        0 require int makerId;               // 厂商id
+        1 require string makerName;          // 厂商名称
+    };
+
+    struct GetMakerListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<MakerItem> itemList;          //
+    };
+
+    struct ProxyGetMakerListReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require GetMakerListReq body;		        //请求包体
+    };
+
+    struct ProxyGetMakerListRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require GetMakerListRsp body;	            //响应包体
+    };
+
+    // 增加属性信息 addMakerInfo
+    struct AddMakerInfoReq
+    {
+        0 require MakerItem item;
+    };
+
+    struct AddMakerInfoRsp
+    {
+        0 require int ret = 0;                      // 0-成功，其他失败
+        1 require string errmsg;                    // 错误信息
+    };
+
+    struct ProxyAddMakerInfoReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require AddMakerInfoReq body;		        //请求包体
+    };
+
+    struct ProxyAddMakerInfoRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require AddMakerInfoRsp body;	            //响应包体
+    };
+
+    //-------------------------商品SPU信息管理-----------------------------------
+
+    // 商品媒体信息
+    struct GoodsMediaInfo
+    {
+        0 require int mediaId;              // id
+        1 require int type;                 // 媒体类型 1-图片，2-视频
+        2 require int position;             // 显示位置 1-主图/视频，2-轮播图，3-内容图
+        3 require string mediaUrl;          // 媒体utl
+    };
+
+    struct GoodsSPUSimpleInfo
+    {
+        0 require int spuId;
+        1 require string name;
+        2 require string brandName;
+        3 require string maker;
+        4 require string sDesc;
+        5 require int status = -1;
+    };
+
+    struct GoodsSPUDetail
+    {
+        0 require int spuId;
+        1 require string name;
+        2 require string brandName;
+        3 require string maker;
+        4 require string sDesc;
+        5 require int status = -1;
+        6 require int brandId;
+        7 require string desc;
+        8 require GoodsMediaInfo mediaInfo;
+        9 require vector<CategoryItem> categoryInfo;    // 分类信息
+    };
+
+    // 获取商品SPU列表 getGoodsSPUList
+    struct GetGoodsSPUListReq
+    {
+        0 require string name;          // 商品名称
+    };
+
+    struct GetGoodsSPUListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<GoodsSPUSimpleInfo> infoList; 
+    };
+
+    struct ProxyGetGoodsSPUListReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetGoodsSPUListReq body;		        //请求包体
+    };
+
+    struct ProxyGetGoodsSPUListRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetGoodsSPUListRsp body;	            //响应包体
+    };
+
+    // 增加商品SPU addGoodsSPUInfo [需要插入SPU表和商品分类表]
+    struct AddGoodsSPUInfoReq
+    {
+        0 require GoodsSPUDetail detail;
+    };
+
+    struct AddGoodsSPUInfoRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+    };
+
+    struct ProxyAddGoodsSPUInfoReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require AddGoodsSPUInfoReq body;		        //请求包体
+    };
+
+    struct ProxyAddGoodsSPUInfoRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require AddGoodsSPUInfoRsp body;	            //响应包体
+    };
+
+    //-------------------------商品SKU信息管理-----------------------------------
+    struct GoodsSKUAttrInfo
+    {
+        0 require int attrId;               // 属性id
+        1 require string attrName;          // 属性名称
+        2 require int attrValueId;          // 属性值id
+        3 require string attrValueName;     // 属性值名称
+    };
+    struct GoodsSKUInfo
+    {
+        0 require int skuId;
+        1 require int spuId;                           // sku所属商品spu
+        2 require string name;                         // 名称
+        3 require int stock;                           // 库存
+        4 require int warnStock;                       // 告警库存
+        5 require int price;                           // 价格，单位-分
+        6 require int minCount;                        // 最小计数单位，比如扳手最想知道我的库存还有多少盒，这时候就需要填每盒多少个，该字段就是这个意思
+        7 require int isDefault;                       // 是否默认sku,用于在商城展示
+        8 require vector<GoodsSKUAttrInfo> attrList;   // sku的属性列表
+    };
+
+    // 获取商品库存 addGoodsSKUInfo
+    struct AddGoodsSKUInfoReq
+    {
+        0 require GoodsSKUInfo skuInfo;          // 商品sku信息
+    };
+
+    struct AddGoodsSKUInfoRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+    };
+
+    struct ProxyAddGoodsSKUInfoReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require AddGoodsSKUInfoReq body;		        //请求包体
+    };
+
+    struct ProxyAddGoodsSKUInfoRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require AddGoodsSKUInfoRsp body;	            //响应包体
+    };
+
+    // 获取商品库存 getGoodsSKUList
+    struct GetGoodsSKUListReq
+    {
+        0 require int spuId;          // 商品spu id
+    };
+
+    struct GetGoodsSKUListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<GoodsSKUInfo> infoList;       // 列表
+    };
+
+    struct ProxyGetGoodsSKUListReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetGoodsSKUListReq body;		        //请求包体
+    };
+
+    struct ProxyGetGoodsSKUListRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetGoodsSKUListRsp body;	            //响应包体
+    };
+
+
+
+    //-------------------------其他商品信息接口----------------------------------
+    
 
 }; 
