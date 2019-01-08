@@ -4,8 +4,30 @@ module HardwareApplet
 {
 
     // 命令字
-    const string getNewTicket = "getNewTicket";
-    const string getCategoryList = "getCategoryList";
+    const string cmd0 = "getNewTicket";                 // 获取新票据
+    const string cmd1 = "getCategoryList";				// 得到某层级下的分类列表
+    const string cmd2 = "addCategoryInfo";				// 增加分类信息
+    const string cmd3 = "getAttributeList";				// 得到属性列表
+    const string cmd4 = "addAttributeInfo";				// 增加属性信息
+    const string cmd5 = "getAttributeValueList";		// 得到某个属性下边属性值列表
+    const string cmd6 = "addAttributeValueInfo";		// 增加属性值信息
+    const string cmd7 = "getBrandList";         		// 得到品牌列表
+    const string cmd8 = "addBrandInfo";         		// 增加品牌信息
+    const string cmd9 = "getMakerList";         		// 得到厂商列表
+    const string cmd10 = "addMakerInfo";        		// 增加厂商信息
+    const string cmd11 = "getGoodsSPUList";     		// 获取商品SPU列表
+    const string cmd12 = "addGoodsSPUInfo";     		// 增加商品SPU
+    const string cmd13 = "addGoodsSKUInfo";     		// 增加商品库存信息
+    const string cmd14 = "getGoodsSKUList";     		// 获取商品库存
+    const string cmd15 = "addMyAddressInfo";    		// 买家增加地址信息
+    const string cmd16 = "getMyAddressList";    		// 得到我的地址信息
+    const string cmd17 = "addGoodsToShopCart";  		// 添加商品到购物车
+    const string cmd18 = "getMyShopCartInfo";   		// 得到我的购物车信息
+    const string cmd19 = "submitOrder";         		// 提交订单
+    const string cmd20 = "confirmOrder";        		// 确认订单
+    const string cmd21 = "getProvinceList";     		// 得到省份列表
+    const string cmd22 = "getCityListByProvince";       // 得到省下边市列表
+    const string cmd23 = "getCountyListByCity";         // 得到市下边县列表
 
     enum COMMRETCODE
     {
@@ -301,7 +323,7 @@ module HardwareApplet
     };
 
     //-------------------------品牌数据管理-----------------------------------
-    // 得到属性列表 getBrandList
+    // 得到品牌列表 getBrandList
     struct GetBrandListReq
     {
         0 optional string reserved_field;           // 保留字段
@@ -388,7 +410,7 @@ module HardwareApplet
 	    1 require GetMakerListRsp body;	            //响应包体
     };
 
-    // 增加属性信息 addMakerInfo
+    // 增加厂商信息 addMakerInfo
     struct AddMakerInfoReq
     {
         0 require MakerItem item;
@@ -746,7 +768,7 @@ module HardwareApplet
 	    1 require SubmitOrderRsp body;	                //响应包体
     };
 
-    // 确认订单(主要是确认订单中的商品价格和收获地址的正确性) confirmOrder
+    // 确认订单 confirmOrder (主要是确认订单中的商品价格和收获地址的正确性)
     struct ConfirmOrderReq
     {
         0 require OrderItem item;       // item
