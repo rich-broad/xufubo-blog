@@ -576,9 +576,72 @@ module HardwareApplet
 
 
     //======================================AppletGoodsCommonServer接口定义=================================
+
+    struct AddressInfo
+    {
+        0 require int addressId;
+        1 require int uid;
+        2 require string phoneNum;              // 手机号
+        3 require string province;              // 省
+        4 require string city;                  // 市
+        5 require string county;                // 县
+        6 require string addressDetail;         // 详细地址
+        7 require string receiver;              // 收货人
+    };
+
+    // 买家增加地址信息 addMyAddressInfo
+    struct AddMyAddressInfoReq
+    {
+        0 require AddressInfo addressInfo;
+    };
+
+    struct AddMyAddressInfoRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+    };
+
+    struct ProxyAddMyAddressInfoReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require AddMyAddressInfoReq body;		        //请求包体
+    };
+
+    struct ProxyAddMyAddressInfoRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require AddMyAddressInfoRsp body;	            //响应包体
+    };
+
+    // 得到我的地址信息(通过uid查询) getMyAddressList
+    struct GetMyAddressListReq
+    {
+        0 optional string reserved_field;           // 保留字段
+    };
+
+    struct GetMyAddressListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<AddressInfo> infoList;        //
+    };
+
+    struct ProxyGetMyAddressListReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetMyAddressListReq body;		        //请求包体
+    };
+
+    struct ProxyGetMyAddressListRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetMyAddressListRsp body;	            //响应包体
+    };
+
+    // 购物车item
     struct ShopCartItem
     {
-        0 require int cartId;
+        0 require int cartId;               // 购物车条目id
         1 require int spuId;
         2 require int skuId;
         3 require int uid;
@@ -587,6 +650,22 @@ module HardwareApplet
         6 require int num;
         7 require int status;
         8 require GoodsSKUInfo skuInfo;
+        
+    };
+
+    // 订单item
+    struct OrderItem
+    {
+        0 require int orderId;
+        1 require int uid;
+        2 require int payWay;                       // 支付方式
+        3 require int status;                       // 订单状态 1-新提交待确认，2-已确认(主商量价格、确认发货地址等)，3-已发货代付款，4-已发货已付款
+        4 require int money;                        // 商品金额，在订单新提交时计算,后续订单确认后金额可能改变
+        5 require int tran_money;                   // 实际支付金额，在status设置为2(卖家进行确认)时进行更新
+        6 require int freight;                      // 运费
+        7 require string billNo;                    // 订单号，提交订单时由后台生成
+        8 require AddressInfo info;                 // 地址信息
+        9 require vector<ShopCartItem> itemList;
     };
 
     // 添加商品到购物车 addGoodsToShopCart
@@ -646,12 +725,13 @@ module HardwareApplet
     // 提交订单 submitOrder
     struct SubmitOrderReq
     {
-        0 require vector<ShopCartItem> itemList;       // item list
+        0 require OrderItem item;       // item
     };
 
     struct SubmitOrderRsp
     {
-        0 require vector<ShopCartItem> itemList;       // item list
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
     };
 
     struct ProxySubmitOrderReq
@@ -666,6 +746,28 @@ module HardwareApplet
 	    1 require SubmitOrderRsp body;	                //响应包体
     };
 
-    // 确认订单(主要是确认订单中的商品价格和收获地址的正确性) 
+    // 确认订单(主要是确认订单中的商品价格和收获地址的正确性) confirmOrder
+    struct ConfirmOrderReq
+    {
+        0 require OrderItem item;       // item
+    };
+
+    struct ConfirmOrderRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+    };
+
+    struct ProxyConfirmOrderReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require ConfirmOrderReq body;		            //请求包体
+    };
+
+    struct ProxyConfirmOrderRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require ConfirmOrderRsp body;	                //响应包体
+    };
 
 }; 

@@ -293,6 +293,7 @@ CREATE TABLE `t_user_address_info` (
   `city` varchar(32) NOT NULL DEFAULT '' COMMENT '市',
   `county` varchar(32) NOT NULL DEFAULT '' COMMENT '区县',
   `address_detail` varchar(256) NOT NULL DEFAULT '' COMMENT '详细地址',
+  `receiver` varchar(32) NOT NULL DEFAULT '' COMMENT '收货人',
   PRIMARY KEY (`address_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='收获地址表';
 ```
