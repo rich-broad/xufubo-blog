@@ -5,14 +5,14 @@ module HardwareApplet
 
     // 命令字
     const string cmd0 = "getNewTicket";                 // 获取新票据
-    const string cmd1 = "getCategoryList";				// 得到某层级下的分类列表
-    const string cmd2 = "addCategoryInfo";				// 增加分类信息
-    const string cmd3 = "getAttributeList";				// 得到属性列表
-    const string cmd4 = "addAttributeInfo";				// 增加属性信息
-    const string cmd5 = "getAttributeValueList";		// 得到某个属性下边属性值列表
-    const string cmd6 = "addAttributeValueInfo";		// 增加属性值信息
-    const string cmd7 = "getBrandList";         		// 得到品牌列表
-    const string cmd8 = "addBrandInfo";         		// 增加品牌信息
+    const string cmd1 = "getCategoryList";              // 得到某层级下的分类列表
+    const string cmd2 = "addCategoryInfo";              // 增加分类信息
+    const string cmd3 = "getAttributeList";             // 得到属性列表
+    const string cmd4 = "addAttributeInfo";             // 增加属性信息
+    const string cmd5 = "getAttributeValueList";        // 得到某个属性下边属性值列表
+    const string cmd6 = "addAttributeValueInfo";        // 增加属性值信息
+    const string cmd7 = "getBrandList";                 // 得到品牌列表
+    const string cmd8 = "addBrandInfo";         	    // 增加品牌信息
     const string cmd9 = "getMakerList";         		// 得到厂商列表
     const string cmd10 = "addMakerInfo";        		// 增加厂商信息
     const string cmd11 = "getGoodsSPUList";     		// 获取商品SPU列表
