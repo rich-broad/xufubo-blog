@@ -219,7 +219,8 @@ module HardwareApplet
     struct AttributeItem
     {
         0 require int attrId;               // 属性id
-        1 require string attrName;          // 分类名称
+        1 require string attrName;          // 属性名称
+        2 require string attrDesc;          // 属性描述
     };
 
     struct GetAttributeListRsp
@@ -351,7 +352,7 @@ module HardwareApplet
     struct ProxyGetBrandListRsp
     {
 	    0 require ProxyRspHead head;		        //响应头部
-	    1 require GetBrandListReq body;	            //响应包体
+	    1 require GetBrandListRsp body;	            //响应包体
     };
 
     // 增加品牌信息 addBrandInfo
@@ -868,5 +869,6 @@ module HardwareApplet
 	    0 require ProxyRspHead head;		            //响应头部
 	    1 require ConfirmOrderRsp body;	                //响应包体
     };
+
 
 }; 

@@ -16,6 +16,7 @@ using namespace std;
 using namespace rapidjson;
 using namespace tars;
 using namespace HardwareApplet;
+using namespace base_utils;
 
 class AppletContext : public TC_HandleBase
 {
@@ -87,9 +88,79 @@ public:
     int Tars2Json(string &json_body);
 
 private:
-    int ParseGetNewTicketReq(vector<char>& reqData);
     inline int CreateRspHead(rapidjson::Document &document);
+    int ParseGetNewTicketReq(vector<char>& reqData);
     int PackGetNewTicketRsp(string& rspData);
+
+
+    int ParseGetCategoryListReq(vector<char>& reqData);
+    int PackGetCategoryListRsp(string &rspData);
+
+    int ParseAddCategoryInfoReq(vector<char>& reqData);
+    int PackAddCategoryInfoRsp(string &rspData);
+
+    int ParseGetAttributeListReq(vector<char>& reqData);
+    int PackGetAttributeListRsp(string &rspData);
+
+    int ParseAddAttributeInfoReq(vector<char>& reqData);
+    int PackAddAttributeInfoRsp(string &rspData);
+
+    int ParseGetAttributeValueListReq(vector<char>& reqData);
+    int PackGetAttributeValueListRsp(string &rspData);
+
+    int ParseAddAttributeValueInfoReq(vector<char>& reqData);
+    int PackAddAttributeValueInfoRsp(string &rspData);
+
+    int ParseGetBrandListReq(vector<char>& reqData);
+    int PackGetBrandListRsp(string &rspData);
+
+    int ParseAddBrandInfoReq(vector<char>& reqData);
+    int PackAddBrandInfoRsp(string &rspData);
+
+    int ParseGetMakerListReq(vector<char>& reqData);
+    int PackGetMakerListRsp(string &rspData);
+
+    int ParseAddMakerInfoReq(vector<char>& reqData);
+    int PackAddMakerInfoRsp(string &rspData);
+
+    int ParseGetGoodsSPUListReq(vector<char>& reqData);
+    int PackGetGoodsSPUListRsp(string &rspData);
+
+    int ParseAddGoodsSPUInfoReq(vector<char>& reqData);
+    int PackAddGoodsSPUInfoRsp(string &rspData);
+
+    int ParseAddGoodsSKUInfoReq(vector<char>& reqData);
+    int PackAddGoodsSKUInfoRsp(string &rspData);
+
+    int ParseGetGoodsSKUListReq(vector<char>& reqData);
+    int PackGetGoodsSKUListRsp(string &rspData);
+
+    int ParseAddMyAddressInfoReq(vector<char>& reqData);
+    int PackAddMyAddressInfoRsp(string &rspData);
+
+    int ParseGetMyAddressListReq(vector<char>& reqData);
+    int PackGetMyAddressListRsp(string &rspData);
+
+    int ParseGetProvinceListReq(vector<char>& reqData);
+    int PackGetProvinceListRsp(string &rspData);
+
+    int ParseGetCityListByProvinceReq(vector<char>& reqData);
+    int PackGetCityListByProvinceRsp(string &rspData);
+
+    int ParseGetCountyListByCityReq(vector<char>& reqData);
+    int PackGetCountyListByCityRsp(string &rspData);
+
+    int ParseAddGoodsToShopCartReq(vector<char>& reqData);
+    int PackAddGoodsToShopCartRsp(string &rspData);
+
+    int ParseGetMyShopCartInfoReq(vector<char>& reqData);
+    int PackGetMyShopCartInfoRsp(string &rspData);
+
+    int ParseSubmitOrderReq(vector<char>& reqData);
+    int PackSubmitOrderRsp(string &rspData);
+
+    int ParseConfirmOrderReq(vector<char>& reqData);
+    int PackConfirmOrderRsp(string &rspData);
 
 private:
     AppletContextPtr _ctx;
