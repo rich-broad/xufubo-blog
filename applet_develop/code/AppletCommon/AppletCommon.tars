@@ -543,7 +543,7 @@ module HardwareApplet
     // 增加商品库存信息 addGoodsSKUInfo
     struct AddGoodsSKUInfoReq
     {
-        0 require GoodsSKUInfo skuInfo;          // 商品sku信息
+        0 require GoodsSKUInfo skuInfo;                // 商品sku信息
     };
 
     struct AddGoodsSKUInfoRsp
@@ -599,6 +599,7 @@ module HardwareApplet
 
     //======================================AppletGoodsCommonServer接口定义=================================
 
+    //-----------------------------------地址信息管理------------------------------------------
     struct AddressInfo
     {
         0 require int addressId;
@@ -660,6 +661,82 @@ module HardwareApplet
 	    1 require GetMyAddressListRsp body;	            //响应包体
     };
 
+    // 得到省份列表 getProvinceList
+    struct GetProvinceListReq
+    {
+        0 optional string reserved_field;           // 保留字段
+    };
+
+    struct GetProvinceListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<string> nameList;             //
+    };
+
+    struct ProxyGetProvinceListReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetProvinceListReq body;		        //请求包体
+    };
+
+    struct ProxyGetProvinceListRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetProvinceListRsp body;	            //响应包体
+    };
+
+    // 得到省下边市列表getCityListByProvince
+    struct GetCityListByProvinceReq
+    {
+        0 optional string provinceName;                // 省份名
+    };
+
+    struct GetCityListByProvinceRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<string> nameList;             // 省份下市的列表
+    };
+
+    struct ProxyGetCityListByProvinceReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetCityListByProvinceReq body;		//请求包体
+    };
+
+    struct ProxyGetCityListByProvinceRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetCityListByProvinceRsp body;	    //响应包体
+    };
+
+    // 得到市下边县列表getCountyListByCity
+    struct GetCountyListByCityReq
+    {
+        0 optional string cityName;           // 市名
+    };
+
+    struct GetCountyListByCityRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<string> nameList;             // 市下边的县列表
+    };
+
+    struct ProxyGetCountyListByCityReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetCountyListByCityReq body;		    //请求包体
+    };
+
+    struct ProxyGetCountyListByCityRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetCountyListByCityRsp body;	        //响应包体
+    };
+
+    //------------------------------------购物相关接口--------------------------------------
     // 购物车item
     struct ShopCartItem
     {
