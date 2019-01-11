@@ -817,12 +817,35 @@ int ProtocolHandler::ParseAddGoodsSKUInfoReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    if (jsonValue.FindMember("skuInfo") == jsonValue.MemberEnd() || jsonValue["skuInfo"].FindMember("attrList") == jsonValue["skuInfo"].MemberEnd()
+        || !jsonValue["skuInfo"]["attrList"].IsArray())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+
+    const Value& skuInfo = jsonValue["skuInfo"];
+    AddGoodsSKUInfoReq request;
+    request.skuInfo.spuId = RapidJsonUtil::GetJsonInt(skuInfo, "spuId");
+    request.skuInfo.name = RapidJsonUtil::GetJsonString(skuInfo, "name");
+    request.skuInfo.stock = RapidJsonUtil::GetJsonInt(skuInfo, "stock");
+    request.skuInfo.warnStock = RapidJsonUtil::GetJsonInt(skuInfo, "warnStock");
+    request.skuInfo.price = RapidJsonUtil::GetJsonInt(skuInfo, "price");
+    request.skuInfo.minCount = RapidJsonUtil::GetJsonInt(skuInfo, "minCount");
+    request.skuInfo.isDefault = RapidJsonUtil::GetJsonInt(skuInfo, "isDefault");
+    request.skuInfo.imgUrl = RapidJsonUtil::GetJsonString(skuInfo, "imgUrl");
+
+    const Value& attrList = skuInfo["attrList"];
+    for (Value::ConstValueIterator itr = attrList.Begin(); itr != attrList.End(); ++itr)
+    {
+        HardwareApplet::GoodsSKUAttrInfo item;
+        item.attrId = RapidJsonUtil::GetJsonInt(*itr, "attrId");
+        item.attrName = RapidJsonUtil::GetJsonString(*itr, "attrName");
+        item.attrValueId = RapidJsonUtil::GetJsonInt(*itr, "attrValueId");
+        item.attrValueName = RapidJsonUtil::GetJsonString(*itr, "attrValueName");
+        request.skuInfo.attrList.push_back(item);
+    }
+
+    ret = TarsEncode<AddGoodsSKUInfoReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -858,12 +881,28 @@ int ProtocolHandler::ParseGetGoodsSKUListReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    GetGoodsSKUListReq request;
+    if (jsonValue.FindMember("spuId") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    request.spuId = RapidJsonUtil::GetJsonInt(jsonValue, "spuId");
+
+    if (jsonValue.FindMember("attrList") != jsonValue.MemberEnd() && jsonValue["attrList"].IsArray())
+    {
+        const Value& attrList = jsonValue["attrList"];
+        for (Value::ConstValueIterator itr = attrList.Begin(); itr != attrList.End(); ++itr)
+        {
+            HardwareApplet::GoodsSKUAttrInfo item;
+            item.attrId = RapidJsonUtil::GetJsonInt(*itr, "attrId");
+            item.attrName = RapidJsonUtil::GetJsonString(*itr, "attrName");
+            item.attrValueId = RapidJsonUtil::GetJsonInt(*itr, "attrValueId");
+            item.attrValueName = RapidJsonUtil::GetJsonString(*itr, "attrValueName");
+            request.attrList.push_back(item);
+        }
+    }
+
+    ret = TarsEncode<GetGoodsSKUListReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -899,12 +938,20 @@ int ProtocolHandler::ParseAddMyAddressInfoReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    AddMyAddressInfoReq request;
+    if (jsonValue.FindMember("addressInfo") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    const Value& addressInfo = jsonValue["addressInfo"];
+    request.addressInfo.uid = RapidJsonUtil::GetJsonInt(addressInfo, "uid");
+    request.addressInfo.phoneNum = RapidJsonUtil::GetJsonString(addressInfo, "phoneNum");
+    request.addressInfo.province = RapidJsonUtil::GetJsonString(addressInfo, "province");
+    request.addressInfo.city = RapidJsonUtil::GetJsonString(addressInfo, "city");
+    request.addressInfo.county = RapidJsonUtil::GetJsonString(addressInfo, "county");
+    request.addressInfo.addressDetail = RapidJsonUtil::GetJsonString(addressInfo, "addressDetail");
+    request.addressInfo.receiver = RapidJsonUtil::GetJsonString(addressInfo, "receiver");
+    ret = TarsEncode<AddMyAddressInfoReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -940,12 +987,13 @@ int ProtocolHandler::ParseGetMyAddressListReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    GetMyAddressListReq request;
+    if (jsonValue.FindMember("reserved_field") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    request.reserved_field = RapidJsonUtil::GetJsonString(jsonValue, "reserved_field");
+    ret = TarsEncode<GetMyAddressListReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -981,12 +1029,13 @@ int ProtocolHandler::ParseGetProvinceListReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    GetProvinceListReq request;
+    if (jsonValue.FindMember("reserved_field") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    request.reserved_field = RapidJsonUtil::GetJsonString(jsonValue, "reserved_field");
+    ret = TarsEncode<GetProvinceListReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -1022,12 +1071,13 @@ int ProtocolHandler::ParseGetCityListByProvinceReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    GetCityListByProvinceReq request;
+    if (jsonValue.FindMember("provinceName") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    request.provinceName = RapidJsonUtil::GetJsonString(jsonValue, "provinceName");
+    ret = TarsEncode<GetCityListByProvinceReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -1063,12 +1113,13 @@ int ProtocolHandler::ParseGetCountyListByCityReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    GetCountyListByCityReq request;
+    if (jsonValue.FindMember("cityName") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    request.cityName = RapidJsonUtil::GetJsonString(jsonValue, "cityName");
+    ret = TarsEncode<GetCountyListByCityReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -1104,12 +1155,15 @@ int ProtocolHandler::ParseAddGoodsToShopCartReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
-    {
-        return -1;
-    }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    AddGoodsToShopCartReq request;
+    
+    request.spuId = RapidJsonUtil::GetJsonInt(jsonValue, "spuId");
+    request.skuId = RapidJsonUtil::GetJsonInt(jsonValue, "skuId");
+    request.price = RapidJsonUtil::GetJsonInt(jsonValue, "price");
+    request.tran_price = RapidJsonUtil::GetJsonInt(jsonValue, "tran_price");
+    request.num = RapidJsonUtil::GetJsonInt(jsonValue, "num");
+
+    ret = TarsEncode<AddGoodsToShopCartReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -1145,12 +1199,13 @@ int ProtocolHandler::ParseGetMyShopCartInfoReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    GetMyShopCartInfoReq request;
+    if (jsonValue.FindMember("reserved_field") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    request.reserved_field = RapidJsonUtil::GetJsonString(jsonValue, "reserved_field");
+    ret = TarsEncode<GetMyShopCartInfoReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -1186,12 +1241,33 @@ int ProtocolHandler::ParseSubmitOrderReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    
+    if (jsonValue.FindMember("item") == jsonValue.MemberEnd() || jsonValue["item"].FindMember("addressInfo") == jsonValue["detail"].MemberEnd()
+        || jsonValue["item"].FindMember("itemList") == jsonValue["detail"].MemberEnd() || !jsonValue["detail"]["itemList"].IsArray())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+
+    const Value& item = jsonValue["item"];
+    SubmitOrderReq request;
+    request.item.uid = RapidJsonUtil::GetJsonInt(item, "uid");
+    request.item.payWay = RapidJsonUtil::GetJsonInt(item, "payWay");
+    request.item.money = RapidJsonUtil::GetJsonInt(item, "money");
+    request.item.tranMoney = RapidJsonUtil::GetJsonInt(item, "tranMoney");
+    request.item.freight = RapidJsonUtil::GetJsonInt(item, "freight");
+
+    const Value& addressInfo = item["addressInfo"];
+    request.item.addressInfo.addressId = RapidJsonUtil::GetJsonInt(addressInfo, "addressId");
+
+    const Value& itemList = item["itemList"];
+    for (Value::ConstValueIterator itr = itemList.Begin(); itr != itemList.End(); ++itr)
+    {
+        HardwareApplet::ShopCartItem item;
+        item.cartId = RapidJsonUtil::GetJsonInt(*itr, "cartId");
+        request.item.itemList.push_back(item);
+    }
+
+    ret = TarsEncode<SubmitOrderReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
@@ -1227,12 +1303,31 @@ int ProtocolHandler::ParseConfirmOrderReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    GetNewTicketReq request;
-    if (!GET_RAPIDJSON_VALUE(jsonValue, "wx_code", request.wx_code))
+    
+    if (jsonValue.FindMember("item") == jsonValue.MemberEnd() || jsonValue["item"].FindMember("addressInfo") == jsonValue["detail"].MemberEnd()
+        || jsonValue["item"].FindMember("itemList") == jsonValue["detail"].MemberEnd() || !jsonValue["detail"]["itemList"].IsArray())
     {
         return -1;
     }
-    ret = TarsEncode<GetNewTicketReq>(request, reqData);
+    ConfirmOrderReq request;
+    const Value& item = jsonValue["item"];
+    request.item.uid = RapidJsonUtil::GetJsonInt(item, "uid");
+    request.item.payWay = RapidJsonUtil::GetJsonInt(item, "payWay");
+    request.item.money = RapidJsonUtil::GetJsonInt(item, "money");
+    request.item.tranMoney = RapidJsonUtil::GetJsonInt(item, "tranMoney");
+    request.item.freight = RapidJsonUtil::GetJsonInt(item, "freight");
+
+    const Value& addressInfo = item["addressInfo"];
+    request.item.addressInfo.addressId = RapidJsonUtil::GetJsonInt(addressInfo, "addressId");
+
+    const Value& itemList = item["itemList"];
+    for (Value::ConstValueIterator itr = itemList.Begin(); itr != itemList.End(); ++itr)
+    {
+        HardwareApplet::ShopCartItem item;
+        item.cartId = RapidJsonUtil::GetJsonInt(*itr, "cartId");
+        request.item.itemList.push_back(item);
+    }
+    ret = TarsEncode<ConfirmOrderReq>(request, reqData);
     if (ret)
     {
         ERRORLOG("TarsEncode err|"<< endl) ;
