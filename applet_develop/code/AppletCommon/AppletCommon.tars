@@ -28,6 +28,7 @@ module HardwareApplet
     const string cmd21 = "getProvinceList";     		// 得到省份列表
     const string cmd22 = "getCityListByProvince";       // 得到省下边市列表
     const string cmd23 = "getCountyListByCity";         // 得到市下边县列表
+    const string cmd24 = "getMyOrderList";              // 获取我的订单信息--买家   还没写接入层
 
     enum COMMRETCODE
     {
@@ -170,7 +171,7 @@ module HardwareApplet
     {
         0 require int ret = 0;                           // 0-成功，其他失败
         1 require string errmsg;                         // 错误信息
-        2 require map<int, CategoryItem> mpCategory;   // map<k=level, v=CategoryItem>
+        2 require map<int, CategoryItem> mpCategory;     // map<k=level, v=CategoryItem>
     };
 
     struct ProxyGetCategoryListReq
@@ -277,7 +278,7 @@ module HardwareApplet
     {
         0 require int attrValueId;            // 属性值id
         1 require string name;                // 名称
-        3 require int attrId;                 // 属性值属于哪个属性
+        2 require int attrId;                 // 属性值属于哪个属性
     };
 
     struct GetAttributeValueListRsp
@@ -334,6 +335,7 @@ module HardwareApplet
     {
         0 require int brandId;               // 品牌id
         1 require string brandName;          // 品牌名称
+        2 require string brandDesc;          // 描述
     };
 
     struct GetBrandListRsp
@@ -390,6 +392,7 @@ module HardwareApplet
     {
         0 require int makerId;               // 厂商id
         1 require string makerName;          // 厂商名称
+        2 require string makerDesc;          // 厂商描述
     };
 
     struct GetMakerListRsp
@@ -872,7 +875,7 @@ module HardwareApplet
 	    1 require ConfirmOrderRsp body;	                //响应包体
     };
 
-    // 获取我的订单信息--买家
+    // 获取我的订单信息--买家getMyOrderList   这个还没有写接入层呢
     struct GetMyOrderListReq
     {
         0 require int status;                       // 订单状态

@@ -310,8 +310,8 @@ int ProtocolHandler::ParseGetCategoryListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetCategoryListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetCategoryListRsp response;
+    ret = TarsDecode<GetCategoryListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -320,10 +320,18 @@ int ProtocolHandler::PackGetCategoryListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
+
+    rapidjson::Value mpCategory(rapidjson::kObjectType);
+    for (map<int, CategoryItem>::const_iterator iter = response.mpCategory.begin(); iter != response.mpCategory.end(); ++iter)
+    {
+        rapidjson::Value item(rapidjson::kObjectType);
+        AppletCommUtils::CategoryItem2Json(document, iter->second, item);
+        // mpCategory.AddMember(I2S(iter->first).c_str(), item, document.GetAllocator());
+        mpCategory.AddMember(rapidjson::Value(I2S(iter->first).c_str(), document.GetAllocator()).Move(), item, document.GetAllocator());
+    }
+    body.AddMember("mpCategory", mpCategory, document.GetAllocator());
 
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
@@ -357,8 +365,8 @@ int ProtocolHandler::ParseAddCategoryInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddCategoryInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddCategoryInfoRsp response;
+    ret = TarsDecode<AddCategoryInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -367,8 +375,6 @@ int ProtocolHandler::PackAddCategoryInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -395,8 +401,8 @@ int ProtocolHandler::ParseGetAttributeListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetAttributeListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetAttributeListRsp response;
+    ret = TarsDecode<GetAttributeListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -405,10 +411,17 @@ int ProtocolHandler::PackGetAttributeListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
+
+    rapidjson::Value itemList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.itemList.size(); ++i)
+    {
+        rapidjson::Value item(rapidjson::kObjectType);
+        AppletCommUtils::AttributeItem2Json(document, response.itemList[i], item);
+        itemList.PushBack(item, document.GetAllocator());
+    }
+    body.AddMember("itemList", itemList, document.GetAllocator());
 
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
@@ -438,8 +451,8 @@ int ProtocolHandler::ParseAddAttributeInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddAttributeInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddAttributeInfoRsp response;
+    ret = TarsDecode<AddAttributeInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -448,8 +461,6 @@ int ProtocolHandler::PackAddAttributeInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -477,8 +488,8 @@ int ProtocolHandler::ParseGetAttributeValueListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetAttributeValueListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetAttributeValueListRsp response;
+    ret = TarsDecode<GetAttributeValueListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -487,10 +498,17 @@ int ProtocolHandler::PackGetAttributeValueListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
+
+    rapidjson::Value mpAttrValue(rapidjson::kObjectType);
+    for (map<int, AttributeValueItem>::const_iterator iter = response.mpAttrValue.begin(); iter != response.mpAttrValue.end(); ++iter)
+    {
+        rapidjson::Value item(rapidjson::kObjectType);
+        AppletCommUtils::AttributeValueItem2Json(document, iter->second, item);
+        mpAttrValue.AddMember(rapidjson::Value(I2S(iter->first).c_str(), document.GetAllocator()).Move(), item, document.GetAllocator());
+    }
+    body.AddMember("mpAttrValue", mpAttrValue, document.GetAllocator());
 
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
@@ -522,8 +540,8 @@ int ProtocolHandler::ParseAddAttributeValueInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddAttributeValueInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddAttributeValueInfoRsp response;
+    ret = TarsDecode<AddAttributeValueInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -532,8 +550,6 @@ int ProtocolHandler::PackAddAttributeValueInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -560,8 +576,8 @@ int ProtocolHandler::ParseGetBrandListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetBrandListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetBrandListRsp response;
+    ret = TarsDecode<GetBrandListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -570,10 +586,17 @@ int ProtocolHandler::PackGetBrandListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
+
+    rapidjson::Value itemList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.itemList.size(); ++i)
+    {
+        rapidjson::Value item(rapidjson::kObjectType);
+        AppletCommUtils::BrandItem2Json(document, response.itemList[i], item);
+        itemList.PushBack(item, document.GetAllocator());
+    }
+    body.AddMember("itemList", itemList, document.GetAllocator());
 
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
@@ -603,8 +626,8 @@ int ProtocolHandler::ParseAddBrandInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddBrandInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddBrandInfoRsp response;
+    ret = TarsDecode<AddBrandInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -613,8 +636,6 @@ int ProtocolHandler::PackAddBrandInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -642,8 +663,8 @@ int ProtocolHandler::ParseGetMakerListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetMakerListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetMakerListRsp response;
+    ret = TarsDecode<GetMakerListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -652,10 +673,17 @@ int ProtocolHandler::PackGetMakerListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
+
+    rapidjson::Value itemList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.itemList.size(); ++i)
+    {
+        rapidjson::Value item(rapidjson::kObjectType);
+        AppletCommUtils::MakerItem2Json(document, response.itemList[i], item);
+        itemList.PushBack(item, document.GetAllocator());
+    }
+    body.AddMember("itemList", itemList, document.GetAllocator());
 
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
@@ -685,8 +713,8 @@ int ProtocolHandler::ParseAddMakerInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddMakerInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddMakerInfoRsp response;
+    ret = TarsDecode<AddMakerInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -695,8 +723,6 @@ int ProtocolHandler::PackAddMakerInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -723,8 +749,8 @@ int ProtocolHandler::ParseGetGoodsSPUListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetGoodsSPUListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetGoodsSPUListRsp response;
+    ret = TarsDecode<GetGoodsSPUListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -733,10 +759,17 @@ int ProtocolHandler::PackGetGoodsSPUListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
+
+    rapidjson::Value infoList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.infoList.size(); ++i)
+    {
+        rapidjson::Value info(rapidjson::kObjectType);
+        AppletCommUtils::GoodsSPUSimpleInfo2Json(document, response.infoList[i], info);
+        infoList.PushBack(info, document.GetAllocator());
+    }
+    body.AddMember("infoList", infoList, document.GetAllocator());
 
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
@@ -792,8 +825,8 @@ int ProtocolHandler::ParseAddGoodsSPUInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddGoodsSPUInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddGoodsSPUInfoRsp response;
+    ret = TarsDecode<AddGoodsSPUInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -802,8 +835,6 @@ int ProtocolHandler::PackAddGoodsSPUInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -856,8 +887,8 @@ int ProtocolHandler::ParseAddGoodsSKUInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddGoodsSKUInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddGoodsSKUInfoRsp response;
+    ret = TarsDecode<AddGoodsSKUInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -866,8 +897,6 @@ int ProtocolHandler::PackAddGoodsSKUInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -913,8 +942,8 @@ int ProtocolHandler::ParseGetGoodsSKUListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetGoodsSKUListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetGoodsSKUListRsp response;
+    ret = TarsDecode<GetGoodsSKUListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -923,11 +952,19 @@ int ProtocolHandler::PackGetGoodsSKUListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
+    ////////////////////////////////////////////////////////////////
+    rapidjson::Value infoList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.infoList.size(); ++i)
+    {
+        rapidjson::Value info(rapidjson::kObjectType);
+        AppletCommUtils::GoodsSKUInfo2Json(document, response.infoList[i], info);
 
+        infoList.PushBack(info, document.GetAllocator());
+    }
+    body.AddMember("infoList", infoList, document.GetAllocator());
+    ////////////////////////////////////////////////////////////////////
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
     rspData = AppletCommUtils::Document2Str(document);
@@ -962,8 +999,8 @@ int ProtocolHandler::ParseAddMyAddressInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackAddMyAddressInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddMyAddressInfoRsp response;
+    ret = TarsDecode<AddMyAddressInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -972,8 +1009,6 @@ int ProtocolHandler::PackAddMyAddressInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -1004,8 +1039,8 @@ int ProtocolHandler::ParseGetMyAddressListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetMyAddressListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetMyAddressListRsp response;
+    ret = TarsDecode<GetMyAddressListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1014,11 +1049,18 @@ int ProtocolHandler::PackGetMyAddressListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
-
+    ////////////////////////////////////////////////////////////////
+    rapidjson::Value infoList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.infoList.size(); ++i)
+    {
+        rapidjson::Value info(rapidjson::kObjectType);
+        AppletCommUtils::AddressInfo2Json(document, response.infoList[i], info);
+        infoList.PushBack(info, document.GetAllocator());
+    }
+    body.AddMember("infoList", infoList, document.GetAllocator());
+    ////////////////////////////////////////////////////////////////
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
     rspData = AppletCommUtils::Document2Str(document);
@@ -1046,8 +1088,8 @@ int ProtocolHandler::ParseGetProvinceListReq(vector<char>& reqData)
 int ProtocolHandler::PackGetProvinceListRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetProvinceListRsp response;
+    ret = TarsDecode<GetProvinceListRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1056,11 +1098,16 @@ int ProtocolHandler::PackGetProvinceListRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
-
+    /////////////////////////////////////////////////////////////////////
+    rapidjson::Value nameList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.nameList.size(); ++i)
+    {
+        nameList.PushBack(rapidjson::Value(response.nameList[i].c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+    }
+    body.AddMember("nameList", nameList, document.GetAllocator());
+    /////////////////////////////////////////////////////////////////////
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
     rspData = AppletCommUtils::Document2Str(document);
@@ -1088,8 +1135,8 @@ int ProtocolHandler::ParseGetCityListByProvinceReq(vector<char>& reqData)
 int ProtocolHandler::PackGetCityListByProvinceRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetCityListByProvinceRsp response;
+    ret = TarsDecode<GetCityListByProvinceRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1098,11 +1145,16 @@ int ProtocolHandler::PackGetCityListByProvinceRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
-
+    /////////////////////////////////////////////////////////////////////
+    rapidjson::Value nameList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.nameList.size(); ++i)
+    {
+        nameList.PushBack(rapidjson::Value(response.nameList[i].c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+    }
+    body.AddMember("nameList", nameList, document.GetAllocator());
+    /////////////////////////////////////////////////////////////////////
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
     rspData = AppletCommUtils::Document2Str(document);
@@ -1130,8 +1182,8 @@ int ProtocolHandler::ParseGetCountyListByCityReq(vector<char>& reqData)
 int ProtocolHandler::PackGetCountyListByCityRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetCountyListByCityRsp response;
+    ret = TarsDecode<GetCountyListByCityRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1140,11 +1192,16 @@ int ProtocolHandler::PackGetCountyListByCityRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
-
+    /////////////////////////////////////////////////////////////////////
+    rapidjson::Value nameList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.nameList.size(); ++i)
+    {
+        nameList.PushBack(rapidjson::Value(response.nameList[i].c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+    }
+    body.AddMember("nameList", nameList, document.GetAllocator());
+    /////////////////////////////////////////////////////////////////////
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
     rspData = AppletCommUtils::Document2Str(document);
@@ -1174,8 +1231,8 @@ int ProtocolHandler::ParseAddGoodsToShopCartReq(vector<char>& reqData)
 int ProtocolHandler::PackAddGoodsToShopCartRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    AddGoodsToShopCartRsp response;
+    ret = TarsDecode<AddGoodsToShopCartRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1184,8 +1241,6 @@ int ProtocolHandler::PackAddGoodsToShopCartRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -1216,8 +1271,8 @@ int ProtocolHandler::ParseGetMyShopCartInfoReq(vector<char>& reqData)
 int ProtocolHandler::PackGetMyShopCartInfoRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    GetMyShopCartInfoRsp response;
+    ret = TarsDecode<GetMyShopCartInfoRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1226,11 +1281,18 @@ int ProtocolHandler::PackGetMyShopCartInfoRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
-
+    //////////////////////////////////////////////////////////////////////
+    rapidjson::Value itemList(rapidjson::kArrayType);
+    for (size_t i = 0; i < response.itemList.size(); ++i)
+    {
+        rapidjson::Value item(rapidjson::kObjectType);
+        AppletCommUtils::ShopCartItem2Json(document, response.itemList[i], item);
+        itemList.PushBack(item, document.GetAllocator());
+    }
+    body.AddMember("itemList", itemList, document.GetAllocator());
+    //////////////////////////////////////////////////////////////////////
     document.AddMember("body", body, document.GetAllocator());
     CreateRspHead(document);
     rspData = AppletCommUtils::Document2Str(document);
@@ -1278,8 +1340,8 @@ int ProtocolHandler::ParseSubmitOrderReq(vector<char>& reqData)
 int ProtocolHandler::PackSubmitOrderRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    SubmitOrderRsp response;
+    ret = TarsDecode<SubmitOrderRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1288,8 +1350,6 @@ int ProtocolHandler::PackSubmitOrderRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
@@ -1338,8 +1398,8 @@ int ProtocolHandler::ParseConfirmOrderReq(vector<char>& reqData)
 int ProtocolHandler::PackConfirmOrderRsp(string &rspData)
 {
     int ret = 0;
-    GetNewTicketRsp response;
-    ret = TarsDecode<GetNewTicketRsp>(_ctx->_vtRsp, response);
+    ConfirmOrderRsp response;
+    ret = TarsDecode<ConfirmOrderRsp>(_ctx->_vtRsp, response);
     if (ret)
     {
         ERRORLOG("TarsDecode err|"<< endl);
@@ -1348,8 +1408,6 @@ int ProtocolHandler::PackConfirmOrderRsp(string &rspData)
     rapidjson::Document document;
     document.SetObject();
     rapidjson::Value body(rapidjson::kObjectType);
-
-    body.AddMember("st", rapidjson::Value(response.st.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("errmsg", rapidjson::Value(response.errmsg.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     body.AddMember("ret", response.ret, document.GetAllocator());
 
