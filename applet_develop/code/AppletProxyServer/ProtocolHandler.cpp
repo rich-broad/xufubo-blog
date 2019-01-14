@@ -1309,25 +1309,8 @@ int ProtocolHandler::ParseSubmitOrderReq(vector<char>& reqData)
     {
         return -1;
     }
-
-    const Value& item = jsonValue["item"];
     SubmitOrderReq request;
-    request.item.uid = RapidJsonUtil::GetJsonInt(item, "uid");
-    request.item.payWay = RapidJsonUtil::GetJsonInt(item, "payWay");
-    request.item.money = RapidJsonUtil::GetJsonInt(item, "money");
-    request.item.tranMoney = RapidJsonUtil::GetJsonInt(item, "tranMoney");
-    request.item.freight = RapidJsonUtil::GetJsonInt(item, "freight");
-
-    const Value& addressInfo = item["addressInfo"];
-    request.item.addressInfo.addressId = RapidJsonUtil::GetJsonInt(addressInfo, "addressId");
-
-    const Value& itemList = item["itemList"];
-    for (Value::ConstValueIterator itr = itemList.Begin(); itr != itemList.End(); ++itr)
-    {
-        HardwareApplet::ShopCartItem item;
-        item.cartId = RapidJsonUtil::GetJsonInt(*itr, "cartId");
-        request.item.itemList.push_back(item);
-    }
+    AppletCommUtils::Json2OrderItem(jsonValue["item"], request.item);
 
     ret = TarsEncode<SubmitOrderReq>(request, reqData);
     if (ret)

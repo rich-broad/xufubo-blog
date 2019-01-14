@@ -12,6 +12,7 @@
 using namespace std;
 using namespace tars;
 using namespace HardwareApplet;
+using namespace base_utils;
 
 int AppletCommUtils::Value2Document(const rapidjson::Value& value, rapidjson::Document &document)
 {
@@ -93,7 +94,22 @@ void AppletCommUtils::OrderItem2Json(rapidjson::Document& document, const Hardwa
 
 void AppletCommUtils::Json2OrderItem(const rapidjson::Value& item, HardwareApplet::OrderItem& sitem)
 {
+    sitem.uid = RapidJsonUtil::GetJsonInt(item, "uid");
+    sitem.payWay = RapidJsonUtil::GetJsonInt(item, "payWay");
+    sitem.money = RapidJsonUtil::GetJsonInt(item, "money");
+    sitem.tranMoney = RapidJsonUtil::GetJsonInt(item, "tranMoney");
+    sitem.freight = RapidJsonUtil::GetJsonInt(item, "freight");
 
+    const rapidjson::Value& addressInfo = item["addressInfo"];
+    sitem.addressInfo.addressId = RapidJsonUtil::GetJsonInt(addressInfo, "addressId");
+
+    const rapidjson::Value& itemList = item["itemList"];
+    for (rapidjson::Value::ConstValueIterator itr = itemList.Begin(); itr != itemList.End(); ++itr)
+    {
+        HardwareApplet::ShopCartItem item;
+        item.cartId = RapidJsonUtil::GetJsonInt(*itr, "cartId");
+        sitem.itemList.push_back(item);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////
