@@ -56,6 +56,13 @@ public:
 
     static void CategoryItem2Json(rapidjson::Document& document, const HardwareApplet::CategoryItem &sitem, rapidjson::Value& item);
     static void Json2CategoryItem(const rapidjson::Value& item, HardwareApplet::CategoryItem &sitem);
+
+    static void GoodsSPUDetail2Json(rapidjson::Document& document, const HardwareApplet::GoodsSPUDetail &sitem, rapidjson::Value& item);
+    static void Json2GoodsSPUDetail(const rapidjson::Value& item, HardwareApplet::GoodsSPUDetail &sitem);
+
+    static void GoodsMediaInfo2Json(rapidjson::Document& document, const HardwareApplet::GoodsMediaInfo &sitem, rapidjson::Value& item);
+    static void Json2GoodsMediaInfo(const rapidjson::Value& item, HardwareApplet::GoodsMediaInfo &sitem);
+
 };
 
 

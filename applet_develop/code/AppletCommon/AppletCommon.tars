@@ -749,7 +749,7 @@ module HardwareApplet
         2 require int skuId;
         3 require int uid;
         4 require int price;
-        5 require int tran_price;
+        5 require int tranPrice;
         6 require int num;
         7 require int status;
         8 require GoodsSKUInfo skuInfo;
@@ -779,7 +779,7 @@ module HardwareApplet
         0 require int spuId;
         1 require int skuId;
         2 require int price;                        // 这里需要sku的价格，因为这个sku在将来的价格可能会变，但是这一次交易是确定的，因此需要保存下来。
-        3 require int tran_price;
+        3 require int tranPrice;
         4 require int num;
         5 require int status;
     };

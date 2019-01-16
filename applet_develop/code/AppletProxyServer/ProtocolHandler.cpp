@@ -347,12 +347,8 @@ int ProtocolHandler::ParseAddCategoryInfoReq(vector<char>& reqData)
     {
         return -1;
     }
-    const Value& item = jsonValue["item"];
     AddCategoryInfoReq request;
-    request.item.categoryName = RapidJsonUtil::GetJsonString(item, "categoryName");
-    request.item.parentId = RapidJsonUtil::GetJsonInt(item, "parentId");
-    request.item.level = RapidJsonUtil::GetJsonInt(item, "level");
-    request.item.imgUrl = RapidJsonUtil::GetJsonString(item, "imgUrl");
+    AppletCommUtils::Json2CategoryItem(jsonValue["item"], request.item);
     
     ret = TarsEncode<AddCategoryInfoReq>(request, reqData);
     if (ret)
@@ -432,14 +428,12 @@ int ProtocolHandler::ParseAddAttributeInfoReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    AddAttributeInfoReq request;
     if (jsonValue.FindMember("item") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    const Value& item = jsonValue["item"];
-    request.item.attrName = RapidJsonUtil::GetJsonString(item, "attrName");
-    request.item.attrDesc = RapidJsonUtil::GetJsonString(item, "attrDesc");
+    AddAttributeInfoReq request;
+    AppletCommUtils::Json2AttributeItem(jsonValue["item"], request.item);
     ret = TarsEncode<AddAttributeInfoReq>(request, reqData);
     if (ret)
     {
@@ -520,14 +514,12 @@ int ProtocolHandler::ParseAddAttributeValueInfoReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    AddAttributeValueInfoReq request;
     if (jsonValue.FindMember("item") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    const Value& item = jsonValue["item"];
-    request.item.name = RapidJsonUtil::GetJsonString(item, "name");
-    request.item.attrId = RapidJsonUtil::GetJsonInt(item, "attrId");
+    AddAttributeValueInfoReq request;
+    AppletCommUtils::Json2AttributeValueItem(jsonValue["item"], request.item);
 
     ret = TarsEncode<AddAttributeValueInfoReq>(request, reqData);
     if (ret)
@@ -608,13 +600,12 @@ int ProtocolHandler::ParseAddBrandInfoReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    AddBrandInfoReq request;
     if (jsonValue.FindMember("item") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    const Value& item = jsonValue["item"];
-    request.item.brandName = RapidJsonUtil::GetJsonString(item, "brandName");
+    AddBrandInfoReq request;
+    AppletCommUtils::Json2BrandItem(jsonValue["item"], request.item);
     ret = TarsEncode<AddBrandInfoReq>(request, reqData);
     if (ret)
     {
@@ -695,13 +686,12 @@ int ProtocolHandler::ParseAddMakerInfoReq(vector<char>& reqData)
 {
     int ret = 0;
     const Value& jsonValue = _ctx->_document["body"];
-    AddMakerInfoReq request;
     if (jsonValue.FindMember("item") == jsonValue.MemberEnd())
     {
         return -1;
     }
-    const Value& item = jsonValue["item"];
-    request.item.makerName = RapidJsonUtil::GetJsonString(item, "makerName");
+    AddMakerInfoReq request;
+    AppletCommUtils::Json2MakerItem(jsonValue["item"], request.item);
     ret = TarsEncode<AddMakerInfoReq>(request, reqData);
     if (ret)
     {
@@ -786,33 +776,8 @@ int ProtocolHandler::ParseAddGoodsSPUInfoReq(vector<char>& reqData)
     {
         return -1;
     }
-    
-    const Value& detail = jsonValue["detail"];
     AddGoodsSPUInfoReq request;
-    request.detail.name = RapidJsonUtil::GetJsonString(detail, "name");
-    request.detail.brandName = RapidJsonUtil::GetJsonString(detail, "brandName");
-    request.detail.maker = RapidJsonUtil::GetJsonString(detail, "maker");
-    request.detail.sDesc = RapidJsonUtil::GetJsonString(detail, "sDesc");
-    request.detail.brandId = RapidJsonUtil::GetJsonInt(detail, "brandId");
-    request.detail.desc = RapidJsonUtil::GetJsonString(detail, "desc");
-
-    const Value& mediaInfo = detail["mediaInfo"];
-    request.detail.mediaInfo.mediaId = RapidJsonUtil::GetJsonInt(mediaInfo, "mediaId");
-    request.detail.mediaInfo.type = RapidJsonUtil::GetJsonInt(mediaInfo, "type");
-    request.detail.mediaInfo.position = RapidJsonUtil::GetJsonInt(mediaInfo, "position");
-    request.detail.mediaInfo.mediaUrl = RapidJsonUtil::GetJsonString(mediaInfo, "mediaUrl");
-
-    const Value& categoryInfo = detail["categoryInfo"];
-    for (Value::ConstValueIterator itr = categoryInfo.Begin(); itr != categoryInfo.End(); ++itr)
-    {
-        HardwareApplet::CategoryItem item;
-        item.categoryId = RapidJsonUtil::GetJsonInt(*itr, "categoryId");
-        item.categoryName = RapidJsonUtil::GetJsonString(*itr, "categoryName");
-        item.parentId = RapidJsonUtil::GetJsonInt(*itr, "parentId");
-        item.level = RapidJsonUtil::GetJsonInt(*itr, "level");
-        item.imgUrl = RapidJsonUtil::GetJsonString(*itr, "imgUrl");
-        request.detail.categoryInfo.push_back(item);
-    }
+    AppletCommUtils::Json2GoodsSPUDetail(jsonValue["detail"], request.detail);
 
     ret = TarsEncode<AddGoodsSPUInfoReq>(request, reqData);
     if (ret)
@@ -854,28 +819,8 @@ int ProtocolHandler::ParseAddGoodsSKUInfoReq(vector<char>& reqData)
         return -1;
     }
 
-    const Value& skuInfo = jsonValue["skuInfo"];
     AddGoodsSKUInfoReq request;
-    request.skuInfo.spuId = RapidJsonUtil::GetJsonInt(skuInfo, "spuId");
-    request.skuInfo.name = RapidJsonUtil::GetJsonString(skuInfo, "name");
-    request.skuInfo.stock = RapidJsonUtil::GetJsonInt(skuInfo, "stock");
-    request.skuInfo.warnStock = RapidJsonUtil::GetJsonInt(skuInfo, "warnStock");
-    request.skuInfo.price = RapidJsonUtil::GetJsonInt(skuInfo, "price");
-    request.skuInfo.minCount = RapidJsonUtil::GetJsonInt(skuInfo, "minCount");
-    request.skuInfo.isDefault = RapidJsonUtil::GetJsonInt(skuInfo, "isDefault");
-    request.skuInfo.imgUrl = RapidJsonUtil::GetJsonString(skuInfo, "imgUrl");
-
-    const Value& attrList = skuInfo["attrList"];
-    for (Value::ConstValueIterator itr = attrList.Begin(); itr != attrList.End(); ++itr)
-    {
-        HardwareApplet::GoodsSKUAttrInfo item;
-        item.attrId = RapidJsonUtil::GetJsonInt(*itr, "attrId");
-        item.attrName = RapidJsonUtil::GetJsonString(*itr, "attrName");
-        item.attrValueId = RapidJsonUtil::GetJsonInt(*itr, "attrValueId");
-        item.attrValueName = RapidJsonUtil::GetJsonString(*itr, "attrValueName");
-        request.skuInfo.attrList.push_back(item);
-    }
-
+    AppletCommUtils::Json2GoodsSKUInfo(jsonValue["skuInfo"], request.skuInfo);
     ret = TarsEncode<AddGoodsSKUInfoReq>(request, reqData);
     if (ret)
     {
@@ -923,10 +868,7 @@ int ProtocolHandler::ParseGetGoodsSKUListReq(vector<char>& reqData)
         for (Value::ConstValueIterator itr = attrList.Begin(); itr != attrList.End(); ++itr)
         {
             HardwareApplet::GoodsSKUAttrInfo item;
-            item.attrId = RapidJsonUtil::GetJsonInt(*itr, "attrId");
-            item.attrName = RapidJsonUtil::GetJsonString(*itr, "attrName");
-            item.attrValueId = RapidJsonUtil::GetJsonInt(*itr, "attrValueId");
-            item.attrValueName = RapidJsonUtil::GetJsonString(*itr, "attrValueName");
+            AppletCommUtils::Json2GoodsSKUAttrInfo(*itr, item);
             request.attrList.push_back(item);
         }
     }
@@ -980,14 +922,7 @@ int ProtocolHandler::ParseAddMyAddressInfoReq(vector<char>& reqData)
     {
         return -1;
     }
-    const Value& addressInfo = jsonValue["addressInfo"];
-    request.addressInfo.uid = RapidJsonUtil::GetJsonInt(addressInfo, "uid");
-    request.addressInfo.phoneNum = RapidJsonUtil::GetJsonString(addressInfo, "phoneNum");
-    request.addressInfo.province = RapidJsonUtil::GetJsonString(addressInfo, "province");
-    request.addressInfo.city = RapidJsonUtil::GetJsonString(addressInfo, "city");
-    request.addressInfo.county = RapidJsonUtil::GetJsonString(addressInfo, "county");
-    request.addressInfo.addressDetail = RapidJsonUtil::GetJsonString(addressInfo, "addressDetail");
-    request.addressInfo.receiver = RapidJsonUtil::GetJsonString(addressInfo, "receiver");
+    AppletCommUtils::Json2AddressInfo(jsonValue["addressInfo"], request.addressInfo);
     ret = TarsEncode<AddMyAddressInfoReq>(request, reqData);
     if (ret)
     {
@@ -1217,7 +1152,7 @@ int ProtocolHandler::ParseAddGoodsToShopCartReq(vector<char>& reqData)
     request.spuId = RapidJsonUtil::GetJsonInt(jsonValue, "spuId");
     request.skuId = RapidJsonUtil::GetJsonInt(jsonValue, "skuId");
     request.price = RapidJsonUtil::GetJsonInt(jsonValue, "price");
-    request.tran_price = RapidJsonUtil::GetJsonInt(jsonValue, "tran_price");
+    request.tranPrice = RapidJsonUtil::GetJsonInt(jsonValue, "tranPrice");
     request.num = RapidJsonUtil::GetJsonInt(jsonValue, "num");
 
     ret = TarsEncode<AddGoodsToShopCartReq>(request, reqData);
@@ -1353,23 +1288,7 @@ int ProtocolHandler::ParseConfirmOrderReq(vector<char>& reqData)
         return -1;
     }
     ConfirmOrderReq request;
-    const Value& item = jsonValue["item"];
-    request.item.uid = RapidJsonUtil::GetJsonInt(item, "uid");
-    request.item.payWay = RapidJsonUtil::GetJsonInt(item, "payWay");
-    request.item.money = RapidJsonUtil::GetJsonInt(item, "money");
-    request.item.tranMoney = RapidJsonUtil::GetJsonInt(item, "tranMoney");
-    request.item.freight = RapidJsonUtil::GetJsonInt(item, "freight");
-
-    const Value& addressInfo = item["addressInfo"];
-    request.item.addressInfo.addressId = RapidJsonUtil::GetJsonInt(addressInfo, "addressId");
-
-    const Value& itemList = item["itemList"];
-    for (Value::ConstValueIterator itr = itemList.Begin(); itr != itemList.End(); ++itr)
-    {
-        HardwareApplet::ShopCartItem item;
-        item.cartId = RapidJsonUtil::GetJsonInt(*itr, "cartId");
-        request.item.itemList.push_back(item);
-    }
+    AppletCommUtils::Json2OrderItem(jsonValue["item"], request.item);
     ret = TarsEncode<ConfirmOrderReq>(request, reqData);
     if (ret)
     {
