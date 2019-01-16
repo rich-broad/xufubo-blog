@@ -46,6 +46,7 @@ string AppletCommUtils::Document2Str(const rapidjson::Document &document)
 
 //=======================================结构体和Json转换的函数 start=====================================//
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::ShopCartItem2Json(rapidjson::Document& document, const HardwareApplet::ShopCartItem& sitem, rapidjson::Value& item)
 {
     item.AddMember("cartId", sitem.cartId, document.GetAllocator());
@@ -78,6 +79,7 @@ void AppletCommUtils::Json2ShopCartItem(const rapidjson::Value& item, HardwareAp
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::OrderItem2Json(rapidjson::Document& document, const HardwareApplet::OrderItem& sitem, rapidjson::Value& item)
 {
@@ -130,6 +132,7 @@ void AppletCommUtils::Json2OrderItem(const rapidjson::Value& item, HardwareApple
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::GoodsSKUInfo2Json(rapidjson::Document& document, const HardwareApplet::GoodsSKUInfo& sinfo, rapidjson::Value& info)
 {
     info.AddMember("spuId", sinfo.spuId, document.GetAllocator());
@@ -176,6 +179,7 @@ void AppletCommUtils::Json2GoodsSKUInfo(const rapidjson::Value& info, HardwareAp
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::GoodsSKUAttrInfo2Json(rapidjson::Document& document, const HardwareApplet::GoodsSKUAttrInfo &sattr, rapidjson::Value& attr)
 {
     attr.AddMember("attrId", sattr.attrId, document.GetAllocator());
@@ -192,6 +196,7 @@ void AppletCommUtils::Json2GoodsSKUAttrInfo(const rapidjson::Value& attr, Hardwa
     sattr.attrValueName = RapidJsonUtil::GetJsonString(attr, "attrValueName");
 }
 
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::AddressInfo2Json(rapidjson::Document& document, const HardwareApplet::AddressInfo &sinfo, rapidjson::Value& info)
 {
@@ -218,6 +223,7 @@ void AppletCommUtils::Json2AddressInfo(const rapidjson::Value& info, HardwareApp
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::GoodsSPUSimpleInfo2Json(rapidjson::Document& document, const HardwareApplet::GoodsSPUSimpleInfo &sinfo, rapidjson::Value& info)
 {
     info.AddMember("spuId", sinfo.spuId, document.GetAllocator());
@@ -238,6 +244,7 @@ void AppletCommUtils::Json2GoodsSPUSimpleInfo(const rapidjson::Value& info, Hard
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::MakerItem2Json(rapidjson::Document& document, const HardwareApplet::MakerItem &sitem, rapidjson::Value& item)
 {
     item.AddMember("makerId", sitem.makerId, document.GetAllocator());
@@ -252,6 +259,7 @@ void AppletCommUtils::Json2MakerItem(const rapidjson::Value& item, HardwareApple
     sitem.makerDesc = RapidJsonUtil::GetJsonString(item, "makerDesc");
 }
 
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::BrandItem2Json(rapidjson::Document& document, const HardwareApplet::BrandItem &sitem, rapidjson::Value& item)
 {
@@ -268,6 +276,7 @@ void AppletCommUtils::Json2BrandItem(const rapidjson::Value& item, HardwareApple
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::AttributeValueItem2Json(rapidjson::Document& document, const HardwareApplet::AttributeValueItem &sitem, rapidjson::Value& item)
 {
     item.AddMember("attrValueId", sitem.attrValueId, document.GetAllocator());
@@ -283,6 +292,7 @@ void AppletCommUtils::Json2AttributeValueItem(const rapidjson::Value& item, Hard
 }
 
 //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::AttributeItem2Json(rapidjson::Document& document, const HardwareApplet::AttributeItem &sitem, rapidjson::Value& item)
 {
     item.AddMember("attrId", sitem.attrId, document.GetAllocator());
@@ -297,6 +307,7 @@ void AppletCommUtils::Json2AttributeItem(const rapidjson::Value& item, HardwareA
     sitem.attrDesc = RapidJsonUtil::GetJsonString(item, "attrDesc");
 }
 
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::CategoryItem2Json(rapidjson::Document& document, const HardwareApplet::CategoryItem &sitem, rapidjson::Value& item)
 {
@@ -316,6 +327,7 @@ void AppletCommUtils::Json2CategoryItem(const rapidjson::Value& item, HardwareAp
     sitem.imgUrl = RapidJsonUtil::GetJsonString(item, "imgUrl");
 }
 
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::GoodsSPUDetail2Json(rapidjson::Document& document, const HardwareApplet::GoodsSPUDetail &sitem, rapidjson::Value& item)
 {
@@ -345,6 +357,7 @@ void AppletCommUtils::Json2GoodsSPUDetail(const rapidjson::Value& detail, Hardwa
     }
 }
 
+//////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 void AppletCommUtils::GoodsMediaInfo2Json(rapidjson::Document& document, const HardwareApplet::GoodsMediaInfo &sitem, rapidjson::Value& item)
 {
