@@ -341,4 +341,6 @@ public:
 
 #define GET_RAPIDJSON_VALUE(obj, key, value)  base_utils::RapidJsonUtil::GetValue(obj, key, value)
 
+#define GET_RAPIDJSON_VALUE_WITH_DEFAULT(obj, key, value)  base_utils::RapidJsonUtil::GetValueWithDefault(obj, key, value)
+
 #endif // !__RAPIDJSON_UTIL_H_

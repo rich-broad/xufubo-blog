@@ -77,6 +77,12 @@ module HardwareApplet
     	2 require string wifiBssid;		       //Wifi路由器的Mac地址
     };
 
+    struct SessionInfo
+    {
+        0 require int uid;			           //用户id,与微信的openid对应
+    	1 require string openid;		       //openid
+    };
+
     // 接入层统一头部
     struct ProxyReqHead
     {
@@ -109,6 +115,7 @@ module HardwareApplet
     	2 require NetInfo netInfo;			    //网络信息
         3 require SecurityTicket st;            //票据
     	4 require long clientTimestamp;	        //sdk当前时间戳，单位毫秒
+        5 require SessionInfo sessionInfo;      //会话信息
     };
 
     // 微信回包

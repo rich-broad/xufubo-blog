@@ -88,6 +88,9 @@ public:
     string _SVRKEY;
     string _SVRMD5SIGKEY;
 	map<string, int> _mpFunc;
+
+    //db配置
+    map<string, string> _dbInfoConf;
 };
 
 class ConfigurationFactory

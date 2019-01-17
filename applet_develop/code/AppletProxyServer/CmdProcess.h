@@ -14,16 +14,19 @@
 class CmdProcess
 {
 public:
-	CmdProcess()
+	CmdProcess(TC_Mysql * dbInfo):_dbInfo(dbInfo)
 	{
-
+        
 	}
 
 	~CmdProcess()
 	{
 
-	}
+    }
 	int32_t excute(AppletContextPtr ctx);
+
+private:
+    TC_Mysql * _dbInfo;
 };
 
 class CmdProcessCallback: public tars::ServantProxyCallback

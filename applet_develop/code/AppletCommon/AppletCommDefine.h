@@ -48,6 +48,10 @@
 using namespace std;
 using namespace tars;
 
+#define USER_LOGIN_DATA_COLUMN_NOT_UID  "`custom_session_key`, `open_id`, `session_key`, `session_key_time`"
+
+#define USER_LOGIN_DATA_ALL_COLUMN  "`uid`, `custom_session_key`, `open_id`, `session_key`, `session_key_time`"
+
 
 #define I2S(i) TC_Common::tostr<int>(i)
 #define U2S(i) TC_Common::tostr<unsigned>(i)
@@ -118,13 +122,18 @@ typedef TC_RW_WLockT<TC_ThreadRWLocker> WriteLock;
 #define NET_INFO(netInfo)  \
     netInfo.netType << "|" << netInfo.wifiSsid << "|" << netInfo.wifiBssid
 
+#define SESSION_INFO(sessionInfo) \
+    sessionInfo.uid << "|" << sessionInfo.openid
+    
+
 #define REQ_HEAD_ALL_INFO(head) \
     REQ_HEAD_BASE_INFO(head) << "|" << DEVICE_INFO(head.deviceInfo) << "|" << ROM_INFO(head.romInfo) << "|" << NET_INFO(head.netInfo)
 
-#define COMM_HEAD_ALL_INFO(head)    \
-    DEVICE_INFO(head.deviceInfo) << "|" << ROM_INFO(head.romInfo) << "|" << NET_INFO(head.netInfo) << "|" << head.clientTimestamp
-
 #define RSP_HEAD_ALL_INFO(head) \
     head.requestId << "|" << head.ret << "|" << head.svrTimestamp << "|" << head.csTicketState << "|" << head.st
+
+// ÒµÎñÍ·²¿
+#define COMM_HEAD_ALL_INFO(head)    \
+    DEVICE_INFO(head.deviceInfo) << "|" << ROM_INFO(head.romInfo) << "|" << NET_INFO(head.netInfo) << "|" << SESSION_INFO(head.sessionInfo) << "|" << head.clientTimestamp
 
 #endif

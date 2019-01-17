@@ -27,6 +27,7 @@ public:
 
 private:
     CmdProcess* _pCmdProcess;
+    TC_Mysql * _dbInfo;
 };
 
 

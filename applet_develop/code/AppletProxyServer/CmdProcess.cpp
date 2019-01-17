@@ -19,6 +19,7 @@ int32_t CmdProcess::excute(AppletContextPtr ctx)
     vector<char> reqData;
     ProtocolHandlerPtr protocol_handler = new ProtocolHandler(ctx);
     ret = protocol_handler->CreateAppletCommHead(commHead);
+    
     ret = protocol_handler->Json2Tars(reqData);
     DEBUGLOG("excute enter: reqData.size = " << reqData.size() << endl);
     //用于异步回调的callback，注意第二个参数哦，因为客户端请求会引发多个并行异步调用

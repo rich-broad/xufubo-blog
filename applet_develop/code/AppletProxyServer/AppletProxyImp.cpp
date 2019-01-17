@@ -21,11 +21,17 @@ using namespace HardwareApplet;
 //////////////////////////////////////////////////////
 void AppletProxyImp::initialize()
 {
-	_pCmdProcess = new CmdProcess();
+    _dbInfo = new TC_Mysql();
+    TC_DBConf dbConf;
+    dbConf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
+    _dbInfo->init(dbConf);
+    _dbInfo->connect();
+	_pCmdProcess = new CmdProcess(_dbInfo);
 }
 
 void AppletProxyImp::destroy()
 {
+    delete _dbInfo;
 	delete _pCmdProcess;
 }
 
@@ -35,7 +41,7 @@ int AppletProxyImp::doRequest(tars::TarsCurrentPtr current, vector<char>& respon
 	current->setResponse(false);
 	const vector<char> &httpReqData = current->getRequestBuffer();
     DEBUGLOG("FirstEnter|" << current->getIp() << "|" << current->getPort() << "|" << httpReqData.size() << endl);
-	AppletContextPtr ctx = new AppletContext(current);
+	AppletContextPtr ctx = new AppletContext(_dbInfo, current);
     	int ret = ctx->parseRequestData(httpReqData);
 	if (ret != 0)
 	{

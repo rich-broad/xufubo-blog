@@ -23,8 +23,9 @@ class AppletContext : public TC_HandleBase
 public:
     friend class ProtocolHandler;
 public:
-    AppletContext(tars::TarsCurrentPtr current)
+    AppletContext(TC_Mysql * dbInfo,tars::TarsCurrentPtr current)
     {
+        _dbInfo = dbInfo;
         _current = current;
         _beginTime = TNOW;
 		_clienIp = current->getIp();
@@ -32,7 +33,7 @@ public:
     }
 	virtual ~AppletContext()
     {
-
+        
     };
     
 public:
@@ -40,6 +41,7 @@ public:
     tars::TarsCurrentPtr _current;
 	ProxyReqHead _reqHead;
     SecurityTicket _st;
+    SessionInfo _sessionInfo;
     Document _document;
     string _reqBodyStr;
 	ProxyRspHead _rspHead;
@@ -74,6 +76,10 @@ private:
 	int32_t parseST();
 	int32_t parseRequest();
     int32_t parseHttpBody(const string & content);
+    int32_t getSessionInfo();
+
+private:
+    TC_Mysql * _dbInfo;
 };
 typedef TC_AutoPtr<AppletContext> AppletContextPtr;
 

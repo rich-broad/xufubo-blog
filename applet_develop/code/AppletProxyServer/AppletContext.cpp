@@ -32,6 +32,17 @@ int32_t AppletContext::parseRequestData(const vector<char>& httpReqData)
         DEBUGLOG("E_TICKET_WILL_EXPIRED");
         ret = 0;
     }
+    if (ret)
+    {
+        ERRORLOG("parseST error. ret = " << ret << endl);
+        return ret;
+    }
+    
+    ret = getSessionInfo();
+    if (ret)
+    {
+        ERRORLOG("getSessionInfo error. ret = " << ret << endl);
+    }
     
 	return ret;
 }
@@ -205,6 +216,32 @@ int32_t AppletContext::parseST()
 	}
 
 	return ret;
+}
+
+int32_t AppletContext::getSessionInfo()
+{
+    // 这个函数不需要去换取登录态信息
+    if (_funcName == "getNewTicket")
+    {
+        ERRORLOG("funcName == getNewTicket" << endl);
+        return 0;
+    }
+
+    ostringstream sqlStr;
+    sqlStr << "select `uid`, `open_id` from t_user_login_data where `custom_session_key` = " << _dbInfo->escapeString(_st.sessionKey);
+    DEBUGLOG("sql = " << sqlStr.str() << endl);
+    TC_Mysql::MysqlData data = _dbInfo->queryRecord(sqlStr.str());
+    if (data.size() != 1)
+    {
+        ERRORLOG("SELECT error|sql=" << sqlStr.str() << endl);
+        return -1;
+    }
+
+    TC_Mysql::MysqlRecord record = data[0];
+    _sessionInfo.uid = TC_Common::strto<int32_t>(record["uid"]);
+    _sessionInfo.openid = record["open_id"];
+
+    return 0;
 }
 
 void AppletContext::logRequset()

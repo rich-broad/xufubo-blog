@@ -22,6 +22,7 @@ int ProtocolHandler::CreateAppletCommHead(AppletCommHead& commHead)
     commHead.netInfo = head.netInfo;
     commHead.st = _ctx->_st;
     commHead.clientTimestamp = head.clientTimestamp;
+    commHead.sessionInfo = _ctx->_sessionInfo;
     return 0;
 }
 

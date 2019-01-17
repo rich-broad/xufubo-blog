@@ -6,7 +6,7 @@ TARGET    := AppletProxyServer
 CONFIG    := 
 STRIP_FLAG:= N
 INCLUDE   += -I../AppletCommon
-LIB       += -lssl -lcrypto
+LIB       += -L/usr/local/mysql/lib/ -lmysqlclient -lssl -lcrypto
 
 #-----------------------------------------------------------------------
 
