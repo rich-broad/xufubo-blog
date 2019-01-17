@@ -2,7 +2,7 @@
 SET names utf8;
 
 CREATE DATABASE `db_applet_data` IF NOT EXISTS `db_applet_data` DEFAULT CHARACTER SET utf8;
-
+/*
 -- 用户信息表，该表只增加和查询，不删除，不修改
 CREATE TABLE `t_user_base_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -12,9 +12,10 @@ CREATE TABLE `t_user_base_data` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_open_id` (`contract_no`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='用户基本信息表';
-
--- 包含自定义skey到微信open_id和sessionkey的映射,skey到微信open_id和sessionkey的映射，后续可以使用nosql存储进行优化，前期因为我的小程序没几个用户，不做过度设计
+*/
+-- 包含自定义skey到微信open_id和sessionkey的映射,其实这块可以用k-v系统，不过我们的用户很少，因此用了数据库
 CREATE TABLE `t_user_login_data` (
+  `uid` int(11) NOT NULL AUTO_INCREMENT,
   `custom_session_key` varchar(128) NOT NULL DEFAULT '' COMMENT '自定义sessionkey',
   `open_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
   `session_key` varchar(64) NOT NULL DEFAULT '' COMMENT '微信返回的sessionkey',
