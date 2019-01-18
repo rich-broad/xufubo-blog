@@ -81,6 +81,7 @@ module HardwareApplet
     {
         0 require int uid;			           //用户id,与微信的openid对应
     	1 require string openid;		       //openid
+        2 require string unionid;              //同一个微信开放平台下的不同应用的用户唯一表示,详见: https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/union-id.html
     };
 
     // 接入层统一头部

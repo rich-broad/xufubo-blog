@@ -90,11 +90,11 @@ void AsyncHttpCallback::onResponse(bool bClose, TC_HttpResponse &stHttpResponse)
         }
         HardwareApplet::SecurityTicket sST;
         response.ret = makeST(wxrsp, response.st, sST);
-        //后续支持事务，现在看没必要
+		// 该函数具有事务性
         ret = updateUserInfo(wxrsp, sST);
         if (ret)
         {
-            ERRORLOG("updateUserInfo error|" << endl);
+            ERRORLOG("updateUserLoginInfo error|" << endl);
         }
         sendReponse(response, _stHead, _funcName, ret, _current);
         return;
@@ -176,10 +176,7 @@ int AsyncHttpCallback::parseCode2SessionRsp(const string & content, HardwareAppl
     Value::ConstMemberIterator msgCodeiter = document.FindMember("errmsg");
     if (msgCodeiter != document.MemberEnd())
     {
-        DEBUGLOG(msgCodeiter->value.GetString() << endl);
         wxrsp.errmsg = msgCodeiter->value.GetString();
-        DEBUGLOG(wxrsp.errmsg << endl;);
-        DEBUGLOG(msgCodeiter->value.GetString() << endl);
     }
 
     if (errCodeiter == document.MemberEnd())
@@ -189,35 +186,58 @@ int AsyncHttpCallback::parseCode2SessionRsp(const string & content, HardwareAppl
     return wxrsp.errcode;
 }
 
+
 int AsyncHttpCallback::updateUserInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST)
 {
-    int ret = 0;
-    //更新用户信息先封装成两个函数，因为将来用户登录信息可能优化为nosql
-    ret = updateUserBaseInfo(wxrsp, sST);
-    if (ret)
+    int ret = -1;
+    int uid = 0;
+    // 在连接_db_Info上执行事务
+    AppletTransaction transaction(_db_Info);
+    try
     {
-        ERRORLOG("updateUserBaseInfo error|" << endl);
-        return ret;
+        if ((ret = transaction.Start()) != 0)
+        {
+            ERRORLOG("transaction.Start error|" << endl);
+            return ret;
+        }
+
+        ret = updateUserBaseInfo(wxrsp, sST, uid);
+        if (ret != 0)
+        {
+            ERRORLOG("updateUserBaseData error|" << endl);
+            transaction.Rollback();
+            return ret;
+        }
+
+        ret = updateUserLoginInfo(wxrsp, sST, uid);
+        if (ret != 0)
+        {
+            ERRORLOG("updateUserLoginInfo error|" << endl);
+            transaction.Rollback();
+            return ret;
+        }
+        transaction.Commit();
     }
-    ret = updateUserLoginInfo(wxrsp, sST);
-    if (ret)
+    catch (...)
     {
-        ERRORLOG("updateUserLoginInfo error|" << endl);
-        return ret;
+        ERRORLOG("exception unknow|" << "updateUserInfo" << endl);
+        transaction.Rollback();
+        ret = -1;
     }
-    
-    return 0;
+
+    return ret;
 }
-int AsyncHttpCallback::updateUserBaseInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST)
+
+
+int AsyncHttpCallback::updateUserBaseInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST, int & uid)
 {
     int ret = -1;
     ostringstream sqlStr;
-    
     try
     {
         sqlStr << "replace into t_user_base_data " << "(" << USER_BASE_DATA_COLUMN_NOT_ID << ") values "
             << "("
-            << "'" << _db_Info->escapeString(wxrsp.openid) << "'" << ","
+            << "'" << _db_Info->escapeString(wxrsp.unionid) << "'" << ","
             << TNOW
             << ")";
         DEBUGLOG("sql = " << sqlStr.str() << endl);
@@ -227,22 +247,37 @@ int AsyncHttpCallback::updateUserBaseInfo(const HardwareApplet::WXJSCodeToSessio
     }
     __CATCH_EXCEPTION_WITH__("MySQL_Exception");
     
-    if (ret)
+    if (ret != 0)
     {
         ERRORLOG("exec sql error|" << sqlStr.str() << endl);
+        return ret;
     }
-    return ret;
+    sqlStr.str(""); sqlStr.clear();
+    sqlStr << "select `uid` from t_user_base_data where `union_id` = " << "'" << _db_Info->escapeString(wxrsp.unionid) << "'";
+
+    TC_Mysql::MysqlData data = _db_Info->queryRecord(sqlStr.str());
+    if (data.size() != 1)
+    {
+        ERRORLOG("data.size() != 1 error|" << sqlStr.str() << endl);
+        return -1;
+    }
+    TC_Mysql::MysqlRecord record = data[0];
+    uid = TC_Common::strto<int>(record["uid"]);
+    return 0;
 }
 
-int AsyncHttpCallback::updateUserLoginInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST)
+//#define USER_LOGIN_DATA_ALL_COLUMN  "`uid`, `union_id`, `custom_session_key`, `open_id`, `session_key`, `session_key_time`"
+int AsyncHttpCallback::updateUserLoginInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST, const int uid)
 {
-    int ret = 0;
+    int ret = -1;
     ostringstream sqlStr;
 
     try
     {
         sqlStr << "replace into t_user_login_data " << "(" << USER_LOGIN_DATA_ALL_COLUMN << ") values "
             << "("
+            << uid << ","
+            << "'" << _db_Info->escapeString(wxrsp.unionid) << "'" << ","
             << "'" << _db_Info->escapeString(sST.sessionKey) << "'" << ","
             << "'" << _db_Info->escapeString(wxrsp.openid) << "'" << ","
             << "'" << _db_Info->escapeString(wxrsp.session_key) << "'" << ","

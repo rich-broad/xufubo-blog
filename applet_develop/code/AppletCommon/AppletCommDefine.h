@@ -48,9 +48,11 @@
 using namespace std;
 using namespace tars;
 
-#define USER_LOGIN_DATA_COLUMN_NOT_UID  "`custom_session_key`, `open_id`, `session_key`, `session_key_time`"
+#define USER_LOGIN_DATA_ALL_COLUMN  "`uid`, `union_id`, `custom_session_key`, `open_id`, `session_key`, `session_key_time`"
 
-#define USER_LOGIN_DATA_ALL_COLUMN  "`uid`, `custom_session_key`, `open_id`, `session_key`, `session_key_time`"
+#define USER_BASE_DATA_COLUMN_NOT_ID  "`union_id`, `create_time`"
+#define USER_BASE_DATA_ALL_COLUMN  "`uid`, `union_id`, `create_time`, `update_time`"
+
 
 
 #define I2S(i) TC_Common::tostr<int>(i)

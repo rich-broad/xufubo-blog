@@ -200,7 +200,7 @@ int32_t AppletContext::parseST()
 		ERRORLOG("ticket time err|" << _clienIp << "|" << timeInterval << "|" << _st.timets << endl);
 		ret = E_TICKET_INVALID;
 	}
-	else if (timeInterval > DEF_CFG_SINGLETON->_outdateTime)
+	else if (timeInterval > DEF_CFG_SINGLETON->_outdateTime)  // 是否过期，这个时间可以很长
 	{
 		ERRORLOG("ticket outdate|" << _clienIp << "|" << timeInterval << "|" << _st.timets << endl);
 		ret = E_TICKET_EXPIRED;             // 票据过期
@@ -228,7 +228,7 @@ int32_t AppletContext::getSessionInfo()
     }
 
     ostringstream sqlStr;
-    sqlStr << "select `uid`, `open_id` from t_user_login_data where `custom_session_key` = " << _dbInfo->escapeString(_st.sessionKey);
+    sqlStr << "select `uid`, `open_id`, `union_id` from t_user_login_data where `custom_session_key` = " << _dbInfo->escapeString(_st.sessionKey);
     DEBUGLOG("sql = " << sqlStr.str() << endl);
     TC_Mysql::MysqlData data = _dbInfo->queryRecord(sqlStr.str());
     if (data.size() != 1)
@@ -240,7 +240,7 @@ int32_t AppletContext::getSessionInfo()
     TC_Mysql::MysqlRecord record = data[0];
     _sessionInfo.uid = TC_Common::strto<int32_t>(record["uid"]);
     _sessionInfo.openid = record["open_id"];
-
+    _sessionInfo.unionid = record["union_id"];
     return 0;
 }
 

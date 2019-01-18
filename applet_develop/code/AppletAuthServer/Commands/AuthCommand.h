@@ -42,8 +42,8 @@ private:
     inline int parseCode2SessionRsp(const string & content, HardwareApplet::WXJSCodeToSessionRsp & rsp);
     int makeST(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, string &st, HardwareApplet::SecurityTicket &sST);
     int updateUserInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST);
-    int updateUserLoginInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST);
-    int updateUserBaseInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST);
+    int updateUserLoginInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST, const int uid);
+    int updateUserBaseInfo(const HardwareApplet::WXJSCodeToSessionRsp &wxrsp, const HardwareApplet::SecurityTicket &sST, int & uid);
 
 protected:
 	string _sUrl;
@@ -52,7 +52,6 @@ protected:
     string _funcName;
     TC_Mysql * _db_Info;
     tars::TarsCurrentPtr _current;
-    
 };
 
 #endif /*_PUSH_COMMAND_H_*/
