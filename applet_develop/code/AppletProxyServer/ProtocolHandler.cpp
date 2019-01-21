@@ -503,11 +503,16 @@ int ProtocolHandler::PackGetAttributeValueListRsp(string &rspData)
     body.AddMember("ret", response.ret, document.GetAllocator());
 
     rapidjson::Value mpAttrValue(rapidjson::kObjectType);
-    for (map<int, AttributeValueItem>::const_iterator iter = response.mpAttrValue.begin(); iter != response.mpAttrValue.end(); ++iter)
+    for (map<int, vector<AttributeValueItem> >::const_iterator iter = response.mpAttrValue.begin(); iter != response.mpAttrValue.end(); ++iter)
     {
-        rapidjson::Value item(rapidjson::kObjectType);
-        AppletCommUtils::AttributeValueItem2Json(document, iter->second, item);
-        mpAttrValue.AddMember(rapidjson::Value(I2S(iter->first).c_str(), document.GetAllocator()).Move(), item, document.GetAllocator());
+        rapidjson::Value itemList(kArrayType);
+        for (size_t i = 0; i < iter->second.size(); ++i)
+        {
+            rapidjson::Value item(rapidjson::kObjectType);
+            AppletCommUtils::AttributeValueItem2Json(document, iter->second[i], item);
+            itemList.PushBack(item, document.GetAllocator());
+        }
+        mpAttrValue.AddMember(rapidjson::Value(I2S(iter->first).c_str(), document.GetAllocator()).Move(), itemList, document.GetAllocator());
     }
     body.AddMember("mpAttrValue", mpAttrValue, document.GetAllocator());
 

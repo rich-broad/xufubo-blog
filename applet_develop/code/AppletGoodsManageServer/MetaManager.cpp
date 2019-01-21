@@ -173,22 +173,14 @@ int AttributeMetaManager::initialize()
     return 0;
 }
 
-int AttributeMetaManager::getAttributeInfo(long id, string &name)
+int AttributeMetaManager::getAttributeList(vector<HardwareApplet::AttributeItem> &vtResult)
 {
     int curNum = 0;
     {
         ReadLock rl(_rwLockAttribute);
         curNum = _curMap;
     }
-    if (_mpIdName[curNum].find(id) != _mpIdName[curNum].end())
-    {
-        name = _mpIdName[curNum][id];
-    }
-    else
-    {
-        ERRORLOG("appId|" << id << "|not find|" << endl);
-        return -1;
-    }
+    vtResult = _vtAttr[curNum];
     return 0;
 }
 
@@ -204,21 +196,24 @@ int AttributeMetaManager::upAttributeList()
     TC_Mysql mysql;
     try
     {
-        _mpIdName[nextNum].clear();
+        _vtAttr[nextNum].clear();
         {
             TC_DBConf conf;
             conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
             mysql.init(conf);
             mysql.connect();
-            map<int64_t, string> mpTemp;
-            TC_Mysql::MysqlData data = mysql.queryRecord("select category_id, name from t_category_meta_info");
+            TC_Mysql::MysqlData data = mysql.queryRecord("select attr_id, name, desc from t_attribute_meta_info");
             for (size_t i = 0; i < data.size(); ++i)
             {
+                HardwareApplet::AttributeItem item;
                 TC_Mysql::MysqlRecord record = data[i];
-                _mpIdName[nextNum][TC_Common::strto<int64_t>(record["category_id"])] = record["name"];;
+                item.attrId = TC_Common::strto<int32_t>(record["attr_id"]);
+                item.attrName = record["name"];
+                item.attrDesc = record["desc"];
+                _vtAttr[nextNum].push_back(item);
             }
 
-            DEBUGLOG("load t_category_meta_info suc|" << data.size() << "|" << mpTemp.size() << "|" << endl);
+            DEBUGLOG("load t_attribute_meta_info suc|" << data.size() << "|" << _vtAttr[nextNum].size() << "|" << endl);
         }
 
         {
@@ -289,23 +284,27 @@ int AttrValueMetaManager::initialize()
     return 0;
 }
 
-int AttrValueMetaManager::getAttrValueInfo(long id, string &name)
+int AttrValueMetaManager::getAttrValueList(const int id, map<int, vector<HardwareApplet::AttributeValueItem> > &mpResult)
 {
     int curNum = 0;
     {
         ReadLock rl(_rwLockAttrValue);
         curNum = _curMap;
     }
-    if (_mpIdName[curNum].find(id) != _mpIdName[curNum].end())
+
+    if (0 == id)
     {
-        name = _mpIdName[curNum][id];
+        mpResult = _mpAttrValue[curNum];
+        return 0;
     }
-    else
+
+    if (_mpAttrValue[curNum].find(id) != _mpAttrValue[curNum].end())
     {
-        ERRORLOG("appId|" << id << "|not find|" << endl);
-        return -1;
+        mpResult[id] = _mpAttrValue[curNum][id];
+        return 0;
     }
-    return 0;
+    ERRORLOG("id|" << id << "|not find|" << endl);
+    return -1;
 }
 
 int AttrValueMetaManager::upAttrValueList()
@@ -320,21 +319,25 @@ int AttrValueMetaManager::upAttrValueList()
     TC_Mysql mysql;
     try
     {
-        _mpIdName[nextNum].clear();
+        _mpAttrValue[nextNum].clear();
         {
             TC_DBConf conf;
             conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
             mysql.init(conf);
             mysql.connect();
             map<int64_t, string> mpTemp;
-            TC_Mysql::MysqlData data = mysql.queryRecord("select category_id, name from t_category_meta_info");
+            TC_Mysql::MysqlData data = mysql.queryRecord("select attr_value_id, name, attr_id from t_attribute_value_meta_info");
             for (size_t i = 0; i < data.size(); ++i)
             {
+                HardwareApplet::AttributeValueItem item;
                 TC_Mysql::MysqlRecord record = data[i];
-                _mpIdName[nextNum][TC_Common::strto<int64_t>(record["category_id"])] = record["name"];;
+                item.attrValueId = TC_Common::strto<int32_t>(record["attr_value_id"]);
+                item.name = record["name"];
+                item.attrId = TC_Common::strto<int32_t>(record["attr_id"]);
+                _mpAttrValue[nextNum][item.attrId].push_back(item);
             }
 
-            DEBUGLOG("load t_category_meta_info suc|" << data.size() << "|" << mpTemp.size() << "|" << endl);
+            DEBUGLOG("load t_attribute_value_meta_info suc|" << data.size() << "|" << _mpAttrValue[nextNum].size() << "|" << endl);
         }
 
         {
@@ -405,22 +408,14 @@ int BrandMetaManager::initialize()
     return 0;
 }
 
-int BrandMetaManager::getBrandInfo(long id, string &name)
+int BrandMetaManager::getBrandList(vector<HardwareApplet::BrandItem> &vtResult)
 {
     int curNum = 0;
     {
         ReadLock rl(_rwLockBrand);
         curNum = _curMap;
     }
-    if (_mpIdName[curNum].find(id) != _mpIdName[curNum].end())
-    {
-        name = _mpIdName[curNum][id];
-    }
-    else
-    {
-        ERRORLOG("appId|" << id << "|not find|" << endl);
-        return -1;
-    }
+    vtResult = _vtBrand[curNum];
     return 0;
 }
 
@@ -436,21 +431,24 @@ int BrandMetaManager::upBrandList()
     TC_Mysql mysql;
     try
     {
-        _mpIdName[nextNum].clear();
+        _vtBrand[nextNum].clear();
         {
             TC_DBConf conf;
             conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
             mysql.init(conf);
             mysql.connect();
-            map<int64_t, string> mpTemp;
-            TC_Mysql::MysqlData data = mysql.queryRecord("select category_id, name from t_category_meta_info");
+            TC_Mysql::MysqlData data = mysql.queryRecord("select brand_id, name, desc from t_brand_info");
             for (size_t i = 0; i < data.size(); ++i)
             {
+                HardwareApplet::BrandItem item;
                 TC_Mysql::MysqlRecord record = data[i];
-                _mpIdName[nextNum][TC_Common::strto<int64_t>(record["category_id"])] = record["name"];;
+                item.brandId = TC_Common::strto<int32_t>(record["brand_id"]);
+                item.brandName = record["name"];
+                item.brandDesc = record["desc"];
+                _vtBrand[nextNum].push_back(item);
             }
 
-            DEBUGLOG("load t_category_meta_info suc|" << data.size() << "|" << mpTemp.size() << "|" << endl);
+            DEBUGLOG("load t_brand_info suc|" << data.size() << "|" << _vtBrand[nextNum].size() << "|" << endl);
         }
 
         {
@@ -521,22 +519,14 @@ int MakerMetaManager::initialize()
     return 0;
 }
 
-int MakerMetaManager::getMakerInfo(long id, string &name)
+int MakerMetaManager::getMakerList(vector<HardwareApplet::MakerItem> &vtResult)
 {
     int curNum = 0;
     {
         ReadLock rl(_rwLockMaker);
         curNum = _curMap;
     }
-    if (_mpIdName[curNum].find(id) != _mpIdName[curNum].end())
-    {
-        name = _mpIdName[curNum][id];
-    }
-    else
-    {
-        ERRORLOG("appId|" << id << "|not find|" << endl);
-        return -1;
-    }
+    vtResult = _vtMaker[curNum];
     return 0;
 }
 
@@ -552,21 +542,24 @@ int MakerMetaManager::upMakerList()
     TC_Mysql mysql;
     try
     {
-        _mpIdName[nextNum].clear();
+        _vtMaker[nextNum].clear();
         {
             TC_DBConf conf;
             conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
             mysql.init(conf);
             mysql.connect();
-            map<int64_t, string> mpTemp;
-            TC_Mysql::MysqlData data = mysql.queryRecord("select category_id, name from t_category_meta_info");
+            TC_Mysql::MysqlData data = mysql.queryRecord("select maker_id, name, desc from t_maker_info");
             for (size_t i = 0; i < data.size(); ++i)
             {
+                HardwareApplet::MakerItem item;
                 TC_Mysql::MysqlRecord record = data[i];
-                _mpIdName[nextNum][TC_Common::strto<int64_t>(record["category_id"])] = record["name"];;
+                item.makerId = TC_Common::strto<int32_t>(record["maker_id"]);
+                item.makerName = record["name"];
+                item.makerDesc = record["desc"];
+                _vtMaker[nextNum].push_back(item);
             }
 
-            DEBUGLOG("load t_category_meta_info suc|" << data.size() << "|" << mpTemp.size() << "|" << endl);
+            DEBUGLOG("load t_brand_info suc|" << data.size() << "|" << _vtMaker[nextNum].size() << "|" << endl);
         }
 
         {

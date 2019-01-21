@@ -18,7 +18,7 @@
 class MetaDataCommand : public Command
 {
 public:
-	MetaDataCommand(ConfigurationFactory* configurationFactory, DependencedServiceFactory* serviceFactory);
+	MetaDataCommand(ConfigurationFactory* configurationFactory, DependencedServiceFactory* serviceFactory, TC_Mysql * mysql);
 	virtual ~MetaDataCommand();
 	int getCategoryList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetCategoryListReq& stReq, HardwareApplet::GetCategoryListRsp& stRsp, tars::TarsCurrentPtr current);
     int addCategoryInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddCategoryInfoReq& stReq, HardwareApplet::AddCategoryInfoRsp& stRsp, tars::TarsCurrentPtr current);
@@ -37,7 +37,7 @@ public:
 
 private:
 	
-
+    TC_Mysql * _mysql;
 };
 
 /*

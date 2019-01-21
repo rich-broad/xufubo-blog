@@ -64,7 +64,7 @@ public:
     static AttributeMetaManager* GetInstance();
     int initialize();
     int upAttributeList();
-    int getAttributeInfo(long id, string &name);
+    int getAttributeList(vector<HardwareApplet::AttributeItem> &vtResult);
 
 private:
     AttributeMetaManager(const AttributeMetaManager&) {};
@@ -76,7 +76,7 @@ private:
     static tars::TC_ThreadMutex _mutexAttribute;
 
     //data
-    map<int64_t, string> _mpIdName[2];
+    vector<HardwareApplet::AttributeItem> _vtAttr[2];
     int32_t _curMap;
 
 };
@@ -102,7 +102,7 @@ public:
     static AttrValueMetaManager* GetInstance();
     int initialize();
     int upAttrValueList();
-    int getAttrValueInfo(long id, string &name);
+    int getAttrValueList(const int id, map<int, vector<HardwareApplet::AttributeValueItem> > &mpResult);
 
 private:
     AttrValueMetaManager(const AttrValueMetaManager&) {};
@@ -114,7 +114,7 @@ private:
     static tars::TC_ThreadMutex _mutexAttrValue;
 
     //data
-    map<int64_t, string> _mpIdName[2];
+    map<int, vector<HardwareApplet::AttributeValueItem> > _mpAttrValue[2];
     int32_t _curMap;
 
 };
@@ -140,7 +140,7 @@ public:
     static BrandMetaManager* GetInstance();
     int initialize();
     int upBrandList();
-    int getBrandInfo(long id, string &name);
+    int getBrandList(vector<HardwareApplet::BrandItem> &vtResult);
 
 private:
     BrandMetaManager(const BrandMetaManager&) {};
@@ -152,7 +152,7 @@ private:
     static tars::TC_ThreadMutex _mutexBrand;
 
     //data
-    map<int64_t, string> _mpIdName[2];
+    vector<HardwareApplet::BrandItem> _vtBrand[2];
     int32_t _curMap;
 
 };
@@ -178,7 +178,7 @@ public:
     static MakerMetaManager* GetInstance();
     int initialize();
     int upMakerList();
-    int getMakerInfo(long id, string &name);
+    int getMakerList(vector<HardwareApplet::MakerItem> &vtResult);
 
 private:
     MakerMetaManager(const MakerMetaManager&) {};
@@ -190,7 +190,7 @@ private:
     static tars::TC_ThreadMutex _mutexMaker;
 
     //data
-    map<int64_t, string> _mpIdName[2];
+    vector<HardwareApplet::MakerItem> _vtMaker[2];
     int32_t _curMap;
 
 };

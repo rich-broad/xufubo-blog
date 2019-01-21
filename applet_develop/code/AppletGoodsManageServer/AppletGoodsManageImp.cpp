@@ -26,7 +26,7 @@ void AppletGoodsManageImp::initialize()
     _pServiceFactory->Initialize(_pConfigurationFactory);
 	_pGoodsCommand = new GoodsCommand(_pConfigurationFactory, _pServiceFactory);
 	_pOpCommand =new OpCommand(_pConfigurationFactory, _pServiceFactory);
-    _pMetaDataCommand =new MetaDataCommand(_pConfigurationFactory, _pServiceFactory);
+    _pMetaDataCommand =new MetaDataCommand(_pConfigurationFactory, _pServiceFactory, _dbInfo);
 }
 
 void AppletGoodsManageImp::destroy()

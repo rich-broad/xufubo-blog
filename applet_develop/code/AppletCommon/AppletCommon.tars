@@ -294,7 +294,7 @@ module HardwareApplet
     {
         0 require int ret = 0;                              // 0-成功，其他失败
         1 require string errmsg;                            // 错误信息
-        2 require map<int, AttributeValueItem> mpAttrValue; // map<k=attrId, v=AttributeValueItem>
+        2 require map<int, vector<AttributeValueItem> > mpAttrValue; // map<k=attrId, v=AttributeValueItem list>
     };
 
     struct ProxyGetAttributeValueListReq
