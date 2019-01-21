@@ -47,7 +47,7 @@ int AuthCommand::getNewTicket(const HardwareApplet::AppletCommHead &stHead, cons
     if (ret)
     {
         ERRORLOG("SendHttpReqError|" << COMM_HEAD_ALL_INFO(stHead) << "|" << sUrl << "|" << endl);
-        DEBUGLOG("SendHttpReqError|" << COMM_HEAD_ALL_INFO(stHead) << "|" << sUrl << "|" << endl);
+        sendReponse(response, stHead, "getNewTicket", ret, current);
         return ret;
     }
     
@@ -59,6 +59,8 @@ void AsyncHttpCallback::onException(const string &ex)
 {
 	DEBUGLOG("onException|Because|" << ex << "|" << _sUrl << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
 	ERRORLOG("onException|Because|" << ex << "|" << _sUrl << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
+    HardwareApplet::GetNewTicketRsp response;
+    sendReponse(response, _stHead, _funcName, -1, _current);
 }
 
 void AsyncHttpCallback::onResponse(bool bClose, TC_HttpResponse &stHttpResponse)
@@ -66,13 +68,14 @@ void AsyncHttpCallback::onResponse(bool bClose, TC_HttpResponse &stHttpResponse)
 	int status = stHttpResponse.getStatus();
 	string content = stHttpResponse.getContent();
 	DEBUGLOG("onResponse|status|" << status << "|" << _sUrl << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << content << "|" << endl);
+    HardwareApplet::GetNewTicketRsp response;
     if (status != 200)
     {
         ERRORLOG("onResponse|status|" << status << "|" << _sUrl << "|" << content << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
-        DEBUGLOG("onResponse|status|" << status << "|" << _sUrl << "|" << content << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
+        sendReponse(response, _stHead, _funcName, -1, _current);
         return;
     }
-    HardwareApplet::GetNewTicketRsp response;
+    
     WXJSCodeToSessionRsp wxrsp;
     int ret = -99;
     try
@@ -137,6 +140,8 @@ void AsyncHttpCallback::onTimeout()
 {
 	DEBUGLOG("onTimeout|" << _sUrl << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
 	ERRORLOG("onTimeout|" << _sUrl << "|" << COMM_HEAD_ALL_INFO(_stHead) << "|" << endl);
+    HardwareApplet::GetNewTicketRsp response;
+    sendReponse(response, _stHead, _funcName, -1, _current);
 }
 
 void AsyncHttpCallback::onClose()

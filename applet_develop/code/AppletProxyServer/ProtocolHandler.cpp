@@ -325,12 +325,18 @@ int ProtocolHandler::PackGetCategoryListRsp(string &rspData)
     body.AddMember("ret", response.ret, document.GetAllocator());
 
     rapidjson::Value mpCategory(rapidjson::kObjectType);
-    for (map<int, CategoryItem>::const_iterator iter = response.mpCategory.begin(); iter != response.mpCategory.end(); ++iter)
+    for (map<int, vector<CategoryItem> >::const_iterator iter = response.mpCategory.begin(); iter != response.mpCategory.end(); ++iter)
     {
-        rapidjson::Value item(rapidjson::kObjectType);
-        AppletCommUtils::CategoryItem2Json(document, iter->second, item);
-        // mpCategory.AddMember(I2S(iter->first).c_str(), item, document.GetAllocator());
-        mpCategory.AddMember(rapidjson::Value(I2S(iter->first).c_str(), document.GetAllocator()).Move(), item, document.GetAllocator());
+
+        rapidjson::Value categoryList(rapidjson::kArrayType);
+        for (size_t i = 0; i < iter->second.size(); ++i)
+        {
+            rapidjson::Value item(rapidjson::kObjectType);
+            AppletCommUtils::CategoryItem2Json(document, iter->second[i], item);
+            categoryList.PushBack(item, document.GetAllocator());
+        }
+        // mpCategory.AddMember(I2S(iter->first).c_str(), categoryList, document.GetAllocator());
+        mpCategory.AddMember(rapidjson::Value(I2S(iter->first).c_str(), document.GetAllocator()).Move(), categoryList, document.GetAllocator());
     }
     body.AddMember("mpCategory", mpCategory, document.GetAllocator());
 

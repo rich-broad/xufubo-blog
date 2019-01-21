@@ -316,6 +316,7 @@ void AppletCommUtils::CategoryItem2Json(rapidjson::Document& document, const Har
     item.AddMember("level", sitem.level, document.GetAllocator());
     item.AddMember("categoryName", rapidjson::Value(sitem.categoryName.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     item.AddMember("imgUrl", rapidjson::Value(sitem.imgUrl.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+    item.AddMember("desc", rapidjson::Value(sitem.desc.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
 }
 
 void AppletCommUtils::Json2CategoryItem(const rapidjson::Value& item, HardwareApplet::CategoryItem &sitem)
@@ -325,6 +326,7 @@ void AppletCommUtils::Json2CategoryItem(const rapidjson::Value& item, HardwareAp
     sitem.level = RapidJsonUtil::GetJsonInt(item, "level");
     sitem.categoryName = RapidJsonUtil::GetJsonString(item, "categoryName");
     sitem.imgUrl = RapidJsonUtil::GetJsonString(item, "imgUrl");
+    sitem.desc = RapidJsonUtil::GetJsonString(item, "desc");
 }
 
 //////////////////////////////////////////////////////////////////////////

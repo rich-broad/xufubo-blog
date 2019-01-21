@@ -241,6 +241,12 @@ int32_t AppletContext::getSessionInfo()
     _sessionInfo.uid = TC_Common::strto<int32_t>(record["uid"]);
     _sessionInfo.openid = record["open_id"];
     _sessionInfo.unionid = record["union_id"];
+    if (_sessionInfo.uid <= 0 || _sessionInfo.openid.empty() || _sessionInfo.unionid.empty())
+    {
+        ERRORLOG("sessionInfo error|" << _sessionInfo.uid << "|" << _sessionInfo.openid << "|" << _sessionInfo.unionid << endl);
+        return -1;
+    }
+    
     return 0;
 }
 

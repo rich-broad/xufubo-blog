@@ -125,7 +125,7 @@ typedef TC_RW_WLockT<TC_ThreadRWLocker> WriteLock;
     netInfo.netType << "|" << netInfo.wifiSsid << "|" << netInfo.wifiBssid
 
 #define SESSION_INFO(sessionInfo) \
-    sessionInfo.uid << "|" << sessionInfo.openid
+    sessionInfo.uid << "|" << sessionInfo.openid << "|" << sessionInfo.unionid
     
 
 #define REQ_HEAD_ALL_INFO(head) \

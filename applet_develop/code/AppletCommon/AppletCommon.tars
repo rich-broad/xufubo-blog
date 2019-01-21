@@ -173,13 +173,14 @@ module HardwareApplet
         2 require int parentId;             // 父类id
         3 require int level;                // 分类层级
         4 require string imgUrl;            // 图标
+        5 require string desc;              // 描述
     };
 
     struct GetCategoryListRsp
     {
-        0 require int ret = 0;                           // 0-成功，其他失败
-        1 require string errmsg;                         // 错误信息
-        2 require map<int, CategoryItem> mpCategory;     // map<k=level, v=CategoryItem>
+        0 require int ret = 0;                                  // 0-成功，其他失败
+        1 require string errmsg;                                // 错误信息
+        2 require map<int, vector<CategoryItem>> mpCategory;    // map<k=level, v=CategoryItem>
     };
 
     struct ProxyGetCategoryListReq
