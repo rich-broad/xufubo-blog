@@ -21,7 +21,7 @@ title: tars协议
 
 ## 1.1 序列化/反序列化
 序列化我们常称之为编码，或者打包，反序列化常称之为解码，或者解包。常用的序列化/反序列化方式主要有以下几种：  
-1. TLV（tag-length-value）编码：Protobuf/thrift/tars/ASN BER都属于这种。TLV编码基本原理是每个字段打一个二进制包，每个包包含tag、length、value 3个部分  
+1. TLV（tag-type-length-value）编码：Protobuf/thrift/tars/ASN BER都属于这种。TLV编码基本原理是每个字段打一个二进制包，每个包包含tag、type、length、value 3个部分  
  - * ：tag: 一般占用1个字节，表示数据类型，有的编码方式（Protobuf/thrift/tars）中tag还包含字段的id，有的编码方式（ASN BER）不包含字段的id。在包含字段id的序列化方式中，id是字段的标志，协议可以灵活的增删字段，只要保证字段id唯一，就能兼容解析，非常适合互联网业务的开发，因此大部分互联网RPC协议都是带有id的编码方式。   
  - * length：一个整数，表示后面数据块的长度，Protobuf/thrift/tars的序列化有些不包含length字段，因为大部分数据类型的长度都可以根据tag中的类型信息得到。  
  - * value：真正的数据内容。  
