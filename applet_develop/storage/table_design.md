@@ -247,7 +247,7 @@ CREATE TABLE `t_goods_shop_cart_info` (
   `sku_id` int(11) NOT NULL DEFAULT '0' COMMENT 'sku_id',
   `uid` int(11) NOT NULL DEFAULT '0' COMMENT '用户id',
   `tran_price` int(11) NOT NULL DEFAULT '0' COMMENT '成交价格，在提交订单后由卖家和买家商量好后设定，加入购物车的时候改值不设定',
-  `price` int(11) NOT NULL DEFAULT '0' COMMENT '商品价格，需要从商品表那里同步过来，因为后续这个商品可能降价，但是这时候的价格是确定的',
+  `price` int(11) NOT NULL DEFAULT '0' COMMENT '商品价格，需要从商品表那里同步过来，因为后续这个商品可能降价，但是加入购物车时的价格是确定的',
   `num` int(11) NOT NULL DEFAULT '0' COMMENT '商品的数量',
   `status` int(11) NOT NULL DEFAULT '0' COMMENT '状态 0-新加入购物车，1-已提交订单，为0的可以删除，为1的不可以删除，因为订单已经提交',
   `bill_no` varchar(128) NOT NULL DEFAULT '' COMMENT '订单号，提交时进行设置',
