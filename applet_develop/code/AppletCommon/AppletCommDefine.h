@@ -62,8 +62,6 @@ using namespace tars;
 #define L2S(i) TC_Common::tostr<int64_t>(i)
 #define S2L(s) TC_Common::strto<int64_t>(s)
 
-
-
 #undef POSITION
 #define POSITION __FILE__ << "|" << __LINE__ << "|" << __FUNCTION__
 
@@ -137,5 +135,10 @@ typedef TC_RW_WLockT<TC_ThreadRWLocker> WriteLock;
 // ÒµÎñÍ·²¿
 #define COMM_HEAD_ALL_INFO(head)    \
     DEVICE_INFO(head.deviceInfo) << "|" << ROM_INFO(head.romInfo) << "|" << NET_INFO(head.netInfo) << "|" << SESSION_INFO(head.sessionInfo) << "|" << head.clientTimestamp
+
+
+#define ERRORLOG_WITHHEAD(head, info) FDLOG("default") << POSITION << "|ERROR|" << COMM_HEAD_ALL_INFO(head) << "|" << info
+#define DEBUGLOG_WITHHEAD(head, info) FDLOG("default") << POSITION << "|DEBUG|" << COMM_HEAD_ALL_INFO(head) << "|" << info
+
 
 #endif

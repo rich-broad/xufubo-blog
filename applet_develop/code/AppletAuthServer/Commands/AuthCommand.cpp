@@ -155,11 +155,16 @@ int AsyncHttpCallback::parseCode2SessionRsp(const string & content, HardwareAppl
     document.Parse(content.c_str());
 
     Value::ConstMemberIterator errCodeiter = document.FindMember("errcode");
-    if (errCodeiter != document.MemberEnd())
+    if (errCodeiter == document.MemberEnd())
     {
-        wxrsp.errcode = errCodeiter->value.GetInt();
+        return -1;
     }
-    
+    wxrsp.errcode = errCodeiter->value.GetInt();
+    if (wxrsp.errcode != 0)
+    {
+        return wxrsp.errcode;
+    }
+
     Value::ConstMemberIterator openidCodeiter = document.FindMember("openid");
     if (openidCodeiter != document.MemberEnd())
     {
@@ -184,11 +189,12 @@ int AsyncHttpCallback::parseCode2SessionRsp(const string & content, HardwareAppl
         wxrsp.errmsg = msgCodeiter->value.GetString();
     }
 
-    if (errCodeiter == document.MemberEnd())
+    if (wxrsp.openid.empty() || wxrsp.session_key.empty() || wxrsp.unionid.empty())
     {
+        ERRORLOG(wxrsp.openid << "|" << wxrsp.session_key << "|" << wxrsp.unionid << "|");
         return -1;
     }
-    return wxrsp.errcode;
+    return 0;
 }
 
 

@@ -29,6 +29,9 @@ module HardwareApplet
     const string cmd22 = "getCityListByProvince";       // 得到省下边市列表
     const string cmd23 = "getCountyListByCity";         // 得到市下边县列表
     const string cmd24 = "getMyOrderList";              // 获取我的订单信息--买家   还没写接入层
+    const string cmd25 = "getOrderList";                // 获取我的订单信息--卖家   还没写接入层
+    const string cmd26 = "getOrderDetail";              // 获取我的订单信息--买家+卖家   还没写接入层
+    
 
     enum COMMRETCODE
     {
@@ -610,7 +613,7 @@ module HardwareApplet
 
 
 
-    //======================================AppletGoodsCommonServer接口定义=================================
+    //======================================AppletMallCommonServer接口定义=================================
 
     //-----------------------------------地址信息管理------------------------------------------
     struct AddressInfo
@@ -649,7 +652,7 @@ module HardwareApplet
 	    1 require AddMyAddressInfoRsp body;	            //响应包体
     };
 
-    // 得到我的地址信息(通过uid查询) getMyAddressList
+    // 得到我的地址信息(通过unionid查询) getMyAddressList
     struct GetMyAddressListReq
     {
         0 optional string reserved_field;           // 保留字段
@@ -748,6 +751,11 @@ module HardwareApplet
 	    0 require ProxyRspHead head;		            //响应头部
 	    1 require GetCountyListByCityRsp body;	        //响应包体
     };
+
+    // 这个服务这里往下也没有写接入层
+    
+
+    //==========================================AppletTradeServer 相关接口===========================================
 
     //------------------------------------购物相关接口--------------------------------------
     // 购物车item
@@ -884,7 +892,7 @@ module HardwareApplet
 	    1 require ConfirmOrderRsp body;	                //响应包体
     };
 
-    // 获取我的订单信息--买家getMyOrderList   这个还没有写接入层呢
+    // 获取我的订单信息--买家getMyOrderList   这个以下还没有写接入层呢
     struct GetMyOrderListReq
     {
         0 require int status;                       // 订单状态
@@ -909,5 +917,57 @@ module HardwareApplet
 	    1 require GetMyOrderListRsp body;	            //响应包体
     };
 
-    // 获取订单列表--卖家
+    // 获取订单列表--卖家 getOrderList
+    struct GetOrderListReq
+    {
+        0 require int status;                       // 订单状态
+        1 require int pageNo;                       // 页号,从1开始
+        2 require int pageSize;                     // 页大小
+    };
+
+    struct GetOrderListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<OrderItem> itemList;          // 订单列表
+        3 require int hasNext;                         // 受否还有下一页，0-没有，1-有，为1时才请求下一页
+    };
+
+    struct ProxyGetOrderListReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetOrderListReq body;		            //请求包体
+    };
+
+    struct ProxyGetOrderListRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetOrderListRsp body;	                //响应包体
+    };
+
+    // 获取订单详情 getOrderDetail
+    struct GetOrderDetailReq
+    {
+        0 require int orderId;
+    };
+
+    struct GetOrderDetailRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require OrderItem item;                      // 详情
+    };
+
+    struct ProxyGetOrderDetailReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require GetOrderDetailReq body;		        //请求包体
+    };
+
+    struct ProxyGetOrderDetailRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require GetOrderDetailRsp body;	            //响应包体
+    };
+
 }; 

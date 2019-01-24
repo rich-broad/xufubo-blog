@@ -89,7 +89,7 @@ int CategoryMetaManager::upCategoryList()
             conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
             mysql.init(conf);
             mysql.connect();
-            TC_Mysql::MysqlData data = mysql.queryRecord("select category_id, name, parent_id, desc level from t_category_meta_info");
+            TC_Mysql::MysqlData data = mysql.queryRecord("select category_id, name, parent_id, desc, level, img_url from t_category_meta_info");
             for (size_t i = 0; i < data.size(); ++i)
             {
                 HardwareApplet::CategoryItem item;
@@ -99,6 +99,7 @@ int CategoryMetaManager::upCategoryList()
                 item.parentId = TC_Common::strto<int32_t>(record["parent_id"]);
                 item.level =  TC_Common::strto<int32_t>(record["level"]);
                 item.desc = record["desc"];
+                item.imgUrl = record["img_url"];
                 _mpCategory[nextNum][item.level].push_back(item);
             }
 

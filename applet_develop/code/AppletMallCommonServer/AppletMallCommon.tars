@@ -1,0 +1,32 @@
+#include "../AppletCommon/AppletCommon.tars"
+
+module HardwareApplet
+{
+    enum AMCRspErrorCode
+    {
+        E_AMC_SUCCESS = 0,
+		E_AMC_NEED_ADD_ADDRESS_INFO = 1,				    // 需要增加地址信息
+    };
+
+	interface AppletMallCommon
+	{
+		// 买家增加地址信息
+		int addMyAddressInfo(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 得到我的地址信息(通过uid查询)
+		int getMyAddressList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 得到省份列表
+		int getProvinceList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 得到省下边市列表
+        int getCityListByProvince(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 得到市下边县列表
+        int getCountyListByCity(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+    };
+};
+
+
+

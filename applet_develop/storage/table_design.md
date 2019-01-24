@@ -169,6 +169,7 @@ CREATE TABLE `t_category_meta_info` (
   `desc` varchar(255) NOT NULL DEFAULT '' COMMENT '分类描述',
   `parent_id` int(11) NOT NULL DEFAUTL'0' COMMENT '父类id',
   `level` int(11) NOT NULL DEFAUTL'0' COMMENT '1-一级分类，2-二级分类，3-三级分类 以此类推.....',
+  `img_url` varchar(1024) NOT NULL DEFAULT '' COMMENT '分类图标',
   PRIMARY KEY (`category_id`),
   UNIQUE KEY `uk_name_parent_id` (`name`, `parent_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='分类元数据表';
@@ -250,6 +251,7 @@ CREATE TABLE `t_goods_shop_cart_info` (
   `num` int(11) NOT NULL DEFAULT '0' COMMENT '商品的数量',
   `status` int(11) NOT NULL DEFAULT '0' COMMENT '状态 0-新加入购物车，1-已提交订单，为0的可以删除，为1的不可以删除，因为订单已经提交',
   `bill_no` varchar(128) NOT NULL DEFAULT '' COMMENT '订单号，提交时进行设置',
+  `union_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
   PRIMARY KEY (`cart_id`),
   CONSTRAINT `fk_spu_id` foreign key(`spu_id`) references `t_goods_spu_info`(`spu_id`),
   CONSTRAINT `fk_sku_id` foreign key(`sku_id`) references `t_goods_sku_info`(`sku_id`),
@@ -274,6 +276,7 @@ CREATE TABLE `t_goods_order_info` (
   `tran_money` int(11) NOT NULL DEFAULT '0' COMMENT '实际支付金额，在status设置为2时进行更新',
   `freight` int(11) NOT NULL DEFAULT '0' COMMENT '运费',
   `address_id` int(11) NOT NULL DEFAULT '0' COMMENT 'address_id收获地址',
+  `union_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
   PRIMARY KEY (`order_id`),
   CONSTRAINT `fk_address_id` foreign key(`spu_id`) references `t_user_address_info`(`address_id`),
   UNIQUE KEY `uk_bill_no` (`bill_no`)
@@ -294,6 +297,7 @@ CREATE TABLE `t_user_address_info` (
   `county` varchar(32) NOT NULL DEFAULT '' COMMENT '区县',
   `address_detail` varchar(256) NOT NULL DEFAULT '' COMMENT '详细地址',
   `receiver` varchar(32) NOT NULL DEFAULT '' COMMENT '收货人',
+  `union_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
   PRIMARY KEY (`address_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='收获地址表';
 ```

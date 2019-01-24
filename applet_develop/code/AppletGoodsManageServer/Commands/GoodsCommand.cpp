@@ -13,8 +13,8 @@
 
 //using namespace HardwareApplet;
 
-GoodsCommand::GoodsCommand(ConfigurationFactory* configurationFactory, DependencedServiceFactory* serviceFactory)
-	:Command(configurationFactory, serviceFactory)
+GoodsCommand::GoodsCommand(ConfigurationFactory* configurationFactory, DependencedServiceFactory* serviceFactory, TC_Mysql * mysql)
+	:Command(configurationFactory, serviceFactory), _mysql(mysql)
 {
 
 }

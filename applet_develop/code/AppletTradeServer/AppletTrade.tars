@@ -1,0 +1,31 @@
+#include "../AppletCommon/AppletCommon.tars"
+
+module HardwareApplet
+{
+    enum ATRspErrorCode
+    {
+        E_AGM_SUCCESS = 0,
+		E_AGM_BAD_IMEI = 1,				    // IMEI异常
+        E_AGM_REQUEST_SIZE_ERROR = -1,	    // 请求超限
+		E_AGM_REQUEST_EMPTY = -2,           // 请求列表为空
+        E_AGM_REQUEST_IMEI_ERROR = -3,      // IMEI错误
+        E_AGM_INTERNAL_ERROR = -4,          // 内部错误 
+		E_AGM_SAME_REQUEST_ITEM = -5,		// 列表参数相同
+		E_AGM_SEND_REQ_ERR = -6,			// 发送请求错误
+		E_AGM_DEPENDCY_EXP = -7,			// 后端服务异常
+		E_AGM_DEPENDCY_ERR = -8,			// 后端服务错误
+		E_AGM_REQUEST_ERR = -9,			    // 请求参数错误
+    };
+
+	interface AppletTrade
+	{
+		//获取分类列表
+		//int getNewTicket(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+
+
+    };
+};
+
+
+

@@ -24,7 +24,7 @@ void AppletGoodsManageImp::initialize()
     _dbInfo->connect();
 
     _pServiceFactory->Initialize(_pConfigurationFactory);
-	_pGoodsCommand = new GoodsCommand(_pConfigurationFactory, _pServiceFactory);
+	_pGoodsCommand = new GoodsCommand(_pConfigurationFactory, _pServiceFactory, _dbInfo);
 	_pOpCommand =new OpCommand(_pConfigurationFactory, _pServiceFactory);
     _pMetaDataCommand =new MetaDataCommand(_pConfigurationFactory, _pServiceFactory, _dbInfo);
 }
