@@ -24,7 +24,7 @@ void CmConfiguration::Load()
         _sAppInfoProxyObj = GetStringConfig("/AppInfoProxyServer<Obj>");
 
         //dbConf
-        _fileConfig->getDomainMap("/DbConf/android_app", _dbConfAndroidApp);
+        _fileConfig->getDomainMap("/DbConf/android_app", _dbInfoConf);
 
         //dcache        
         _dcacheProxyObj = GetStringConfig("/Dcache<ProxyObj>");

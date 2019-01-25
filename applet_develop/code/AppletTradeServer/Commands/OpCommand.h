@@ -14,7 +14,6 @@
 #include "Command.h"
 #include "Global.h"
 #include "AppletTrade.h"
-#include "AppCommand.h"
 
 class OpCommand : public Command
 {

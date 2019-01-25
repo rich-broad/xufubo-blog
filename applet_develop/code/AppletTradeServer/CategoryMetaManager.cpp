@@ -80,7 +80,7 @@ int CategoryMetaManager::upCategoryMetaList()
         _mpIdName[nextNum].clear();
         {
             TC_DBConf conf;
-            conf.loadFromMap(DEF_CFG_SINGLETON->_dbConfAndroidApp);
+            conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
             mysql.init(conf);
             mysql.connect();
             map<int64_t, string> mpTemp;

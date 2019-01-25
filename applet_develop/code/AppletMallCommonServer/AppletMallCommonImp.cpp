@@ -17,6 +17,12 @@ using namespace HardwareApplet;
 
 void AppletMallCommonImp::initialize()
 {
+    _dbInfo = new TC_Mysql();
+    TC_DBConf dbConf;
+    dbConf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
+    _dbInfo->init(dbConf);
+    _dbInfo->connect();
+
     _pServiceFactory->Initialize(_pConfigurationFactory);
 	_pAddressCommand = new AddressCommand(_pConfigurationFactory, _pServiceFactory, _dbInfo);
 	_pOpCommand =new OpCommand(_pConfigurationFactory, _pServiceFactory);
@@ -26,14 +32,16 @@ void AppletMallCommonImp::destroy()
 {
 	if (_pAddressCommand != NULL)
 	{
-		delete _pAddressCommand;
-		_pAddressCommand = NULL;
+		delete _pAddressCommand; _pAddressCommand = NULL;
 	}
 	if (_pOpCommand != NULL)
 	{
-		delete _pOpCommand;
-		_pOpCommand = NULL;
+		delete _pOpCommand; _pOpCommand = NULL;
 	}
+    if (_dbInfo != NULL)
+    {
+        delete _dbInfo; _dbInfo = NULL;
+    }
 }
 
 tars::Int32 AppletMallCommonImp::addMyAddressInfo(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
@@ -52,7 +60,7 @@ tars::Int32 AppletMallCommonImp::addMyAddressInfo(const HardwareApplet::AppletCo
         current->setResponse(false); // 设置非自动回包
         ret = _pAddressCommand->addMyAddressInfo(stHead, stReq, stRsp, current);
     }
-    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::addMyAddressInfo");
+    __CATCH_EXCEPTION_WITH__("|AppletMallCommonImp::addMyAddressInfo");
     return ret;
 }
 
@@ -72,7 +80,7 @@ tars::Int32 AppletMallCommonImp::getMyAddressList(const HardwareApplet::AppletCo
         current->setResponse(false); // 设置非自动回包
         ret = _pAddressCommand->getMyAddressList(stHead, stReq, stRsp, current);
     }
-    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::getMyAddressList");
+    __CATCH_EXCEPTION_WITH__("|AppletMallCommonImp::getMyAddressList");
     return ret;
 }
 
@@ -92,7 +100,7 @@ tars::Int32 AppletMallCommonImp::getProvinceList(const HardwareApplet::AppletCom
         current->setResponse(false); // 设置非自动回包
         ret = _pAddressCommand->getProvinceList(stHead, stReq, stRsp, current);
     }
-    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::getProvinceList");
+    __CATCH_EXCEPTION_WITH__("|AppletMallCommonImp::getProvinceList");
     return ret;
 }
 
@@ -112,7 +120,7 @@ tars::Int32 AppletMallCommonImp::getCityListByProvince(const HardwareApplet::App
         current->setResponse(false); // 设置非自动回包
         ret = _pAddressCommand->getCityListByProvince(stHead, stReq, stRsp, current);
     }
-    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::getCityListByProvince");
+    __CATCH_EXCEPTION_WITH__("|AppletMallCommonImp::getCityListByProvince");
     return ret;
 }
 
@@ -132,6 +140,6 @@ tars::Int32 AppletMallCommonImp::getCountyListByCity(const HardwareApplet::Apple
         current->setResponse(false); // 设置非自动回包
         ret = _pAddressCommand->getCountyListByCity(stHead, stReq, stRsp, current);
     }
-    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::getCountyListByCity");
+    __CATCH_EXCEPTION_WITH__("|AppletMallCommonImp::getCountyListByCity");
     return ret;
 }

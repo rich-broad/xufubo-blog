@@ -84,7 +84,7 @@ public:
     int _cacheUpTime;
 
 	//db≈‰÷√
-	map<string, string> _dbConfAndroidApp; 
+	map<string, string> _dbInfoConf; 
 	
 	//DCACHE	
 	string _dcacheProxyObj;

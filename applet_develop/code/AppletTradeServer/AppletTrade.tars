@@ -4,26 +4,33 @@ module HardwareApplet
 {
     enum ATRspErrorCode
     {
-        E_AGM_SUCCESS = 0,
-		E_AGM_BAD_IMEI = 1,				    // IMEIÒì³£
-        E_AGM_REQUEST_SIZE_ERROR = -1,	    // ÇëÇó³¬ÏŞ
-		E_AGM_REQUEST_EMPTY = -2,           // ÇëÇóÁĞ±íÎª¿Õ
-        E_AGM_REQUEST_IMEI_ERROR = -3,      // IMEI´íÎó
-        E_AGM_INTERNAL_ERROR = -4,          // ÄÚ²¿´íÎó 
-		E_AGM_SAME_REQUEST_ITEM = -5,		// ÁĞ±í²ÎÊıÏàÍ¬
-		E_AGM_SEND_REQ_ERR = -6,			// ·¢ËÍÇëÇó´íÎó
-		E_AGM_DEPENDCY_EXP = -7,			// ºó¶Ë·şÎñÒì³£
-		E_AGM_DEPENDCY_ERR = -8,			// ºó¶Ë·şÎñ´íÎó
-		E_AGM_REQUEST_ERR = -9,			    // ÇëÇó²ÎÊı´íÎó
+        E_AT_SUCCESS = 0,
+		E_AT_BAD_IMEI = 1,				    // IMEIå¼‚å¸¸
+        E_AT_REQUEST_SIZE_ERROR = -1,	    // è¯·æ±‚è¶…é™
     };
 
 	interface AppletTrade
 	{
-		//»ñÈ¡·ÖÀàÁĞ±í
-		//int getNewTicket(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+		// æ·»åŠ å•†å“åˆ°è´­ç‰©è½¦
+		int addGoodsToShopCart(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
+        // å¾—åˆ°æˆ‘çš„è´­ç‰©è½¦ä¿¡æ¯
+		int getMyShopCartInfo(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
+        // æäº¤è®¢å•
+		int submitOrder(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
+        // ç¡®è®¤è®¢å•
+		int confirmOrder(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // è·å–æˆ‘çš„è®¢å•ä¿¡æ¯--ä¹°å®¶
+		int getMyOrderList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // è·å–è®¢å•åˆ—è¡¨--å–å®¶ 
+		int getOrderList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // è·å–è®¢å•è¯¦æƒ…
+		int getOrderDetail(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
     };
 };
 

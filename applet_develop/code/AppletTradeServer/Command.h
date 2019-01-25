@@ -44,20 +44,40 @@ void sendReponse(const T &t, const HardwareApplet::AppletCommHead& stHead, const
         {
             ERRORLOG ("sendReponse|" << COMM_HEAD_ALL_INFO(stHead) << "|" <<  endl);
         }
-        /*
-        if(funcName == "getNewTicket")
+        
+        if(funcName == "addGoodsToShopCart")
         {
-            HardwareApplet::AppletTrade::async_response_getNewTicket(current, retVal, vtOut);
+            HardwareApplet::AppletTrade::async_response_addGoodsToShopCart(current, retVal, vtOut);
         }
-        else if(funcName == "getNewTicket")
+        else if(funcName == "getMyShopCartInfo")
         {
-            HardwareApplet::AppletTrade::async_response_getNewTicket(current, retVal, vtOut);
+            HardwareApplet::AppletTrade::async_response_getMyShopCartInfo(current, retVal, vtOut);
+        }
+        else if(funcName == "submitOrder")
+        {
+            HardwareApplet::AppletTrade::async_response_submitOrder(current, retVal, vtOut);
+        }
+        else if(funcName == "confirmOrder")
+        {
+            HardwareApplet::AppletTrade::async_response_confirmOrder(current, retVal, vtOut);
+        }
+        else if(funcName == "getMyOrderList")
+        {
+            HardwareApplet::AppletTrade::async_response_getMyOrderList(current, retVal, vtOut);
+        }
+        else if(funcName == "getOrderList")
+        {
+            HardwareApplet::AppletTrade::async_response_getOrderList(current, retVal, vtOut);
+        }
+        else if(funcName == "getOrderDetail")
+        {
+            HardwareApplet::AppletTrade::async_response_getOrderDetail(current, retVal, vtOut);
         }
         else 
         {
             ERRORLOG("sendReponse|funcNameError|" << ret << "|" << funcName << "|" << COMM_HEAD_ALL_INFO(stHead) << endl);
         }
-        */
+        
     }
     __CATCH_EXCEPTION_WITH__("sendReponse")
 

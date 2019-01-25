@@ -14,7 +14,7 @@
 #include "AppletTradeServer.h"
 #include "DependencedServiceFactory.h"
 #include "Commands/OpCommand.h"
-#include "Commands/AppCommand.h"
+#include "Commands/TradeCommand.h"
 
 #include "Global.h"
 
@@ -39,14 +39,19 @@ public:
     virtual void destroy();
 
 public:
-	//virtual tars::Int32 getAppList(const HardwareApplet::HardwareApplet & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
-	//virtual tars::Int32 getAppDetailBatch(const HardwareApplet::HardwareApplet & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
-
+	virtual tars::Int32 addGoodsToShopCart(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
+    virtual tars::Int32 getMyShopCartInfo(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
+    virtual tars::Int32 submitOrder(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
+    virtual tars::Int32 confirmOrder(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
+    virtual tars::Int32 getMyOrderList(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
+    virtual tars::Int32 getOrderList(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
+    virtual tars::Int32 getOrderDetail(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
 private:
 	ConfigurationFactory* _pConfigurationFactory;
 	DependencedServiceFactory* _pServiceFactory;
-    AppCommand* _pAppCommand;
+    TradeCommand* _pTradeCommand;
     OpCommand* _pOpCommand;
+    TC_Mysql* _dbInfo;
 };
 
 #endif
