@@ -7,7 +7,7 @@ STRIP_FLAG:= N
 
 INCLUDE   += -I../AppletCommon
 INCLUDE   += -I./Commands/
-LIB       += -L/usr/local/mysql/lib/ -lmysqlclient -lssl -lcrypto
+LIB       += -L/usr/local/mysql/lib/ -lmysqlclient -lssl -lcrypto -L../AppletCommon/BaseUtils/ -lbase_utils
 
 LOCAL_SRC   += $(sort $(wildcard ./Commands/*.cpp))
 

@@ -278,7 +278,7 @@ CREATE TABLE `t_goods_order_info` (
   `address_id` int(11) NOT NULL DEFAULT '0' COMMENT 'address_id收获地址',
   `union_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
   PRIMARY KEY (`order_id`),
-  CONSTRAINT `fk_address_id` foreign key(`spu_id`) references `t_user_address_info`(`address_id`),
+  CONSTRAINT `fk_address_id` foreign key(`address_id`) references `t_user_address_info`(`address_id`),
   UNIQUE KEY `uk_bill_no` (`bill_no`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='订单表';
 ```

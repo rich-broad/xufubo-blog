@@ -53,6 +53,8 @@ using namespace tars;
 #define USER_BASE_DATA_COLUMN_NOT_ID  "`union_id`, `create_time`"
 #define USER_BASE_DATA_ALL_COLUMN  "`uid`, `union_id`, `create_time`, `update_time`"
 
+#define GOODS_ORDER_TABLE_NOT_ID "`create_time`, `bill_no`, `uid`, `pay_way`, `pay_time_ts`, `status`, `money`, `tran_money`, `freight`, `address_id`, `union_id`"
+
 
 
 #define I2S(i) TC_Common::tostr<int>(i)

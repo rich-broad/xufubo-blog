@@ -14,7 +14,7 @@ OpCommand::OpCommand(ConfigurationFactory* configurationFactory, DependencedServ
 	:Command(configurationFactory, serviceFactory)
 {
     TC_DBConf conf;
-    conf.loadFromMap(DEF_CFG_SINGLETON->_dbConfAndroidApp);
+    conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
     try
     {
         _pMysql.init(conf);

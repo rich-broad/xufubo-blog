@@ -1,3 +1,5 @@
 #include "../AppletCommon/AppletCommon.h"
 #include "../AppletCommon/AppletCommDefine.h"
 #include "../AppletCommon/TarsEnDecode.h"
+#include "../AppletCommon/BaseUtils/string_utils.h"
+#include "../AppletCommon/AppletTransaction.h"

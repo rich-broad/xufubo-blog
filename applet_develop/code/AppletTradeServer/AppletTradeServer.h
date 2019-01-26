@@ -37,7 +37,8 @@ public:
 	// 异步执行线程池
 	TC_ThreadPool async_executor;
 
-    bool upCategoryMetaInfo(const string& command, const string& params, string& result);
+    bool upAttributeMetaInfo(const string& command, const string& params, string& result);
+    bool upAttrValueMetaInfo(const string& command, const string& params, string& result);
 
 };
 

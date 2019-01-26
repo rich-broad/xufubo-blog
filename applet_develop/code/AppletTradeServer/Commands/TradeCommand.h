@@ -14,6 +14,7 @@
 #include "Command.h"
 #include "Global.h"
 #include "AppletTrade.h"
+#include "MetaManager.h"
 
 class TradeCommand : public Command
 {
@@ -31,7 +32,10 @@ public:
 
 private:
     int queryShopCartAndSKUInfo__(const HardwareApplet::AppletCommHead& stHead, vector<HardwareApplet::ShopCartItem> &itemList);
-    int querySKUValueInfo__();
+    int querySKUValueInfo__(const HardwareApplet::AppletCommHead& stHead, vector<HardwareApplet::ShopCartItem> &itemList);
+    int saveOrderAndUpShopCart__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::SubmitOrderReq& stReq, const string &billno);
+    int insertOrderInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::SubmitOrderReq& stReq, const string &billno);
+    int updateShouCartInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::SubmitOrderReq& stReq, const string &billno);
 
 private:
     TC_Mysql* _mysql;

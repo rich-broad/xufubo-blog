@@ -8,7 +8,7 @@
      <author>        <time>          <version>          <desc>
  ********************************************************************************/
 #include "AppletTradeServer.h"
-#include "CategoryMetaManager.h"
+#include "MetaManager.h"
 
 AppletTradeServer g_app;
 
@@ -27,40 +27,71 @@ void AppletTradeServer::initialize()
     async_executor.start();	
     srand(TNOW);
     {
-        // 分类元数据
-        CategoryMetaManagerSingleton->initialize();
-        AsyncUpdateCategoryMetaInfoTask upCategoryMetaInfo;
-        TC_Functor<void, TL::TLMaker<>::Result> cmd(upCategoryMetaInfo);
+        // 属性元数据
+        AttributeMetaManagerSingleton->initialize();
+        AsyncUpdateAttributeMetaInfoTask upMetaInfo;
+        TC_Functor<void, TL::TLMaker<>::Result> cmd(upMetaInfo);
         TC_FunctorWrapper<TC_Functor<void, TL::TLMaker<>::Result> > wcmd(cmd);
         SUBMIT_ASYNC_TASK(wcmd);
     }
 
-    TARS_ADD_ADMIN_CMD_NORMAL("upCategoryMetaInfo", AppletTradeServer::upCategoryMetaInfo);
+    {
+        // 属性值元数据
+        AttrValueMetaManagerSingleton->initialize();
+        AsyncUpdateAttrValueMetaInfoTask upMetaInfo;
+        TC_Functor<void, TL::TLMaker<>::Result> cmd(upMetaInfo);
+        TC_FunctorWrapper<TC_Functor<void, TL::TLMaker<>::Result> > wcmd(cmd);
+        SUBMIT_ASYNC_TASK(wcmd);
+    }
+
+    TARS_ADD_ADMIN_CMD_NORMAL("upAttributeMetaInfo", AppletTradeServer::upAttributeMetaInfo);
+    TARS_ADD_ADMIN_CMD_NORMAL("upAttrValueMetaInfo", AppletTradeServer::upAttrValueMetaInfo);
 }
 
 void AppletTradeServer::destroyApp()
 {
 	async_executor.stop();
-	delete CategoryMetaManagerSingleton;
+    delete AttributeMetaManagerSingleton;
+    delete AttrValueMetaManagerSingleton;
 	delete ConfigurationFactory::GetInstance();
 }
 
-bool AppletTradeServer::upCategoryMetaInfo(const string& command, const string& params, string& result)
+bool AppletTradeServer::upAttributeMetaInfo(const string& command, const string& params, string& result)
 {
-    DEBUGLOG("AppletTradeServer::upCategoryMetaInfo|admin cmd req|" << command << "|" << params << endl);
-    if (params != "db_superapp_sdkcs.t_superapp_appinfo")
+    DEBUGLOG("AppletGoodsManageServer::upAttributeMetaInfo|admin cmd req|" << command << "|" << params << endl);
+    if (params != "db_goods_data.t_attribute_meta_info")
     {
         return false;
     }
 
-    int ret = CategoryMetaManagerSingleton->upCategoryMetaList();
+    int ret = AttributeMetaManagerSingleton->upAttributeList();
     if (ret == 0)
     {
-        DEBUGLOG("AppletTradeServer::upCategoryMetaInfo|admin cmd suc|" << params << endl);
+        DEBUGLOG("AppletGoodsManageServer::upAttributeMetaInfo|admin cmd suc|" << params << endl);
     }
     else
     {
-        ERRORLOG("AppletTradeServer::upCategoryMetaInfo|admin cmd err|" << ret) << endl;
+        ERRORLOG("AppletGoodsManageServer::upAttributeMetaInfo|admin cmd err|" << ret << endl);
+    }
+    return false;
+}
+
+bool AppletTradeServer::upAttrValueMetaInfo(const string& command, const string& params, string& result)
+{
+    DEBUGLOG("AppletGoodsManageServer::upAttrValueMetaInfo|admin cmd req|" << command << "|" << params << endl);
+    if (params != "db_goods_data.t_attribute_value_meta_info")
+    {
+        return false;
+    }
+
+    int ret = AttrValueMetaManagerSingleton->upAttrValueList();
+    if (ret == 0)
+    {
+        DEBUGLOG("AppletGoodsManageServer::upAttrValueMetaInfo|admin cmd suc|" << params << endl);
+    }
+    else
+    {
+        ERRORLOG("AppletGoodsManageServer::upAttrValueMetaInfo|admin cmd err|" << ret << endl);
     }
     return false;
 }
