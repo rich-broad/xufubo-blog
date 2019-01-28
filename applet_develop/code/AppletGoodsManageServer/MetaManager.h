@@ -8,8 +8,8 @@
      <author>        <time>          <version>          <desc>
  ********************************************************************************/
 
-#ifndef APP_MANAGER_H
-#define	APP_MANAGER_H
+#ifndef META_MANAGER_H
+#define	META_MANAGER_H
 
 #include "Global.h"
 #include "AppletGoodsManage.h"

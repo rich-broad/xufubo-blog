@@ -57,6 +57,7 @@ void AppletCommUtils::ShopCartItem2Json(rapidjson::Document& document, const Har
     item.AddMember("tranPrice", sitem.tranPrice, document.GetAllocator());
     item.AddMember("num", sitem.num, document.GetAllocator());
     item.AddMember("status", sitem.status, document.GetAllocator());
+    item.AddMember("billNo", rapidjson::Value(sitem.billNo.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
 
     rapidjson::Value skuInfo(rapidjson::kObjectType);
     GoodsSKUInfo2Json(document, sitem.skuInfo, skuInfo);
@@ -73,6 +74,7 @@ void AppletCommUtils::Json2ShopCartItem(const rapidjson::Value& item, HardwareAp
     sitem.tranPrice = RapidJsonUtil::GetJsonInt(item, "tranPrice");
     sitem.num = RapidJsonUtil::GetJsonInt(item, "num");
     sitem.status = RapidJsonUtil::GetJsonInt(item, "status");
+    sitem.billNo = RapidJsonUtil::GetJsonString(item, "billNo");
     if (item.FindMember("skuInfo") != item.MemberEnd())
     {
         Json2GoodsSKUInfo(item["skuInfo"], sitem.skuInfo);
@@ -339,13 +341,22 @@ void AppletCommUtils::Json2GoodsSPUDetail(const rapidjson::Value& detail, Hardwa
 {
     sdetail.name = RapidJsonUtil::GetJsonString(detail, "name");
     sdetail.brandName = RapidJsonUtil::GetJsonString(detail, "brandName");
-    sdetail.maker = RapidJsonUtil::GetJsonString(detail, "maker");
+    sdetail.makerName = RapidJsonUtil::GetJsonString(detail, "makerName");
     sdetail.sDesc = RapidJsonUtil::GetJsonString(detail, "sDesc");
     sdetail.brandId = RapidJsonUtil::GetJsonInt(detail, "brandId");
     sdetail.desc = RapidJsonUtil::GetJsonString(detail, "desc");
-    if (detail.FindMember("mediaInfo") != detail.MemberEnd())
+    sdetail.makerId = RapidJsonUtil::GetJsonInt(detail, "makerId");
+    sdetail.model = RapidJsonUtil::GetJsonString(detail, "model");
+
+    if (detail.FindMember("mediaInfo") != detail.MemberEnd() && detail["categoryInfo"].IsArray())
     {
-        Json2GoodsMediaInfo(detail["mediaInfo"], sdetail.mediaInfo);
+        const rapidjson::Value& mediaInfo = detail["mediaInfo"];
+        for (rapidjson::Value::ConstValueIterator itr = mediaInfo.Begin(); itr != mediaInfo.End(); ++itr)
+        {
+            HardwareApplet::GoodsMediaInfo item;
+            Json2GoodsMediaInfo(*itr, item);
+            sdetail.mediaInfo.push_back(item);
+        }
     }
     if (detail.FindMember("categoryInfo") != detail.MemberEnd() && detail["categoryInfo"].IsArray())
     {

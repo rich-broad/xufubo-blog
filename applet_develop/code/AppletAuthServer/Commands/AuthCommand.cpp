@@ -254,6 +254,14 @@ int AsyncHttpCallback::updateUserBaseInfo(const HardwareApplet::WXJSCodeToSessio
         DEBUGLOG("sql = " << sqlStr.str() << endl);
         // execute在mysql执行不成功的时候会抛出异常因此只要抛出了异常说明execute不成功
         _db_Info->execute(sqlStr.str());
+        size_t affected_rows = _db_Info->getAffectedRows();
+
+        if (affected_rows != 1)
+        {
+            ERRORLOG("insert error. affected_rows|" << affected_rows << endl);
+            return -1;
+        }
+
         ret = 0;
     }
     __CATCH_EXCEPTION_WITH__("MySQL_Exception");
@@ -297,6 +305,13 @@ int AsyncHttpCallback::updateUserLoginInfo(const HardwareApplet::WXJSCodeToSessi
         DEBUGLOG("sql = " << sqlStr.str() << endl);
         // execute在mysql执行不成功的时候会抛出异常因此只要抛出了异常说明execute不成功
         _db_Info->execute(sqlStr.str());
+        size_t affected_rows = _db_Info->getAffectedRows();
+
+        if (affected_rows != 1)
+        {
+            ERRORLOG("insert error. affected_rows|" << affected_rows << endl);
+            return -1;
+        }
         ret = 0;
     }
     __CATCH_EXCEPTION_WITH__("MySQL_Exception");

@@ -104,6 +104,26 @@ tars::Int32 AppletTradeImp::submitOrder(const HardwareApplet::AppletCommHead & s
     return ret;
 }
 
+tars::Int32 AppletTradeImp::confirmGoodsTranPrice(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    int ret = 0;
+    try
+    {
+        HardwareApplet::ConfirmGoodsTranPriceReq stReq;
+        HardwareApplet::ConfirmGoodsTranPriceRsp stRsp;
+        if (HardwareApplet::TarsDecode<HardwareApplet::ConfirmGoodsTranPriceReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG_WITHHEAD(stHead, vtIn.size()) << endl;
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false); // ÉèÖÃ·Ç×Ô¶¯»Ø°ü
+        ret = _pTradeCommand->confirmGoodsTranPrice(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("|AppletTradeImp::confirmGoodsTranPrice");
+    return ret;
+}
+
 tars::Int32 AppletTradeImp::confirmOrder(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
 {
     int ret = 0;

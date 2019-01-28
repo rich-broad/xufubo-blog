@@ -53,14 +53,15 @@ CREATE TABLE `t_goods_spu_info` (
   `create_time` bigint(20) NOT NULL,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT '商品名称',
-  `brand_id` int(11) NOT NULL COMMENT '品牌编号',
-  `brand_name` varchar(128) NOT NULL DEFAULT '' COMMENT '品牌名称',
-  `maker` varchar(128) NOT NULL DEFAULT '' COMMENT '生产商',
+  `brand_id` int(11) NOT NULL DEFAULT '0' COMMENT '品牌id',
+  `maker_id` int(11) NOT NULL DEFAULT '0' COMMENT '生产商id',
   `s_desc` varchar(255) NOT NULL DEFAULT '' COMMENT '简述',
   `desc` text NOT NULL DEFAULT '' COMMENT '商品描述',
   `model` varchar(255) NOT NULL DEFAULT '' COMMENT '商品型号',
   `status` SMALLINT NOT NULL DEFAULT '0' COMMENT '状态 0=>新增,1=>上架,-1=>下架',
-  PRIMARY KEY (`spu_id`)
+  PRIMARY KEY (`spu_id`),
+  CONSTRAINT `fk_brand_id` foreign key(`brand_id`) references `t_brand_info`(`brand_id`),
+  CONSTRAINT `fk_maker_id` foreign key(`maker_id`) references `t_maker_info`(`maker_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品SPU表';
 ```
 
@@ -271,7 +272,7 @@ CREATE TABLE `t_goods_order_info` (
   `uid` int(11) NOT NULL DEFAULT '0' COMMENT '用户id',
   `pay_way` int(11) NOT NULL DEFAULT '0' COMMENT '支付方式 1-货到付款，2-微信支付，3-银行卡',
   `pay_time_ts` bigint(20) NOT NULL DEFAULT '0' COMMENT '支付时间',
-  `status` int(11) NOT NULL DEFAULT '0' COMMENT '订单状态 1-新提交待确认，2-已确认(主商量价格、确认发货地址等)，3-已发货代付款，4-已发货已付款',
+  `status` int(11) NOT NULL DEFAULT '0' COMMENT '订单状态 1-新提交待确认，2-已确认(商量价格、确认发货地址等)，3-已发货代付款，4-已发货已付款',
   `money` int(11) NOT NULL DEFAULT '0' COMMENT '商品金额，在订单新提交时计算',
   `tran_money` int(11) NOT NULL DEFAULT '0' COMMENT '实际支付金额，在status设置为2时进行更新',
   `freight` int(11) NOT NULL DEFAULT '0' COMMENT '运费',

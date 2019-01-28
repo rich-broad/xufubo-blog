@@ -476,13 +476,15 @@ module HardwareApplet
         0 require int spuId;
         1 require string name;
         2 require string brandName;
-        3 require string maker;
+        3 require int makerId;
         4 require string sDesc;
         5 require int status = -1;
         6 require int brandId;
         7 require string desc;
-        8 require GoodsMediaInfo mediaInfo;
-        9 require vector<CategoryItem> categoryInfo;    // 分类信息
+        8 require string makerName;
+        9 require string model;
+        10 require vector<GoodsMediaInfo> mediaInfo;
+        11 require vector<CategoryItem> categoryInfo;    // 分类信息
     };
 
     // 获取商品SPU列表 getGoodsSPUList
@@ -510,7 +512,7 @@ module HardwareApplet
 	    1 require GetGoodsSPUListRsp body;	            //响应包体
     };
 
-    // 增加商品SPU addGoodsSPUInfo [需要插入SPU表和商品分类表]
+    // 增加商品SPU addGoodsSPUInfo [需要插入SPU表、商品分类表、媒体表]
     struct AddGoodsSPUInfoReq
     {
         0 require GoodsSPUDetail detail;
@@ -770,7 +772,7 @@ module HardwareApplet
         6 require int num;
         7 require int status;
         8 require GoodsSKUInfo skuInfo;
-        
+        9 require string billNo;
     };
 
     // 订单item
@@ -892,7 +894,31 @@ module HardwareApplet
 	    1 require ConfirmOrderRsp body;	                //响应包体
     };
 
-    // 获取我的订单信息--买家getMyOrderList   这个以下还没有写接入层呢
+    // 确认订单中商品价格--卖家  confirmGoodsTranPrice       这个以下还没有写接入层呢
+    struct ConfirmGoodsTranPriceReq
+    {
+        0 require ShopCartItem item;       // item
+    };
+
+    struct ConfirmGoodsTranPriceRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+    };
+
+    struct ProxyConfirmGoodsTranPriceReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require ConfirmGoodsTranPriceReq body;		        //请求包体
+    };
+
+    struct ProxyConfirmGoodsTranPriceRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require ConfirmGoodsTranPriceRsp body;	            //响应包体
+    };
+
+    // 获取我的订单信息--买家getMyOrderList
     struct GetMyOrderListReq
     {
         0 require int status;                       // 订单状态

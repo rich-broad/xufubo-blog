@@ -20,6 +20,9 @@ module HardwareApplet
         // 提交订单
 		int submitOrder(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
+        // 确认订单中商品价格
+        int confirmGoodsTranPrice(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
         // 确认订单
 		int confirmOrder(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 

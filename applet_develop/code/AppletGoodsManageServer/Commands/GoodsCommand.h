@@ -27,7 +27,12 @@ public:
     int addGoodsSPUInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq, HardwareApplet::AddGoodsSPUInfoRsp& stRsp, tars::TarsCurrentPtr current);
 	
 private:
-    TC_Mysql * _mysql
+    int insertSPUCategoryMediaInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq);
+    int insertGoodsSPUInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq);
+    int insertGoodsCategoryInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq);
+    int insertGoodsMediaInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq);
+private:
+    TC_Mysql * _mysql;
 };
 
 #endif /*GOODS_COMMAND_H_*/
