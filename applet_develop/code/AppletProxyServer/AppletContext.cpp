@@ -146,7 +146,7 @@ int32_t AppletContext::parseHttpBody(const string & content)
     }
     return 0;
 }
-
+// 这里管理登录态(卖家和买家是不一样的，这里只写了买家的登录态逻辑，卖家的怎么搞呢？？？？)
 int32_t AppletContext::parseST()
 {
 	int ret = -100;
