@@ -48,3 +48,24 @@ int AppletAuthImp::getNewTicket(const HardwareApplet::AppletCommHead& stHead,con
     __CATCH_EXCEPTION_WITH__("AppletAuthImp::getNewTicket");
     return ret;
 }
+
+int AppletAuthImp::getNewCookie(const HardwareApplet::AppletCommHead& stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    DEBUGLOG("getNewCookie enter: vtIn.size = " << vtIn.size() << endl);
+    HardwareApplet::GetNewCookieReq stReq;
+    HardwareApplet::GetNewCookieRsp stRsp;
+    int ret = 0;
+    try
+    {
+        if (TarsDecode<HardwareApplet::GetNewCookieReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG("getNewCookie TarsDecode error|" << COMM_HEAD_ALL_INFO(stHead) << "|" << vtIn.size() << endl);
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false);
+        ret = _pAuthCommand->getNewCookie(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("AppletAuthImp::getNewCookie");
+    return ret;
+}

@@ -21,6 +21,7 @@ public:
 	AuthCommand(ConfigurationFactory* configurationFactory, TC_Mysql * db_Info);
 	virtual ~AuthCommand();
     int getNewTicket(const HardwareApplet::AppletCommHead &stHead, const HardwareApplet::GetNewTicketReq &request, HardwareApplet::GetNewTicketRsp &response, tars::TarsCurrentPtr current);
+    int getNewCookie(const HardwareApplet::AppletCommHead &stHead, const HardwareApplet::GetNewCookieReq &request, HardwareApplet::GetNewCookieRsp &response, tars::TarsCurrentPtr current);
 
 private:
     TC_Mysql * _db_Info;

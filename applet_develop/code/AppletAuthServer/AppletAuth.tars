@@ -10,10 +10,11 @@ module HardwareApplet
 
 	interface AppletAuth
 	{
-		//获取游戏app列表
+		// 获取新票据--买家使用 getNewTicket
 		int getNewTicket(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
-
+        // 获取新票据--卖家使用 getNewCookie
+        int getNewCookie(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
     };
 };

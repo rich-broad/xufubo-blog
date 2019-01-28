@@ -36,7 +36,7 @@ public:
 public:
 
 	virtual tars::Int32 getNewTicket(const HardwareApplet::AppletCommHead& stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
-	
+	virtual tars::Int32 getNewCookie(const HardwareApplet::AppletCommHead& stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
 
 private:
 	ConfigurationFactory* _pConfigurationFactory;

@@ -323,3 +323,9 @@ int AsyncHttpCallback::updateUserLoginInfo(const HardwareApplet::WXJSCodeToSessi
     return ret;
 }
 
+
+
+int AuthCommand::getNewCookie(const HardwareApplet::AppletCommHead &stHead, const HardwareApplet::GetNewCookieReq &request, HardwareApplet::GetNewCookieRsp &response, tars::TarsCurrentPtr current)
+{
+    return 0;
+}

@@ -152,7 +152,7 @@ int32_t AppletContext::parseST()
 	int ret = -100;
     if (_reqHead.st.empty())
     {
-        if (_funcName != "getNewTicket")
+        if (_funcName != "getNewTicket" && _funcName != "getNewCookie")
         {
             ERRORLOG("parseST error st empty" << endl);
             return E_TICKET_INVALID;

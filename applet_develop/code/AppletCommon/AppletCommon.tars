@@ -135,7 +135,7 @@ module HardwareApplet
     //===================================以下为具体命令字的协议定义=============================================//
 
     //===============================AppletAuthServer接口定义==========================================
-    // 票据即将过期或者已经过期后，获取新票据 getNewTicket
+    // 票据即将过期或者已经过期后，获取新票据--买家使用 getNewTicket
     struct GetNewTicketReq
     {
         0 require string wx_code;               // 前端调用wx.login获取的code
@@ -158,6 +158,32 @@ module HardwareApplet
     {
 	    0 require ProxyRspHead head;		    //响应头部
 	    1 require GetNewTicketRsp body;	        //响应包体
+    };
+
+    // 票据即将过期或者已经过期后，获取新票据--卖家使用 getNewCookie
+    struct GetNewCookieReq
+    {
+        0 require string userName;               // 用户名
+        1 require string password;               // 密码
+    };
+
+    struct GetNewCookieRsp
+    {
+        0 require int ret = 0;                  // 0-成功，其他失败
+        1 require string errmsg;                // 错误信息
+        2 require string st;                    // 新的业务票据
+    };
+
+    struct ProxyGetNewCookieReq
+    {
+	    0 require ProxyReqHead head;		    //请求头部
+	    1 require GetNewCookieReq body;		    //请求包体
+    };
+
+    struct ProxyGetNewCookieRsp	
+    {
+	    0 require ProxyRspHead head;		    //响应头部
+	    1 require GetNewCookieRsp body;	        //响应包体
     };
 
     //======================================AppletGoodsManageServer接口定义=================================
