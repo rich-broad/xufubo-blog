@@ -92,13 +92,22 @@ void AsyncHttpCallback::onResponse(bool bClose, TC_HttpResponse &stHttpResponse)
             return;
         }
         HardwareApplet::SecurityTicket sST;
-        response.ret = makeST(wxrsp, response.st, sST);
+        ret = makeST(wxrsp, response.st, sST);
+        if (ret != 0)
+        {
+            response.ret = ret;
+            ERRORLOG_WITHHEAD(_stHead, "|onResponse|makeST error|" << status << "|" << _sUrl << "|" << content << "|" << endl);
+            sendReponse(response, _stHead, _funcName, ret, _current);
+            return;
+        }
+        
 		// 该函数具有事务性
         ret = updateUserInfo(wxrsp, sST);
         if (ret)
         {
             ERRORLOG("updateUserLoginInfo error|" << endl);
         }
+        response.ret = ret;
         sendReponse(response, _stHead, _funcName, ret, _current);
         return;
     }
@@ -325,7 +334,108 @@ int AsyncHttpCallback::updateUserLoginInfo(const HardwareApplet::WXJSCodeToSessi
 
 
 
-int AuthCommand::getNewCookie(const HardwareApplet::AppletCommHead &stHead, const HardwareApplet::GetNewCookieReq &request, HardwareApplet::GetNewCookieRsp &response, tars::TarsCurrentPtr current)
+int AuthCommand::getNewCookie(const HardwareApplet::AppletCommHead &stHead, const HardwareApplet::GetNewCookieReq &stReq, HardwareApplet::GetNewCookieRsp &stRsp, tars::TarsCurrentPtr current)
 {
+    ostringstream ossStr;
+    ossStr << stReq.userName << "|" << stReq.password << "";
+    string funcName("getNewCookie");
+    DEBUGLOG_WITHHEAD(stHead, ossStr.str() << endl);
+    string passwordsha = TC_SHA::sha256str(stReq.password.data(), stReq.password.length());
+    int ret = -1;
+    // 用于回包
+    HardwareApplet::GetNewCookieRsp response;
+    try
+    {
+        ostringstream ossql;
+        ossql << "select `uid` from t_seller_user_data where `user_name` = '" << _db_Info->escapeString(stReq.userName) << "'"
+            << " and `password` = '" <<  _db_Info->escapeString(passwordsha) << "'";
+        DEBUGLOG_WITHHEAD(stHead, "sql = " << ossql.str() << endl);
+        _db_Info->execute(ossql.str());
+        size_t affected_rows = _db_Info->getAffectedRows();
+        if (affected_rows != 1)
+        {
+            ERRORLOG_WITHHEAD(stHead, "select error|" << ossStr.str() << "|" << ossql.str() << endl);
+            response.ret = -1;
+            sendReponse(response, stHead, funcName, ret, current);
+            return -1;
+        }
+
+        HardwareApplet::SecurityTicket sST;
+        ret = makeCookie(stReq.userName, passwordsha, response.st, sST);
+        if (ret != 0)
+        {
+            ERRORLOG_WITHHEAD(stHead, "|makeCookie error|" << ossStr.str() << endl);
+            response.ret = ret;
+            sendReponse(response, stHead, funcName, ret, current);
+            return ret;
+        }
+        
+        ret = upSellerUserInfo(stReq.userName, passwordsha, sST);
+        if (ret)
+        {
+            ERRORLOG("upSellerUserInfo error|" << endl);
+        }
+        response.ret = ret;
+        sendReponse(response, stHead, funcName, ret, current);
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__(funcName);
+    if (ret != 0)
+    {
+        //抛出异常也得回包
+        sendReponse(response, stHead, funcName, ret, current);
+    }
+
+    return ret;
+}
+
+int AuthCommand::makeCookie(const string &userName, const string & passwordsha, string &st, HardwareApplet::SecurityTicket &sST)
+{
+
+    sST.timets = TNOW;
+    string sessionKey = userName + passwordsha + L2S(sST.timets);
+    sST.sessionKey = TC_SHA::sha256str(sessionKey.data(), sessionKey.length());
+    sST.signature = TC_MD5::md5str(L2S(sST.timets) + sST.sessionKey + DEF_CFG_SINGLETON->_SVRMD5SIGKEY);
+
+    string bsst;
+    int ret = TarsEncode(sST, bsst);
+    if (ret)
+    {
+        ERRORLOG("TarsEncode error|" << endl);
+        return ret;
+    }
+
+    vector<char> vtST = TC_Tea::encrypt2(DEF_CFG_SINGLETON->_SVRKEY.c_str(), bsst.c_str(), bsst.length());
+    string tempBase64In(vtST.begin(), vtST.end());
+    st = TC_Base64::encode(tempBase64In);
     return 0;
 }
+
+int AuthCommand::upSellerUserInfo(const string &userName, const string & passwordsha, const HardwareApplet::SecurityTicket &sST)
+{
+    int ret = -1;
+    try
+    {
+        map<string, pair<TC_Mysql::FT, string> > record;
+        record["session_key"] = make_pair(TC_Mysql::DB_STR, sST.sessionKey);
+        record["session_key_time"] = make_pair(TC_Mysql::DB_INT, sST.timets);
+        ostringstream conStr;
+        conStr << " where `user_name` = '" << _db_Info->escapeString(userName) << "' and `password` = '" <<  _db_Info->escapeString(passwordsha) << "'";
+
+        size_t affected_rows = _db_Info->updateRecord("t_seller_user_data", record, conStr.str());
+        if (affected_rows != 1)
+        {
+            ERRORLOG("upSellerUserInfo error. affected_rows|" << affected_rows << endl);
+            return -1;
+        }
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__("MySQL_Exception");
+
+    if (ret != 0)
+    {
+        ERRORLOG("exec sql error|" << endl);
+    }
+    return ret;
+}
+

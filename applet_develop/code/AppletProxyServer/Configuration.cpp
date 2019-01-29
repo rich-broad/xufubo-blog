@@ -22,12 +22,13 @@ void DefConfiguration::Load()
         _printLocal = GetIntConfig("/ServerConf<PrintLocal>", 1);
         _SVRKEY = GetStringConfig("/ServerConf<SVRKEY>", "");
         _SVRMD5SIGKEY = GetStringConfig("/ServerConf<SVRMD5SIGKEY>", "");
+
         //dbConf
         _fileConfig->getDomainMap("/applet/db_login", _dbInfoConf);
         map<string, string> mpFunc = _fileConfig->getDomainMap("/FuncMap");
         for (map<string, string>::iterator iter = mpFunc.begin(); iter != mpFunc.end(); ++iter)
         {
-            _mpFunc[iter->first] = 0;
+            _mpFunc[iter->first] = S2I(iter->second);
         }
         //Ьиад
         _pParseErrPropery = Application::getCommunicator()->getStatReport()->createPropertyReport("parseErrNum", PropertyReport::sum());

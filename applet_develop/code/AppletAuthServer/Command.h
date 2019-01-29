@@ -46,9 +46,9 @@ void sendReponse(const T &t, const HardwareApplet::AppletCommHead& stHead, const
         {
             HardwareApplet::AppletAuth::async_response_getNewTicket(current, retVal, vtOut);
         }
-        else if(funcName == "getNewTicket")
+        else if(funcName == "getNewCookie")
         {
-            HardwareApplet::AppletAuth::async_response_getNewTicket(current, retVal, vtOut);
+            HardwareApplet::AppletAuth::async_response_getNewCookie(current, retVal, vtOut);
         }
         else 
         {

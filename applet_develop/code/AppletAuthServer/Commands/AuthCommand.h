@@ -24,6 +24,9 @@ public:
     int getNewCookie(const HardwareApplet::AppletCommHead &stHead, const HardwareApplet::GetNewCookieReq &request, HardwareApplet::GetNewCookieRsp &response, tars::TarsCurrentPtr current);
 
 private:
+    int makeCookie(const string &userName, const string & passwordsha, string &st, HardwareApplet::SecurityTicket &sST);
+    int upSellerUserInfo(const string &userName, const string & passwordsha, const HardwareApplet::SecurityTicket &sST);
+private:
     TC_Mysql * _db_Info;
 };
 

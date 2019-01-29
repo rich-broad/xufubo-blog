@@ -20,6 +20,8 @@ using namespace base_utils;
 
 class AppletContext : public TC_HandleBase
 {
+#define SELLER 2
+#define BUYER 1
 public:
     friend class ProtocolHandler;
 public:
@@ -77,6 +79,7 @@ private:
 	int32_t parseRequest();
     int32_t parseHttpBody(const string & content);
     int32_t getSessionInfo();
+    int32_t checkLoginInfo();
 
 private:
     TC_Mysql * _dbInfo;

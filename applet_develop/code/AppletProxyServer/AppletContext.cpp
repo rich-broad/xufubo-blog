@@ -32,19 +32,34 @@ int32_t AppletContext::parseRequestData(const vector<char>& httpReqData)
         DEBUGLOG("E_TICKET_WILL_EXPIRED");
         ret = 0;
     }
-    if (ret)
+    if (ret != 0)
     {
         ERRORLOG("parseST error. ret = " << ret << endl);
         return ret;
     }
     
-    ret = getSessionInfo();
-    if (ret)
+    // 能到这一步，说明调的这个函数一定存在, 1：买家函数，2：卖家函数
+    if (DEF_CFG_SINGLETON->_mpFunc[_funcName] == BUYER)
     {
-        ERRORLOG("getSessionInfo error. ret = " << ret << endl);
+        ret = getSessionInfo();
+        if (ret != 0)
+        {
+            _rspHead.ret = E_GET_BUYER_SESSION_ERROR;
+            ERRORLOG("getSessionInfo error. ret = " << ret << endl);
+        }
+        return ret;
     }
-    
-	return ret;
+    if (DEF_CFG_SINGLETON->_mpFunc[_funcName] == SELLER)
+    {
+        ret = checkLoginInfo();
+        if (ret != 0)
+        {
+            _rspHead.ret = E_CHECK_SELLER_LOGIN_ERROR;
+            ERRORLOG("checkLoginInfo error. ret = " << ret << endl);
+        }
+        return ret;
+    }
+	return 0;
 }
 
 int32_t AppletContext::parseHttpReq(const vector<char>& httpReqData)
@@ -226,28 +241,60 @@ int32_t AppletContext::getSessionInfo()
         ERRORLOG("funcName == getNewTicket" << endl);
         return 0;
     }
-
-    ostringstream sqlStr;
-    sqlStr << "select `uid`, `open_id`, `union_id` from t_user_login_data where `custom_session_key` = " << _dbInfo->escapeString(_st.sessionKey);
-    DEBUGLOG("sql = " << sqlStr.str() << endl);
-    TC_Mysql::MysqlData data = _dbInfo->queryRecord(sqlStr.str());
-    if (data.size() != 1)
+    int ret = -1;
+    try
     {
-        ERRORLOG("SELECT error|sql=" << sqlStr.str() << endl);
-        return -1;
-    }
+        ostringstream sqlStr;
+        sqlStr << "select `uid`, `open_id`, `union_id` from t_user_login_data where `custom_session_key` = " << _dbInfo->escapeString(_st.sessionKey);
+        DEBUGLOG("sql = " << sqlStr.str() << endl);
+        TC_Mysql::MysqlData data = _dbInfo->queryRecord(sqlStr.str());
+        if (data.size() != 1)
+        {
+            ERRORLOG("SELECT error|sql=" << sqlStr.str() << endl);
+            return -1;
+        }
 
-    TC_Mysql::MysqlRecord record = data[0];
-    _sessionInfo.uid = TC_Common::strto<int32_t>(record["uid"]);
-    _sessionInfo.openid = record["open_id"];
-    _sessionInfo.unionid = record["union_id"];
-    if (_sessionInfo.uid <= 0 || _sessionInfo.openid.empty() || _sessionInfo.unionid.empty())
-    {
-        ERRORLOG("sessionInfo error|" << _sessionInfo.uid << "|" << _sessionInfo.openid << "|" << _sessionInfo.unionid << endl);
-        return -1;
+        TC_Mysql::MysqlRecord record = data[0];
+        _sessionInfo.uid = TC_Common::strto<int32_t>(record["uid"]);
+        _sessionInfo.openid = record["open_id"];
+        _sessionInfo.unionid = record["union_id"];
+        if (_sessionInfo.uid <= 0 || _sessionInfo.openid.empty() || _sessionInfo.unionid.empty())
+        {
+            ERRORLOG("sessionInfo error|" << _sessionInfo.uid << "|" << _sessionInfo.openid << "|" << _sessionInfo.unionid << endl);
+            return -1;
+        }
+        ret = 0;
     }
+    __CATCH_EXCEPTION_WITH__("MySQL_Exception");
+    return ret;
     
-    return 0;
+}
+
+int32_t AppletContext::checkLoginInfo()
+{
+    // 这个函数不需要去换取登录态信息
+    if (_funcName == "getNewCookie")
+    {
+        ERRORLOG("funcName == getNewCookie" << endl);
+        return 0;
+    }
+    int ret = -1;
+    try
+    {
+        ostringstream sqlStr;
+        sqlStr << "select `uid` from t_seller_user_data where `session_key` = " << _dbInfo->escapeString(_st.sessionKey);
+        DEBUGLOG("sql = " << sqlStr.str() << endl);
+        TC_Mysql::MysqlData data = _dbInfo->queryRecord(sqlStr.str());
+        if (data.size() != 1)
+        {
+            ERRORLOG("checkLoginInfo error|sql=" << sqlStr.str() << endl);
+            return -1;
+        }
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__("MySQL_Exception");
+
+    return ret;
 }
 
 void AppletContext::logRequset()

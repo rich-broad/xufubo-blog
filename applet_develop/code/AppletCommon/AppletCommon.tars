@@ -43,6 +43,8 @@ module HardwareApplet
         E_TICKET_WILL_EXPIRED = 5,
         E_BUSINESS_ERROR = 6,
         E_BUSINESS_EXCEPTION = 7,
+        E_GET_BUYER_SESSION_ERROR = 8,
+        E_CHECK_SELLER_LOGIN_ERROR = 9,
     };
 
     // 票据

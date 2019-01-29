@@ -87,6 +87,7 @@ public:
     string _SVRMD5SIGKEY;
     string _appid;
     string _appSecret;
+
 };
 
 class ConfigurationFactory

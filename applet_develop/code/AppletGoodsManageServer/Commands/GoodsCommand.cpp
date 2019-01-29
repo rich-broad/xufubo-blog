@@ -64,7 +64,7 @@ int GoodsCommand::addGoodsSPUInfo(const HardwareApplet::AppletCommHead& stHead, 
         {
             ERRORLOG("insertSPUCategoryMediaInfo__ error|" << endl);
         }
-        response.ret = 0;
+        response.ret = ret;
         sendReponse(response, stHead, funcName, ret, current);
         ret = 0;
     }
@@ -80,7 +80,7 @@ int GoodsCommand::addGoodsSPUInfo(const HardwareApplet::AppletCommHead& stHead, 
 
 //========================================Ë½ÓÐº¯Êý start==============================================
 //////////////////////////////////////////////////////////////////////////
-//----------------------------------insertSPUAndCategoryInfo__ start--------------------------------
+//----------------------------------insertSPUCategoryMediaInfo__ start--------------------------------
 int GoodsCommand::insertSPUCategoryMediaInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq)
 {
     int ret = -1;
@@ -250,6 +250,6 @@ int GoodsCommand::insertGoodsMediaInfo__(const HardwareApplet::AppletCommHead& s
 }
 
 
-//----------------------------------insertSPUAndCategoryInfo__ end--------------------------------
+//----------------------------------insertSPUCategoryMediaInfo__ end--------------------------------
 
 //////////////////////////////////////////////////////////////////////////

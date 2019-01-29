@@ -42,7 +42,7 @@ int AppletProxyImp::doRequest(tars::TarsCurrentPtr current, vector<char>& respon
 	const vector<char> &httpReqData = current->getRequestBuffer();
     DEBUGLOG("FirstEnter|" << current->getIp() << "|" << current->getPort() << "|" << httpReqData.size() << endl);
 	AppletContextPtr ctx = new AppletContext(_dbInfo, current);
-    	int ret = ctx->parseRequestData(httpReqData);
+    int ret = ctx->parseRequestData(httpReqData);
 	if (ret != 0)
 	{
 		ERRORLOG("illegal request|parse err|" << ret << "|" 

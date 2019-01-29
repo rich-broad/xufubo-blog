@@ -7,6 +7,7 @@ CREATE DATABASE `db_applet_data` IF NOT EXISTS `db_applet_data` DEFAULT CHARACTE
 CREATE TABLE `t_user_base_data` (
   `uid` int(11) NOT NULL AUTO_INCREMENT,
   `union_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
+  `create_time` bigint(20) NOT NULL,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY (`uid`),
   PRIMARY KEY `uk_union_id` (`union_id`)
@@ -26,7 +27,14 @@ CREATE TABLE `t_user_login_data` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='用户登录信息表';
 
 
-
-
-
+-- 卖家管理员信息表
+CREATE TABLE `t_seller_user_data` (
+  `uid` int(11) NOT NULL AUTO_INCREMENT,
+  `user_name` varchar(128) NOT NULL DEFAULT '' COMMENT '用户名',
+  `password` varchar(128) NOT NULL DEFAULT '' COMMENT '密码hash串',
+  `session_key` varchar(64) NOT NULL DEFAULT '' COMMENT '自定义sessionkey',
+  `session_key_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '自定义sessionkey的创建时间',
+  PRIMARY KEY (`open_id`),
+  UNIQUE KEY `uk_user_name` (`user_name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='卖家账户表';
 
