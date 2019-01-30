@@ -205,4 +205,41 @@ public:
 
 #define MakerMetaManagerSingleton MakerMetaManager::GetInstance()
 
+//====================================²Ö¿âÔªÊı¾İ=====================================
+class WarehouseMetaManager
+{
+public:
+    WarehouseMetaManager();
+    virtual ~WarehouseMetaManager();
+
+    static WarehouseMetaManager* GetInstance();
+    int initialize();
+    int upWarehouseList();
+    int getWarehouseList(vector<HardwareApplet::WarehouseItem> &vtResult);
+
+private:
+    WarehouseMetaManager(const WarehouseMetaManager&) {};
+    void operator=(const WarehouseMetaManager&) {};
+
+    static WarehouseMetaManager* volatile _pInstance;
+    static TC_ThreadMutex _instanceMutex;
+    static tars::TC_ThreadRWLocker _rwLockWarehouse;
+    static tars::TC_ThreadMutex _mutexWarehouse;
+
+    //data
+    vector<HardwareApplet::WarehouseItem> _vtWarehouse[2];
+    int32_t _curMap;
+
+};
+
+class AsyncUpdateWarehouseMetaInfoTask
+{
+public:
+    AsyncUpdateWarehouseMetaInfoTask() {}
+    void operator()();
+
+};
+
+#define WarehouseMetaManagerSingleton WarehouseMetaManager::GetInstance()
+
 #endif	/* APP_MANAGER_H */

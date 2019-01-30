@@ -79,8 +79,10 @@ CREATE TABLE `t_goods_sku_info` (
   `img_url` varchar(1024) NOT NULL DEFAULT '' COMMENT '图片',
   `is_default` int(11) NOT NULL DEFAULT '0' COMMENT '是否默认sku',
   `min_count` int(11) NOT NULL DEFAULT '1' COMMENT '最小计数单位，比如扳手最想知道我的库存还有多少盒，这时候就需要填每盒多少个，该字段就是这个意思',
+  `warehouse_id` int(11) NOT NULL DEFAULT '0' COMMENT '仓库编号',
   `spu_id` int(11) NOT NULL DEFAULT '0' COMMENT 'spu_id',
   PRIMARY KEY (`sku_id`),
+  CONSTRAINT `fk_warehouse_id` foreign key(`warehouse_id`) references `t_warehouse_info`(`warehouse_id`),
   CONSTRAINT `fk_spu_id` foreign key(`spu_id`) references `t_goods_spu_info`(`spu_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品SKU表';
 ```
@@ -222,6 +224,21 @@ CREATE TABLE `t_maker_info` (
   UNIQUE KEY `uk_name` (`name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='生产商表';
 ```
+
+## 11. 仓库表(t_warehouse_info)
+```sql
+-- 生产商表
+CREATE TABLE `t_warehouse_info` (
+  `warehouse_id` int(11) NOT NULL AUTO_INCREMENT,
+  `create_time` bigint(20) NOT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `name` varchar(128) NOT NULL DEFAULT '' COMMENT '仓库名称',
+  `desc` varchar(512) NOT NULL DEFAULT '' COMMENT '仓库描述',
+  PRIMARY KEY (`warehouse_id`),
+  UNIQUE KEY `uk_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='仓库表';
+```
+
 
 至此，商品相关的存储表就设计好了。  
 

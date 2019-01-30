@@ -251,6 +251,46 @@ int AppletGoodsManageImp::addMakerInfo(const HardwareApplet::AppletCommHead & st
     return ret;
 }
 
+int AppletGoodsManageImp::getWarehouseList(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    int ret = 0;
+    try
+    {
+        HardwareApplet::GetWarehouseListReq stReq;
+        HardwareApplet::GetWarehouseListRsp stRsp;
+        if (HardwareApplet::TarsDecode<HardwareApplet::GetWarehouseListReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG(COMM_HEAD_ALL_INFO(stHead) << "|" << vtIn.size()) << endl;
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false); // 设置非自动回包
+        ret = _pMetaDataCommand->getWarehouseList(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::getWarehouseList");
+    return ret;
+}
+
+int AppletGoodsManageImp::addWarehouseInfo(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    int ret = 0;
+    try
+    {
+        HardwareApplet::AddWarehouseInfoReq stReq;
+        HardwareApplet::AddWarehouseInfoRsp stRsp;
+        if (HardwareApplet::TarsDecode<HardwareApplet::AddWarehouseInfoReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG(COMM_HEAD_ALL_INFO(stHead) << "|" << vtIn.size()) << endl;
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false); // 设置非自动回包
+        ret = _pMetaDataCommand->addWarehouseInfo(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::addWarehouseInfo");
+    return ret;
+}
+
 int AppletGoodsManageImp::getGoodsSPUList(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
 {
     int ret = 0;

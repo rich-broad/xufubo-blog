@@ -86,6 +86,14 @@ void sendReponse(const T &t, const HardwareApplet::AppletCommHead& stHead, const
         {
             HardwareApplet::AppletGoodsManage::async_response_addMakerInfo(current, retVal, vtOut);
         }
+        else if(funcName == "getWarehouseList")
+        {
+            HardwareApplet::AppletGoodsManage::async_response_getWarehouseList(current, retVal, vtOut);
+        }
+        else if(funcName == "addWarehouseInfo")
+        {
+            HardwareApplet::AppletGoodsManage::async_response_addWarehouseInfo(current, retVal, vtOut);
+        }
         else if(funcName == "getGoodsSPUList")
         {
             HardwareApplet::AppletGoodsManage::async_response_getGoodsSPUList(current, retVal, vtOut);

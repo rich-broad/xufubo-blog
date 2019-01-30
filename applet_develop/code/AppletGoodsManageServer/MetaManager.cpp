@@ -560,7 +560,7 @@ int MakerMetaManager::upMakerList()
                 _vtMaker[nextNum].push_back(item);
             }
 
-            DEBUGLOG("load t_brand_info suc|" << data.size() << "|" << _vtMaker[nextNum].size() << "|" << endl);
+            DEBUGLOG("load t_maker_info suc|" << data.size() << "|" << _vtMaker[nextNum].size() << "|" << endl);
         }
 
         {
@@ -593,3 +593,112 @@ void AsyncUpdateMakerMetaInfoTask::operator()()
     }
 }
 
+//=====================================²Ö¿âÔªÊý¾Ý=====================================
+//////////////////////////////////////////////////////////////////////////
+WarehouseMetaManager* volatile WarehouseMetaManager::_pInstance = NULL;
+tars::TC_ThreadMutex WarehouseMetaManager::_instanceMutex;
+tars::TC_ThreadRWLocker WarehouseMetaManager::_rwLockWarehouse;
+tars::TC_ThreadMutex WarehouseMetaManager::_mutexWarehouse;
+
+WarehouseMetaManager* WarehouseMetaManager::GetInstance()
+{
+    if (_pInstance == NULL)
+    {
+        MutexGuard mg(_instanceMutex);
+        if (_pInstance == NULL)
+        {
+            WarehouseMetaManager* volatile tmp = new WarehouseMetaManager();
+            _pInstance = tmp;
+        }
+    }
+    return _pInstance;
+}
+
+WarehouseMetaManager::WarehouseMetaManager()
+{
+    _curMap = 0;
+}
+
+WarehouseMetaManager::~WarehouseMetaManager()
+{
+
+}
+
+int WarehouseMetaManager::initialize()
+{
+    upWarehouseList();
+    return 0;
+}
+
+int WarehouseMetaManager::getWarehouseList(vector<HardwareApplet::WarehouseItem> &vtResult)
+{
+    int curNum = 0;
+    {
+        ReadLock rl(_rwLockWarehouse);
+        curNum = _curMap;
+    }
+    vtResult = _vtWarehouse[curNum];
+    return 0;
+}
+
+int WarehouseMetaManager::upWarehouseList()
+{
+    MutexGuard mg(_mutexWarehouse);
+    int curNum = 0,nextNum = 0;
+    {
+        ReadLock rl(_rwLockWarehouse);
+        curNum = _curMap;
+    }
+    nextNum = (curNum + 1) % 2;
+    TC_Mysql mysql;
+    try
+    {
+        _vtWarehouse[nextNum].clear();
+        {
+            TC_DBConf conf;
+            conf.loadFromMap(DEF_CFG_SINGLETON->_dbInfoConf);
+            mysql.init(conf);
+            mysql.connect();
+            TC_Mysql::MysqlData data = mysql.queryRecord("select warehouse_id, name, desc from t_warehouse_info");
+            for (size_t i = 0; i < data.size(); ++i)
+            {
+                HardwareApplet::WarehouseItem item;
+                TC_Mysql::MysqlRecord record = data[i];
+                item.warehouseId = TC_Common::strto<int32_t>(record["warehouse_id"]);
+                item.warehouseName = record["name"];
+                item.warehouseDesc = record["desc"];
+                _vtWarehouse[nextNum].push_back(item);
+            }
+
+            DEBUGLOG("load t_warehouse_info suc|" << data.size() << "|" << _vtWarehouse[nextNum].size() << "|" << endl);
+        }
+
+        {
+            WriteLock wl(_rwLockWarehouse);
+            _curMap = nextNum;
+        }
+    }
+    catch (TC_Mysql_Exception& e)
+    {
+        ERRORLOG("Query database exception: " << e.what() << "|" << e.getErrCode() << endl);
+        return -1;
+    }
+    catch (...)
+    {
+        ERRORLOG("Query database exception, unknown error occured. " << endl);
+        return -1;
+    }
+
+    mysql.disconnect();
+
+    return 0;
+}
+
+void AsyncUpdateWarehouseMetaInfoTask::operator()()
+{
+    while (1)
+    {
+        WarehouseMetaManagerSingleton->upWarehouseList();
+        sleep(rand()%DEF_CFG_SINGLETON->_cacheUpTime);
+    }
+}

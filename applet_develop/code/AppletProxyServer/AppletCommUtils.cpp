@@ -146,6 +146,8 @@ void AppletCommUtils::GoodsSKUInfo2Json(rapidjson::Document& document, const Har
     info.AddMember("isDefault", sinfo.isDefault, document.GetAllocator());
     info.AddMember("name", rapidjson::Value(sinfo.name.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     info.AddMember("imgUrl", rapidjson::Value(sinfo.imgUrl.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+    info.AddMember("warehouseId", sinfo.warehouseId, document.GetAllocator());
+    info.AddMember("warehouseName", rapidjson::Value(sinfo.warehouseName.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
 
     rapidjson::Value attrList(rapidjson::kArrayType);
     for (size_t j = 0; j < sinfo.attrList.size(); ++j)
@@ -168,6 +170,9 @@ void AppletCommUtils::Json2GoodsSKUInfo(const rapidjson::Value& info, HardwareAp
     sinfo.isDefault = RapidJsonUtil::GetJsonInt(info, "isDefault");
     sinfo.name = RapidJsonUtil::GetJsonString(info, "name");
     sinfo.imgUrl = RapidJsonUtil::GetJsonString(info, "imgUrl");
+    sinfo.warehouseId = RapidJsonUtil::GetJsonInt(info, "warehouseId");
+    sinfo.warehouseName = RapidJsonUtil::GetJsonString(info, "warehouseName");
+
     if (info.FindMember("attrList") != info.MemberEnd() && info["attrList"].IsArray())
     {
         const rapidjson::Value& attrList = info["attrList"];
@@ -259,6 +264,23 @@ void AppletCommUtils::Json2MakerItem(const rapidjson::Value& item, HardwareApple
     sitem.makerId = RapidJsonUtil::GetJsonInt(item, "makerId");
     sitem.makerName = RapidJsonUtil::GetJsonString(item, "makerName");
     sitem.makerDesc = RapidJsonUtil::GetJsonString(item, "makerDesc");
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+void AppletCommUtils::WarehouseItem2Json(rapidjson::Document& document, const HardwareApplet::WarehouseItem &sitem, rapidjson::Value& item)
+{
+    item.AddMember("warehouseId", sitem.warehouseId, document.GetAllocator());
+    item.AddMember("warehouseName", rapidjson::Value(sitem.warehouseName.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+    item.AddMember("warehouseDesc", rapidjson::Value(sitem.warehouseDesc.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+}
+
+void AppletCommUtils::Json2WarehouseItem(const rapidjson::Value& item, HardwareApplet::WarehouseItem &sitem)
+{
+    sitem.warehouseId = RapidJsonUtil::GetJsonInt(item, "warehouseId");
+    sitem.warehouseName = RapidJsonUtil::GetJsonString(item, "warehouseName");
+    sitem.warehouseDesc = RapidJsonUtil::GetJsonString(item, "warehouseDesc");
 }
 
 //////////////////////////////////////////////////////////////////////////

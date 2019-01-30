@@ -42,6 +42,7 @@ public:
     bool upAttrValueMetaInfo(const string& command, const string& params, string& result);
     bool upBrandMetaInfo(const string& command, const string& params, string& result);
     bool upMakerMetaInfo(const string& command, const string& params, string& result);
+    bool upWarehouseMetaInfo(const string& command, const string& params, string& result);
 
 };
 

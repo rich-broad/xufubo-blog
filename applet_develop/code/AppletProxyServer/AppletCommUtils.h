@@ -45,6 +45,9 @@ public:
     static void MakerItem2Json(rapidjson::Document& document, const HardwareApplet::MakerItem &sitem, rapidjson::Value& item);
     static void Json2MakerItem(const rapidjson::Value& item, HardwareApplet::MakerItem &sitem);
 
+    static void WarehouseItem2Json(rapidjson::Document& document, const HardwareApplet::WarehouseItem &sitem, rapidjson::Value& item);
+    static void Json2WarehouseItem(const rapidjson::Value& item, HardwareApplet::WarehouseItem &sitem);
+
     static void BrandItem2Json(rapidjson::Document& document, const HardwareApplet::BrandItem &sitem, rapidjson::Value& item);
     static void Json2BrandItem(const rapidjson::Value& item, HardwareApplet::BrandItem &sitem);
 

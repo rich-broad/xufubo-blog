@@ -49,6 +49,12 @@ module HardwareApplet
         // 增加厂商信息
 		int addMakerInfo(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
+        // 得到仓库列表
+		int getWarehouseList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 增加仓库信息
+		int addWarehouseInfo(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
         // 获取商品SPU列表
 		int getGoodsSPUList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 

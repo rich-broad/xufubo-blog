@@ -358,6 +358,70 @@ int MetaDataCommand::addMakerInfo(const HardwareApplet::AppletCommHead& stHead, 
     return ret;
 }
 
+int MetaDataCommand::getWarehouseList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetWarehouseListReq& stReq, HardwareApplet::GetWarehouseListRsp& stRsp, tars::TarsCurrentPtr current)
+{
+    ostringstream ossStr;
+    string funcName("getWarehouseList");
+    DEBUGLOG(COMM_HEAD_ALL_INFO(stHead) << "|" << ossStr.str() << endl);
+    int ret = -1;
+    HardwareApplet::GetWarehouseListRsp response;
+    try
+    {
+        ret = WarehouseMetaManagerSingleton->getWarehouseList(response.itemList);
+        if (ret != 0)
+        {
+            ERRORLOG("WarehouseMetaManagerSingleton->getWarehouseList error|" << ret << "|" << ossStr.str());
+            response.ret = -1;
+            sendReponse(response, stHead, funcName, ret, current);
+            return -1;
+        }
+        response.ret = 0;
+        sendReponse(response, stHead, funcName, ret, current);
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__(funcName);
+    if (ret != 0)
+    {
+        sendReponse(response, stHead, funcName, ret, current);
+    }
+
+    return ret;
+}
+
+int MetaDataCommand::addWarehouseInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddWarehouseInfoReq& stReq, HardwareApplet::AddWarehouseInfoRsp& stRsp, tars::TarsCurrentPtr current)
+{
+    ostringstream ossStr;
+    string funcName("addWarehouseInfo");
+    DEBUGLOG(COMM_HEAD_ALL_INFO(stHead) << "|" << ossStr.str() << endl);
+    int ret = -1;
+    HardwareApplet::AddWarehouseInfoRsp response;
+    try
+    {
+        map<string, pair<TC_Mysql::FT, string> > record;
+        record["create_time"] = make_pair(TC_Mysql::DB_INT, TNOW);
+        record["name"] = make_pair(TC_Mysql::DB_STR, stReq.item.warehouseName);
+        record["desc"] = make_pair(TC_Mysql::DB_STR, stReq.item.warehouseDesc);
+        size_t affected_rows = _mysql->insertRecord("t_warehouse_info", record);
+        if (affected_rows != 1)
+        {
+            ERRORLOG("inert error. affected_rows|" << affected_rows << endl);
+            response.ret = -1;
+            response.errmsg = "insert into db failed";
+            sendReponse(response, stHead, funcName, ret, current);
+            return -1;
+        }
+        response.ret = 0;
+        sendReponse(response, stHead, funcName, ret, current);
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__(funcName);
+    if (ret != 0)
+    {
+        sendReponse(response, stHead, funcName, ret, current);
+    }
+
+    return ret;
+}
 
 /*
 

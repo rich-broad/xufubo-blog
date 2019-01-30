@@ -71,12 +71,21 @@ void AppletGoodsManageServer::initialize()
         SUBMIT_ASYNC_TASK(wcmd);
     }
 
+    {
+        // ²Ö¿âÔªÊý¾Ý
+        WarehouseMetaManagerSingleton->initialize();
+        AsyncUpdateWarehouseMetaInfoTask upMetaInfo;
+        TC_Functor<void, TL::TLMaker<>::Result> cmd(upMetaInfo);
+        TC_FunctorWrapper<TC_Functor<void, TL::TLMaker<>::Result> > wcmd(cmd);
+        SUBMIT_ASYNC_TASK(wcmd);
+    }
 
     TARS_ADD_ADMIN_CMD_NORMAL("upCategoryMetaInfo", AppletGoodsManageServer::upCategoryMetaInfo);
     TARS_ADD_ADMIN_CMD_NORMAL("upAttributeMetaInfo", AppletGoodsManageServer::upAttributeMetaInfo);
     TARS_ADD_ADMIN_CMD_NORMAL("upAttrValueMetaInfo", AppletGoodsManageServer::upAttrValueMetaInfo);
     TARS_ADD_ADMIN_CMD_NORMAL("upBrandMetaInfo", AppletGoodsManageServer::upBrandMetaInfo);
     TARS_ADD_ADMIN_CMD_NORMAL("upMakerMetaInfo", AppletGoodsManageServer::upMakerMetaInfo);
+    TARS_ADD_ADMIN_CMD_NORMAL("upWarehouseMetaInfo", AppletGoodsManageServer::upWarehouseMetaInfo);
 }
 
 void AppletGoodsManageServer::destroyApp()
@@ -87,6 +96,7 @@ void AppletGoodsManageServer::destroyApp()
     delete AttrValueMetaManagerSingleton;
     delete BrandMetaManagerSingleton;
     delete MakerMetaManagerSingleton;
+    delete WarehouseMetaManagerSingleton;
 	delete ConfigurationFactory::GetInstance();
 }
 
@@ -190,6 +200,25 @@ bool AppletGoodsManageServer::upMakerMetaInfo(const string& command, const strin
     return false;
 }
 
+bool AppletGoodsManageServer::upWarehouseMetaInfo(const string& command, const string& params, string& result)
+{
+    DEBUGLOG("AppletGoodsManageServer::upWarehouseMetaInfo|admin cmd req|" << command << "|" << params << endl);
+    if (params != "db_goods_data.t_warehouse_info")
+    {
+        return false;
+    }
+
+    int ret = WarehouseMetaManagerSingleton->upWarehouseList();
+    if (ret == 0)
+    {
+        DEBUGLOG("AppletGoodsManageServer::upWarehouseMetaInfo|admin cmd suc|" << params << endl);
+    }
+    else
+    {
+        ERRORLOG("AppletGoodsManageServer::upWarehouseMetaInfo|admin cmd err|" << ret << endl);
+    }
+    return false;
+}
 
 int main(int argc, char* argv[])
 {

@@ -34,8 +34,9 @@ module HardwareApplet
     const string cmd27 = "getNewTicket";                // 获取新的Cookie+卖家   还没写接入层
     const string cmd28 = "confirmGoodsTranPrice";       // 确认订单中商品价格  还没写接入层
     const string cmd29 = "deliverGoods";                // 发货  还没写接入层
+    const string cmd30 = "getWarehouseList";            // 得到仓库列表  还没写接入层
+    const string cmd31 = "addWarehouseInfo";            // 增加仓库信息  还没写接入层
     
-
     enum COMMRETCODE
     {
         E_SUCCESS = 0,                          // 0-成功
@@ -481,6 +482,63 @@ module HardwareApplet
 	    1 require AddMakerInfoRsp body;	            //响应包体
     };
 
+    //-------------------------仓库数据管理-----------------------------------
+    // 得到仓库列表 getWarehouseList
+    struct GetWarehouseListReq
+    {
+        0 optional string reserved_field;           // 保留字段
+    };
+
+    struct WarehouseItem
+    {
+        0 require int warehouseId;               // 厂商id
+        1 require string warehouseName;          // 厂商名称
+        2 require string warehouseDesc;          // 厂商描述
+    };
+
+    struct GetWarehouseListRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+        2 require vector<WarehouseItem> itemList;      //
+    };
+
+    struct ProxyGetWarehouseListReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require GetWarehouseListReq body;		    //请求包体
+    };
+
+    struct ProxyGetWarehouseListRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require GetWarehouseListRsp body;	        //响应包体
+    };
+
+    // 增加仓库信息 addWarehouseInfo
+    struct AddWarehouseInfoReq
+    {
+        0 require WarehouseItem item;
+    };
+
+    struct AddWarehouseInfoRsp
+    {
+        0 require int ret = 0;                      // 0-成功，其他失败
+        1 require string errmsg;                    // 错误信息
+    };
+
+    struct ProxyAddWarehouseInfoReq
+    {
+	    0 require ProxyReqHead head;		        //请求头部
+	    1 require AddWarehouseInfoReq body;		    //请求包体
+    };
+
+    struct ProxyAddWarehouseInfoRsp
+    {
+	    0 require ProxyRspHead head;		        //响应头部
+	    1 require AddWarehouseInfoRsp body;	        //响应包体
+    };
+
     //-------------------------商品SPU信息管理-----------------------------------
 
     // 商品媒体信息
@@ -586,7 +644,9 @@ module HardwareApplet
         6 require int minCount;                        // 最小计数单位，比如扳手最想知道我的库存还有多少盒，这时候就需要填每盒多少个，该字段就是这个意思
         7 require int isDefault;                       // 是否默认sku,用于在商城展示
         8 require string imgUrl;                       // sku对应的url
-        9 require vector<GoodsSKUAttrInfo> attrList;   // sku的属性列表
+        9 require int warehouseId;                     // 仓库id
+        10 require string warehouseName;               // 仓库名称
+        11 require vector<GoodsSKUAttrInfo> attrList;  // sku的属性列表
     };
 
     // 增加商品库存信息 addGoodsSKUInfo

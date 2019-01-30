@@ -35,6 +35,10 @@ public:
     int getMakerList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetMakerListReq& stReq, HardwareApplet::GetMakerListRsp& stRsp, tars::TarsCurrentPtr current);
     int addMakerInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddMakerInfoReq& stReq, HardwareApplet::AddMakerInfoRsp& stRsp, tars::TarsCurrentPtr current);
 
+    int getWarehouseList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetWarehouseListReq& stReq, HardwareApplet::GetWarehouseListRsp& stRsp, tars::TarsCurrentPtr current);
+    int addWarehouseInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddWarehouseInfoReq& stReq, HardwareApplet::AddWarehouseInfoRsp& stRsp, tars::TarsCurrentPtr current);
+
+
 private:
 	
     TC_Mysql * _mysql;
