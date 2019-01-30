@@ -27,6 +27,8 @@ public:
     int submitOrder(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::SubmitOrderReq& stReq, HardwareApplet::SubmitOrderRsp& stRsp, tars::TarsCurrentPtr current);
     int confirmGoodsTranPrice(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::ConfirmGoodsTranPriceReq& stReq, HardwareApplet::ConfirmGoodsTranPriceRsp& stRsp, tars::TarsCurrentPtr current);
     int confirmOrder(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::ConfirmOrderReq& stReq, HardwareApplet::ConfirmOrderRsp& stRsp, tars::TarsCurrentPtr current);
+    // ÕâÀï»¹ÓÐ¸ö·¢»õ½Ó¿Ú,·¢»õ½Ó¿ÚÖ÷ÒªÊÇ¸üÐÂ¶©µ¥µÄ×´Ì¬£¬ÐÞ¸ÄÉÌÆ·µÄ¿â´æ¡£
+    int deliverGoods(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::DeliverGoodsReq& stReq, HardwareApplet::DeliverGoodsRsp& stRsp, tars::TarsCurrentPtr current);
     int getMyOrderList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetMyOrderListReq& stReq, HardwareApplet::GetMyOrderListRsp& stRsp, tars::TarsCurrentPtr current);
     int getOrderList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetOrderListReq& stReq, HardwareApplet::GetOrderListRsp& stRsp, tars::TarsCurrentPtr current);
     int getOrderDetail(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetOrderDetailReq& stReq, HardwareApplet::GetOrderDetailRsp& stRsp, tars::TarsCurrentPtr current);

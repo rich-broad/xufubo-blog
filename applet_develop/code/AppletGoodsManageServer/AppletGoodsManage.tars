@@ -54,6 +54,12 @@ module HardwareApplet
 
         // 增加商品SPU [需要插入SPU表和商品分类表]
 		int addGoodsSPUInfo(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 获取商品库存
+        int getGoodsSKUList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 增加商品库存信息
+        int addGoodsSKUInfo(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
     };
 };
 

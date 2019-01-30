@@ -291,3 +291,42 @@ int AppletGoodsManageImp::addGoodsSPUInfo(const HardwareApplet::AppletCommHead &
     return ret;
 }
 
+int AppletGoodsManageImp::getGoodsSKUList(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    int ret = 0;
+    try
+    {
+        HardwareApplet::GetGoodsSKUListReq stReq;
+        HardwareApplet::GetGoodsSKUListRsp stRsp;
+        if (HardwareApplet::TarsDecode<HardwareApplet::GetGoodsSKUListReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG(COMM_HEAD_ALL_INFO(stHead) << "|" << vtIn.size()) << endl;
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false); // 设置非自动回包
+        ret = _pGoodsCommand->getGoodsSKUList(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::getGoodsSKUList");
+    return ret;
+}
+
+int AppletGoodsManageImp::addGoodsSKUInfo(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    int ret = 0;
+    try
+    {
+        HardwareApplet::AddGoodsSKUInfoReq stReq;
+        HardwareApplet::AddGoodsSKUInfoRsp stRsp;
+        if (HardwareApplet::TarsDecode<HardwareApplet::AddGoodsSKUInfoReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG(COMM_HEAD_ALL_INFO(stHead) << "|" << vtIn.size()) << endl;
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false); // 设置非自动回包
+        ret = _pGoodsCommand->addGoodsSKUInfo(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::addGoodsSKUInfo");
+    return ret;
+}

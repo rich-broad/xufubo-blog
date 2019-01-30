@@ -272,7 +272,7 @@ CREATE TABLE `t_goods_order_info` (
   `uid` int(11) NOT NULL DEFAULT '0' COMMENT '用户id',
   `pay_way` int(11) NOT NULL DEFAULT '0' COMMENT '支付方式 1-货到付款，2-微信支付，3-银行卡',
   `pay_time_ts` bigint(20) NOT NULL DEFAULT '0' COMMENT '支付时间',
-  `status` int(11) NOT NULL DEFAULT '0' COMMENT '订单状态 1-新提交待确认，2-已确认(商量价格、确认发货地址等)，3-已发货代付款，4-已发货已付款',
+  `status` int(11) NOT NULL DEFAULT '0' COMMENT '订单状态 1-新提交待确认，2-已确认(商量价格、确认发货地址等)，3-已发货待付款，4-已发货已付款',
   `money` int(11) NOT NULL DEFAULT '0' COMMENT '商品金额，在订单新提交时计算',
   `tran_money` int(11) NOT NULL DEFAULT '0' COMMENT '实际支付金额，在status设置为2时进行更新',
   `freight` int(11) NOT NULL DEFAULT '0' COMMENT '运费',

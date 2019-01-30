@@ -25,6 +25,9 @@ public:
 
 	int getGoodsSPUList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetGoodsSPUListReq& stReq, HardwareApplet::GetGoodsSPUListRsp& stRsp, tars::TarsCurrentPtr current);
     int addGoodsSPUInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq, HardwareApplet::AddGoodsSPUInfoRsp& stRsp, tars::TarsCurrentPtr current);
+
+    int getGoodsSKUList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetGoodsSKUListReq& stReq, HardwareApplet::GetGoodsSKUListRsp& stRsp, tars::TarsCurrentPtr current);
+    int addGoodsSKUInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSKUInfoReq& stReq, HardwareApplet::AddGoodsSKUInfoRsp& stRsp, tars::TarsCurrentPtr current);
 	
 private:
     int insertSPUCategoryMediaInfo__(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSPUInfoReq& stReq);

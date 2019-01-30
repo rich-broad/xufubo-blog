@@ -31,6 +31,9 @@ module HardwareApplet
     const string cmd24 = "getMyOrderList";              // 获取我的订单信息--买家   还没写接入层
     const string cmd25 = "getOrderList";                // 获取我的订单信息--卖家   还没写接入层
     const string cmd26 = "getOrderDetail";              // 获取我的订单信息--买家+卖家   还没写接入层
+    const string cmd27 = "getNewTicket";                // 获取新的Cookie+卖家   还没写接入层
+    const string cmd28 = "confirmGoodsTranPrice";       // 确认订单中商品价格  还没写接入层
+    const string cmd29 = "deliverGoods";                // 发货  还没写接入层
     
 
     enum COMMRETCODE
@@ -944,6 +947,31 @@ module HardwareApplet
     {
 	    0 require ProxyRspHead head;		            //响应头部
 	    1 require ConfirmGoodsTranPriceRsp body;	            //响应包体
+    };
+
+    // 发货--卖家  deliverGoods
+    struct DeliverGoodsReq
+    {
+        0 require string billno;       // 订单号
+        1 require int status;          // 3-已发货待付款，4-已发货已付款
+    };
+
+    struct DeliverGoodsRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+    };
+
+    struct ProxyDeliverGoodsReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require DeliverGoodsReq body;		            //请求包体
+    };
+
+    struct ProxyDeliverGoodsRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require DeliverGoodsRsp body;	                //响应包体
     };
 
     // 获取我的订单信息--买家getMyOrderList

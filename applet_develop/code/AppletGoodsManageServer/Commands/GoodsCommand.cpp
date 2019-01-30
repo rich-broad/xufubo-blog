@@ -78,6 +78,56 @@ int GoodsCommand::addGoodsSPUInfo(const HardwareApplet::AppletCommHead& stHead, 
     return ret;
 }
 
+int GoodsCommand::getGoodsSKUList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetGoodsSKUListReq& stReq, HardwareApplet::GetGoodsSKUListRsp& stRsp, tars::TarsCurrentPtr current)
+{
+    ostringstream ossStr;
+    string funcName("getGoodsSKUList");
+    DEBUGLOG_WITHHEAD(stHead, ossStr.str() << endl);
+    int ret = -1;
+    // ÓÃÓÚ»Ø°ü
+    HardwareApplet::GetGoodsSKUListRsp response;
+    try
+    {
+
+        response.ret = 0;
+        sendReponse(response, stHead, funcName, ret, current);
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__(funcName);
+    if (ret != 0)
+    {
+        //Å×³öÒì³£Ò²µÃ»Ø°ü
+        sendReponse(response, stHead, funcName, ret, current);
+    }
+
+    return ret;
+}
+
+int GoodsCommand::addGoodsSKUInfo(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::AddGoodsSKUInfoReq& stReq, HardwareApplet::AddGoodsSKUInfoRsp& stRsp, tars::TarsCurrentPtr current)
+{
+    ostringstream ossStr;
+    string funcName("addGoodsSKUInfo");
+    DEBUGLOG_WITHHEAD(stHead, ossStr.str() << endl);
+    int ret = -1;
+    // ÓÃÓÚ»Ø°ü
+    HardwareApplet::AddGoodsSKUInfoRsp response;
+    try
+    {
+
+        response.ret = 0;
+        sendReponse(response, stHead, funcName, ret, current);
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__(funcName);
+    if (ret != 0)
+    {
+        //Å×³öÒì³£Ò²µÃ»Ø°ü
+        sendReponse(response, stHead, funcName, ret, current);
+    }
+
+    return ret;
+}
+
 //========================================Ë½ÓÐº¯Êý start==============================================
 //////////////////////////////////////////////////////////////////////////
 //----------------------------------insertSPUCategoryMediaInfo__ start--------------------------------

@@ -144,6 +144,26 @@ tars::Int32 AppletTradeImp::confirmOrder(const HardwareApplet::AppletCommHead & 
     return ret;
 }
 
+tars::Int32 AppletTradeImp::deliverGoods(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    int ret = 0;
+    try
+    {
+        HardwareApplet::DeliverGoodsReq stReq;
+        HardwareApplet::DeliverGoodsRsp stRsp;
+        if (HardwareApplet::TarsDecode<HardwareApplet::DeliverGoodsReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG_WITHHEAD(stHead, vtIn.size()) << endl;
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false); // ÉèÖÃ·Ç×Ô¶¯»Ø°ü
+        ret = _pTradeCommand->deliverGoods(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("|AppletTradeImp::deliverGoods");
+    return ret;
+}
+
 tars::Int32 AppletTradeImp::getMyOrderList(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
 {
     int ret = 0;

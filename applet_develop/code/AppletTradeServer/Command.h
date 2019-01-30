@@ -65,6 +65,10 @@ void sendReponse(const T &t, const HardwareApplet::AppletCommHead& stHead, const
         {
             HardwareApplet::AppletTrade::async_response_confirmOrder(current, retVal, vtOut);
         }
+        else if(funcName == "deliverGoods")
+        {
+            HardwareApplet::AppletTrade::async_response_deliverGoods(current, retVal, vtOut);
+        }
         else if(funcName == "getMyOrderList")
         {
             HardwareApplet::AppletTrade::async_response_getMyOrderList(current, retVal, vtOut);

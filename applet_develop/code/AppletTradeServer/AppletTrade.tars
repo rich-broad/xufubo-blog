@@ -26,6 +26,9 @@ module HardwareApplet
         // 确认订单
 		int confirmOrder(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 
+        // 发货
+		int deliverGoods(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
         // 获取我的订单信息--买家
 		int getMyOrderList(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
 

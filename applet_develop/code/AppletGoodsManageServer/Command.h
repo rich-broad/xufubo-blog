@@ -94,6 +94,14 @@ void sendReponse(const T &t, const HardwareApplet::AppletCommHead& stHead, const
         {
             HardwareApplet::AppletGoodsManage::async_response_addGoodsSPUInfo(current, retVal, vtOut);
         }
+        else if(funcName == "getGoodsSKUList")
+        {
+            HardwareApplet::AppletGoodsManage::async_response_getGoodsSKUList(current, retVal, vtOut);
+        }
+        else if(funcName == "addGoodsSKUInfo")
+        {
+            HardwareApplet::AppletGoodsManage::async_response_addGoodsSKUInfo(current, retVal, vtOut);
+        }
         else 
         {
             ERRORLOG("sendReponse|funcNameError|" << ret << "|" << funcName << "|" << COMM_HEAD_ALL_INFO(stHead) << endl);

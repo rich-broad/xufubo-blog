@@ -227,6 +227,31 @@ int TradeCommand::confirmOrder(const HardwareApplet::AppletCommHead& stHead, con
     return ret;
 }
 
+int TradeCommand::deliverGoods(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::DeliverGoodsReq& stReq, HardwareApplet::DeliverGoodsRsp& stRsp, tars::TarsCurrentPtr current)
+{
+    ostringstream ossStr;
+    string funcName("deliverGoods");
+    DEBUGLOG_WITHHEAD(stHead, ossStr.str() << endl);
+    int ret = -1;
+    // 用于回包
+    HardwareApplet::DeliverGoodsRsp response;
+    try
+    {
+
+        response.ret = 0;
+        sendReponse(response, stHead, funcName, ret, current);
+        ret = 0;
+    }
+    __CATCH_EXCEPTION_WITH__(funcName);
+    if (ret != 0)
+    {
+        //抛出异常也得回包
+        sendReponse(response, stHead, funcName, ret, current);
+    }
+
+    return ret;
+}
+
 int TradeCommand::getMyOrderList(const HardwareApplet::AppletCommHead& stHead, const HardwareApplet::GetMyOrderListReq& stReq, HardwareApplet::GetMyOrderListRsp& stRsp, tars::TarsCurrentPtr current)
 {
     ostringstream ossStr;
