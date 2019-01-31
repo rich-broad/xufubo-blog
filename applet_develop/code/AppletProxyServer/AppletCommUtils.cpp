@@ -139,15 +139,13 @@ void AppletCommUtils::GoodsSKUInfo2Json(rapidjson::Document& document, const Har
 {
     info.AddMember("spuId", sinfo.spuId, document.GetAllocator());
     info.AddMember("skuId", sinfo.skuId, document.GetAllocator());
-    info.AddMember("stock", sinfo.stock, document.GetAllocator());
-    info.AddMember("warnStock", sinfo.warnStock, document.GetAllocator());
+//     info.AddMember("stock", sinfo.stock, document.GetAllocator());
+//     info.AddMember("warnStock", sinfo.warnStock, document.GetAllocator());
     info.AddMember("price", sinfo.price, document.GetAllocator());
     info.AddMember("minCount", sinfo.minCount, document.GetAllocator());
     info.AddMember("isDefault", sinfo.isDefault, document.GetAllocator());
     info.AddMember("name", rapidjson::Value(sinfo.name.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
     info.AddMember("imgUrl", rapidjson::Value(sinfo.imgUrl.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
-    info.AddMember("warehouseId", sinfo.warehouseId, document.GetAllocator());
-    info.AddMember("warehouseName", rapidjson::Value(sinfo.warehouseName.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
 
     rapidjson::Value attrList(rapidjson::kArrayType);
     for (size_t j = 0; j < sinfo.attrList.size(); ++j)
@@ -157,21 +155,28 @@ void AppletCommUtils::GoodsSKUInfo2Json(rapidjson::Document& document, const Har
         attrList.PushBack(attr, document.GetAllocator());
     }
     info.AddMember("attrList", attrList, document.GetAllocator());
+
+    rapidjson::Value stockList(rapidjson::kArrayType);
+    for (size_t j = 0; j < sinfo.stockList.size(); ++j)
+    {
+        rapidjson::Value stock(rapidjson::kObjectType);
+        SKUStockItem2Json(document, sinfo.stockList[j], stock);
+        stockList.PushBack(stock, document.GetAllocator());
+    }
+    info.AddMember("stockList", stockList, document.GetAllocator());
 }
 
 void AppletCommUtils::Json2GoodsSKUInfo(const rapidjson::Value& info, HardwareApplet::GoodsSKUInfo& sinfo)
 {
     sinfo.skuId = RapidJsonUtil::GetJsonInt(info, "skuId");
     sinfo.spuId = RapidJsonUtil::GetJsonInt(info, "spuId");
-    sinfo.stock = RapidJsonUtil::GetJsonInt(info, "stock");
-    sinfo.warnStock = RapidJsonUtil::GetJsonInt(info, "warnStock");
+//     sinfo.stock = RapidJsonUtil::GetJsonInt(info, "stock");
+//     sinfo.warnStock = RapidJsonUtil::GetJsonInt(info, "warnStock");
     sinfo.price = RapidJsonUtil::GetJsonInt(info, "price");
     sinfo.minCount = RapidJsonUtil::GetJsonInt(info, "minCount");
     sinfo.isDefault = RapidJsonUtil::GetJsonInt(info, "isDefault");
     sinfo.name = RapidJsonUtil::GetJsonString(info, "name");
     sinfo.imgUrl = RapidJsonUtil::GetJsonString(info, "imgUrl");
-    sinfo.warehouseId = RapidJsonUtil::GetJsonInt(info, "warehouseId");
-    sinfo.warehouseName = RapidJsonUtil::GetJsonString(info, "warehouseName");
 
     if (info.FindMember("attrList") != info.MemberEnd() && info["attrList"].IsArray())
     {
@@ -181,6 +186,17 @@ void AppletCommUtils::Json2GoodsSKUInfo(const rapidjson::Value& info, HardwareAp
             HardwareApplet::GoodsSKUAttrInfo attrInfo;
             Json2GoodsSKUAttrInfo(*itr, attrInfo);
             sinfo.attrList.push_back(attrInfo);
+        }
+    }
+
+    if (info.FindMember("stockList") != info.MemberEnd() && info["stockList"].IsArray())
+    {
+        const rapidjson::Value& stockList = info["stockList"];
+        for (rapidjson::Value::ConstValueIterator itr = stockList.Begin(); itr != stockList.End(); ++itr)
+        {
+            HardwareApplet::SKUStockItem stockInfo;
+            Json2SKUStockItem(*itr, stockInfo);
+            sinfo.stockList.push_back(stockInfo);
         }
     }
 }
@@ -407,6 +423,28 @@ void AppletCommUtils::Json2GoodsMediaInfo(const rapidjson::Value& item, Hardware
     sitem.type = RapidJsonUtil::GetJsonInt(item, "type");
     sitem.position = RapidJsonUtil::GetJsonInt(item, "position");
     sitem.mediaUrl = RapidJsonUtil::GetJsonString(item, "mediaUrl");
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+void AppletCommUtils::SKUStockItem2Json(rapidjson::Document& document, const HardwareApplet::SKUStockItem &sitem, rapidjson::Value& item)
+{
+    item.AddMember("id", sitem.id, document.GetAllocator());
+    item.AddMember("stock", sitem.stock, document.GetAllocator());
+    item.AddMember("warningStock", sitem.warningStock, document.GetAllocator());
+    item.AddMember("skuId", sitem.skuId, document.GetAllocator());
+    item.AddMember("warehouseId", sitem.warehouseId, document.GetAllocator());
+    item.AddMember("warehouseName", rapidjson::Value(sitem.warehouseName.c_str(), document.GetAllocator()).Move(), document.GetAllocator());
+}
+
+void AppletCommUtils::Json2SKUStockItem(const rapidjson::Value& item, HardwareApplet::SKUStockItem &sitem)
+{
+    sitem.id = RapidJsonUtil::GetJsonInt(item, "id");
+    sitem.stock = RapidJsonUtil::GetJsonInt(item, "stock");
+    sitem.warningStock = RapidJsonUtil::GetJsonInt(item, "warningStock");
+    sitem.skuId = RapidJsonUtil::GetJsonInt(item, "skuId");
+    sitem.warehouseId = RapidJsonUtil::GetJsonInt(item, "warehouseId");
+    sitem.warehouseName = RapidJsonUtil::GetJsonString(item, "warehouseName");
 }
 
 //=======================================结构体和Json转换的函数 end=====================================//

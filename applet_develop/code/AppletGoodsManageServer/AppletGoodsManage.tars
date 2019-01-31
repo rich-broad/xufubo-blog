@@ -66,6 +66,9 @@ module HardwareApplet
 
         // 增加商品库存信息
         int addGoodsSKUInfo(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
+
+        // 商品库存转移
+        int transferGoodsStock(AppletCommHead stHead, vector<byte> vtIn, out vector<byte> vtOut);
     };
 };
 

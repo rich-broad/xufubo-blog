@@ -13,7 +13,6 @@
 #include "AppletGoodsManage.h"
 #include "AppletGoodsManageServer.h"
 #include "DependencedServiceFactory.h"
-#include "Commands/OpCommand.h"
 #include "Commands/GoodsCommand.h"
 #include "Commands/MetaDataCommand.h"
 
@@ -64,11 +63,11 @@ public:
     virtual tars::Int32 getGoodsSKUList(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
     virtual tars::Int32 addGoodsSKUInfo(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
 
+    virtual tars::Int32 transferGoodsStock(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current);
 private:
 	ConfigurationFactory* _pConfigurationFactory;
 	DependencedServiceFactory* _pServiceFactory;
     GoodsCommand* _pGoodsCommand;
-    OpCommand* _pOpCommand;
     MetaDataCommand* _pMetaDataCommand;
     TC_Mysql * _dbInfo;
 };

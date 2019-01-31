@@ -25,7 +25,6 @@ void AppletGoodsManageImp::initialize()
 
     _pServiceFactory->Initialize(_pConfigurationFactory);
 	_pGoodsCommand = new GoodsCommand(_pConfigurationFactory, _pServiceFactory, _dbInfo);
-	_pOpCommand =new OpCommand(_pConfigurationFactory, _pServiceFactory);
     _pMetaDataCommand =new MetaDataCommand(_pConfigurationFactory, _pServiceFactory, _dbInfo);
 }
 
@@ -34,10 +33,6 @@ void AppletGoodsManageImp::destroy()
 	if (_pGoodsCommand != NULL)
 	{
 		delete _pGoodsCommand; _pGoodsCommand = NULL;
-	}
-	if (_pOpCommand != NULL)
-	{
-		delete _pOpCommand; _pOpCommand = NULL;
 	}
     if (_pMetaDataCommand)
     {
@@ -368,5 +363,25 @@ int AppletGoodsManageImp::addGoodsSKUInfo(const HardwareApplet::AppletCommHead &
         ret = _pGoodsCommand->addGoodsSKUInfo(stHead, stReq, stRsp, current);
     }
     __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::addGoodsSKUInfo");
+    return ret;
+}
+
+int AppletGoodsManageImp::transferGoodsStock(const HardwareApplet::AppletCommHead & stHead,const vector<tars::Char> & vtIn,vector<tars::Char> &vtOut,tars::TarsCurrentPtr current)
+{
+    int ret = 0;
+    try
+    {
+        HardwareApplet::TransferGoodsStockReq stReq;
+        HardwareApplet::TransferGoodsStockRsp stRsp;
+        if (HardwareApplet::TarsDecode<HardwareApplet::TransferGoodsStockReq>(vtIn, stReq) != 0)
+        {
+            ERRORLOG(COMM_HEAD_ALL_INFO(stHead) << "|" << vtIn.size()) << endl;
+            stRsp.ret = -1;
+            return -1;
+        }
+        current->setResponse(false); // 设置非自动回包
+        ret = _pGoodsCommand->transferGoodsStock(stHead, stReq, stRsp, current);
+    }
+    __CATCH_EXCEPTION_WITH__("|AppletGoodsManageImp::transferGoodsStock");
     return ret;
 }

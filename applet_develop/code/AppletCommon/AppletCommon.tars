@@ -36,6 +36,7 @@ module HardwareApplet
     const string cmd29 = "deliverGoods";                // 发货  还没写接入层
     const string cmd30 = "getWarehouseList";            // 得到仓库列表  还没写接入层
     const string cmd31 = "addWarehouseInfo";            // 增加仓库信息  还没写接入层
+    const string cmd32 = "transferGoodsStock";          // 转移商品库存  还没写接入层
     
     enum COMMRETCODE
     {
@@ -633,6 +634,17 @@ module HardwareApplet
         2 require int attrValueId;          // 属性值id
         3 require string attrValueName;     // 属性值名称
     };
+
+    struct SKUStockItem
+    {
+        0 require int id;
+        1 require int stock;                    // 库存
+        2 require int warningStock;             // 库存告警
+        3 require int skuId;                    // sku
+        4 require int warehouseId;              // 仓库id
+        5 require string warehouseName;         // 仓库名字
+    };
+
     struct GoodsSKUInfo
     {
         0 require int skuId;
@@ -644,9 +656,8 @@ module HardwareApplet
         6 require int minCount;                        // 最小计数单位，比如扳手最想知道我的库存还有多少盒，这时候就需要填每盒多少个，该字段就是这个意思
         7 require int isDefault;                       // 是否默认sku,用于在商城展示
         8 require string imgUrl;                       // sku对应的url
-        9 require int warehouseId;                     // 仓库id
-        10 require string warehouseName;               // 仓库名称
-        11 require vector<GoodsSKUAttrInfo> attrList;  // sku的属性列表
+        9 require vector<SKUStockItem> stockList;      // 详细库存信息
+        10 require vector<GoodsSKUAttrInfo> attrList;  // sku的属性列表
     };
 
     // 增加商品库存信息 addGoodsSKUInfo
@@ -699,7 +710,32 @@ module HardwareApplet
 	    1 require GetGoodsSKUListRsp body;	            //响应包体
     };
 
+    // 商品库存转移 transferGoodsStock--商家使用
+    struct TransferGoodsStockReq
+    {
+        0 require int skuId;                            // 商品sku id
+        1 require int oldWarehouseId;                   // 老仓库id
+        2 require int newWarehouseId;                   // 新仓库id
+        3 require int num;                              // 转移的库存数
+    };
 
+    struct TransferGoodsStockRsp
+    {
+        0 require int ret = 0;                         // 0-成功，其他失败
+        1 require string errmsg;                       // 错误信息
+    };
+
+    struct ProxyTransferGoodsStockReq
+    {
+	    0 require ProxyReqHead head;		            //请求头部
+	    1 require TransferGoodsStockReq body;		    //请求包体
+    };
+
+    struct ProxyTransferGoodsStockRsp
+    {
+	    0 require ProxyRspHead head;		            //响应头部
+	    1 require TransferGoodsStockRsp body;	        //响应包体
+    };
 
     //-------------------------其他商品信息接口----------------------------------
     
@@ -1000,13 +1036,13 @@ module HardwareApplet
     struct ProxyConfirmGoodsTranPriceReq
     {
 	    0 require ProxyReqHead head;		            //请求头部
-	    1 require ConfirmGoodsTranPriceReq body;		        //请求包体
+	    1 require ConfirmGoodsTranPriceReq body;		//请求包体
     };
 
     struct ProxyConfirmGoodsTranPriceRsp
     {
 	    0 require ProxyRspHead head;		            //响应头部
-	    1 require ConfirmGoodsTranPriceRsp body;	            //响应包体
+	    1 require ConfirmGoodsTranPriceRsp body;	    //响应包体
     };
 
     // 发货--卖家  deliverGoods

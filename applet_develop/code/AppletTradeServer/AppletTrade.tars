@@ -1,5 +1,7 @@
 #include "../AppletCommon/AppletCommon.tars"
-
+/*
+ 遗留问题：什么时候指定发货的仓库？一个购物车条目可能需要从多个仓库发货
+*/
 module HardwareApplet
 {
     enum ATRspErrorCode

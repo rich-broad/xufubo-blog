@@ -66,6 +66,9 @@ public:
     static void GoodsMediaInfo2Json(rapidjson::Document& document, const HardwareApplet::GoodsMediaInfo &sitem, rapidjson::Value& item);
     static void Json2GoodsMediaInfo(const rapidjson::Value& item, HardwareApplet::GoodsMediaInfo &sitem);
 
+    static void SKUStockItem2Json(rapidjson::Document& document, const HardwareApplet::SKUStockItem &sitem, rapidjson::Value& item);
+    static void Json2SKUStockItem(const rapidjson::Value& item, HardwareApplet::SKUStockItem &sitem);
+
 };
 
 

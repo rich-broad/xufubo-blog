@@ -61,7 +61,8 @@ CREATE TABLE `t_goods_spu_info` (
   `status` SMALLINT NOT NULL DEFAULT '0' COMMENT '状态 0=>新增,1=>上架,-1=>下架',
   PRIMARY KEY (`spu_id`),
   CONSTRAINT `fk_brand_id` foreign key(`brand_id`) references `t_brand_info`(`brand_id`),
-  CONSTRAINT `fk_maker_id` foreign key(`maker_id`) references `t_maker_info`(`maker_id`)
+  CONSTRAINT `fk_maker_id` foreign key(`maker_id`) references `t_maker_info`(`maker_id`),
+  UNIQUE KEY `uk_name_brand_id` (`name`, `brand_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品SPU表';
 ```
 
@@ -79,12 +80,25 @@ CREATE TABLE `t_goods_sku_info` (
   `img_url` varchar(1024) NOT NULL DEFAULT '' COMMENT '图片',
   `is_default` int(11) NOT NULL DEFAULT '0' COMMENT '是否默认sku',
   `min_count` int(11) NOT NULL DEFAULT '1' COMMENT '最小计数单位，比如扳手最想知道我的库存还有多少盒，这时候就需要填每盒多少个，该字段就是这个意思',
-  `warehouse_id` int(11) NOT NULL DEFAULT '0' COMMENT '仓库编号',
   `spu_id` int(11) NOT NULL DEFAULT '0' COMMENT 'spu_id',
   PRIMARY KEY (`sku_id`),
-  CONSTRAINT `fk_warehouse_id` foreign key(`warehouse_id`) references `t_warehouse_info`(`warehouse_id`),
-  CONSTRAINT `fk_spu_id` foreign key(`spu_id`) references `t_goods_spu_info`(`spu_id`)
+  CONSTRAINT `fk_spu_id` foreign key(`spu_id`) references `t_goods_spu_info`(`spu_id`),
+  UNIQUE KEY `uk_spu_id_name` (`spu_id`, `name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品SKU表';
+
+CREATE TABLE `t_goods_sku_stock_info` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `create_time` bigint(20) NOT NULL,
+  `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `stock` int(11) NOT NULL DEFAULT '0' COMMENT '库存',
+  `warning_stock` int(11) NOT NULL DEFAULT '0' COMMENT '库存警告',
+  `sku_id` int(11) NOT NULL DEFAULT '0' COMMENT 'sku_id',
+  `warehouse_id` int(11) NOT NULL DEFAULT '0' COMMENT '仓库id',
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_sku_id` foreign key(`sku_id`) references `t_goods_sku_info`(`sku_id`),
+  CONSTRAINT `fk_warehouse_id` foreign key(`warehouse_id`) references `t_warehouse_info`(`warehouse_id`),
+  UNIQUE KEY `uk_sku_id_warehouse` (`sku_id`, `warehouse_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='商品各个库房的库存信息,门店也算一个库房';
 ```
 ## 3. 商品SKU值表(t_goods_sku_value_info)  
 ```sql
@@ -267,12 +281,14 @@ CREATE TABLE `t_goods_shop_cart_info` (
   `tran_price` int(11) NOT NULL DEFAULT '0' COMMENT '成交价格，在提交订单后由卖家和买家商量好后设定，加入购物车的时候改值不设定',
   `price` int(11) NOT NULL DEFAULT '0' COMMENT '商品价格，需要从商品表那里同步过来，因为后续这个商品可能降价，但是加入购物车时的价格是确定的',
   `num` int(11) NOT NULL DEFAULT '0' COMMENT '商品的数量',
+  `warehouse_id` int(11) NOT NULL DEFAULT '0' COMMENT '仓库id',
   `status` int(11) NOT NULL DEFAULT '0' COMMENT '状态 0-新加入购物车，1-已提交订单，为0的可以删除，为1的不可以删除，因为订单已经提交',
   `bill_no` varchar(128) NOT NULL DEFAULT '' COMMENT '订单号，提交时进行设置',
   `union_id` varchar(64) NOT NULL DEFAULT '' COMMENT '用户在小程序中微信的openid',
   PRIMARY KEY (`cart_id`),
   CONSTRAINT `fk_spu_id` foreign key(`spu_id`) references `t_goods_spu_info`(`spu_id`),
   CONSTRAINT `fk_sku_id` foreign key(`sku_id`) references `t_goods_sku_info`(`sku_id`),
+  CONSTRAINT `fk_warehouse_id` foreign key(`warehouse_id`) references `t_warehouse_info`(`warehouse_id`),
   CONSTRAINT `fk_bill_no` foreign key(`bill_no`) references `t_goods_order_info`(`bill_no`),
   UNIQUE KEY `uk_sku_bill_no` (`sku_id`, `bill_no`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='购物车表';

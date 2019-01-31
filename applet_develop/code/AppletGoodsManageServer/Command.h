@@ -110,6 +110,10 @@ void sendReponse(const T &t, const HardwareApplet::AppletCommHead& stHead, const
         {
             HardwareApplet::AppletGoodsManage::async_response_addGoodsSKUInfo(current, retVal, vtOut);
         }
+        else if(funcName == "transferGoodsStock")
+        {
+            HardwareApplet::AppletGoodsManage::async_response_transferGoodsStock(current, retVal, vtOut);
+        }
         else 
         {
             ERRORLOG("sendReponse|funcNameError|" << ret << "|" << funcName << "|" << COMM_HEAD_ALL_INFO(stHead) << endl);
