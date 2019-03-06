@@ -97,6 +97,5 @@ CSingleton* CSingleton::GetInstance()
     return _instance; 
 } 
 ```
-
-如此就实现了多线程环境下的单例模式。  
+由于barrier的存在，对象的构造一定在barrier之前完成，因此，当_instance被赋值时对象总是构造好的。如此就实现了多线程环境下的单例模式。  
 
