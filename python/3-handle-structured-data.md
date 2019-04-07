@@ -4,6 +4,7 @@
 字典的键通常是字符串，值部分可以是任意的python对象。当然了键也可以是别的类型。下边通过一个例子来看看怎么使用字典。  
 之前我们有个程序是显示找到的元音字母，不过现在我们还想要统计元音字母出现的次序，怎么做呢？列表貌似不太好实现，看看字典就很方便。为了使用字典实现这个目的，我们先学习一些字典的基本知识。  
 
+# 2. 字典
 **发现代码中的字典**  
 ```py
 person = {'Name': 'Ford Prefect', 'Gender': 'Male', 'Occupation': 'Researcher', 'Home Planet': 'Betelgeuse Seven'}
@@ -248,4 +249,189 @@ for k, v in sorted(found.items()):
 这里使用了setdefault解决了KeyError问题。  
 
 到这里，字典的学习先告一段落，不过字典的学习还未结束。前面我们说过字典的值部分是一个对象，这个对象也可以是列表或者字典。后边我们会进行学习。接下来看看剩下的两个内置数据结构: 元组和集合。先从集合开始学习。  
+
+# 3. 集合
+集合与我们在学校学习的数学中的集合很像，关键特性就是不允许有重复值。  
+在python中，集合对象之间使用逗号分隔，被大括号{}包围，例如下边就是一个集合：  
+```py
+vowels = {'a', 'e', 'i', 'o', 'u'}
+```
+区分集合与字典的关键是是否用冒号:来分割键和值。**与字典一样，集合也不会维持插入的顺序，不过与所有数据结构类似，集合可以使用sorted函数对输出排序。**集合可以像数学中的概念一样，可以计算集合的交集、并集和差集。记得之前在第二章我们就说过，使用集合统计元音字母，现在就来这么做。  
+先看看之前的代码：  
+```py
+vowels = ['a', 'e', 'i', 'o', 'u']
+word = input("Provide a word to search for vowels: ")
+found = [] # 定义一个空列表
+for letter in word:
+    if letter in vowels:
+        if letter not in found: # 判断对象不在列表中   这里使用集合其实更好，后边我们学习了再来看。
+            found.append(letter) # 运行的时候向列表追加对象，扩展列表。
+for vowel in found:
+    print(vowel)
+```
+为了使用集合，我们先学习点基本知识。  
+
+先创建一个集合：  
+```py
+>>>vowels2 = set('aaeiouuu')
+>>>vowels2
+{'e', 'u', 'a', 'o', 'i'}
+```
+充分利用集合的方法：  
+1. 求并集：union  
+2. 求差集：difference   
+3. 求交集：intersection  
+举例如下：   
+```py
+vowels = set('aeiou')
+word = 'hello'
+u = vowels.union(set(word))
+u
+"""
+{'a', 'h', 'l', 'i', 'u', 'e', 'o'}
+"""
+word
+"""
+'hello'
+"""
+vowels
+"""
+{'a', 'i', 'u', 'e', 'o'}
+"""
+d = vowels.difference(set(word))
+d
+"""
+{'a', 'u', 'i'}
+"""
+word
+"""
+'hello'
+"""
+vowels
+"""
+{'a', 'i', 'u', 'e', 'o'}
+"""
+i
+"""
+{'e', 'o'}
+"""
+word
+"""
+'hello'
+"""
+vowels
+"""
+{'a', 'i', 'u', 'e', 'o'}
+"""
+# 由上可以看出，集合的并集、差集、交集运算会创建一个集合副本。并不会改变参与运算的集合。
+```
+现在看看我们的代码如何实现：  
+```py
+vowels = {'a', 'e', 'i', 'o', 'u'}
+word = input("Provide a word to search for vowels: ")
+found = = vowels.intersection(set(word))
+for vowel in found:
+    print(vowel)
+```
+集合就学习完了，接下来学习元组。  
+
+# 4. 元组
+在第二章中我们知道了python中元组可以理解成不可变的列表。元组的创建如下：  
+```py
+vowels = ('a', 'e', 'i', 'o', 'u')  # 元组用小括号()，列表用中括号[]
+```
+我们可以使用内置函数type来判断对象的类型：  
+```py
+>>>vowels = ('a', 'e', 'i', 'o', 'u')
+>>>type(vowels)
+<class 'tuple'>
+>>>vowels = ['a', 'e', 'i', 'o', 'u']
+>>>type(vowels)
+<class 'list'>
+```
+想要改变元组的元素，会发生错误：  
+```py
+vowels = ['a', 'e', 'i', 'o', 'u']
+vowels[2]='d'
+vowels
+"""
+['a', 'e', 'd', 'o', 'u']
+"""
+vowels = ('a', 'e', 'i', 'o', 'u')
+vowels[2]='d'
+# 输出
+"""
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+TypeError: 'tuple' object does not support item assignment
+"""
+```
+在使用元组时一定要注意只有一个对象的元组。  
+```py
+t = ('python')
+type(t)
+<class 'str'>
+t2=('python',)
+type(t2)
+<class 'tuple'>
+```
+**即：当为单个对象的元组时，末尾的逗号不可少，这点要注意哈，记住就好了，就是python的语法规则**
+
+# 5 组合内置的数据结构
+python中一切都是对象，因此内置数据结构可以任意嵌套。下边我们看一个复杂的例子:   
+先看一个复杂数据集合:  
+```
+Name             Gender         Occupation          Home Planet
+----------------------------------------------------------------------
+Ford Prefect     Male           Researcher          Betelgeuse Seven
+Arthur Dent      Male           Sandwich-Maker      Earth
+Tricia McMillan  Female         Mathematician       Earth
+Marvin           Unknown        Paranoid Android    Unknown
+```
+接下里用**包含字典的字典**来存储以上数据
+```py
+>>> people = {}
+>>> people['Ford'] = { 'Name': 'Ford Prefect','Gender': 'Male','Occupation': 'Researcher','Home Planet': 'Betelgeuse Seven' }
+>>> people['Arthur'] = { 'Name': 'Arthur Dent','Gender': 'Male','Occupation': 'Sandwich-Maker','Home Planet': 'Earth' }
+>>> people['Trillian'] = { 'Name': 'Tricia McMillan','Gender': 'Female','Occupation': 'Mathematician','Home Planet': 'Earth' }
+>>> people['Robot'] = { 'Name': 'Marvin','Gender': 'Unknown','Occupation': 'Paranoid Android','Home Planet': 'Unknown' }
+>>> people
+'''
+{'Ford': {'Name': 'Ford Prefect', 'Gender': 'Male', 'Occupation': 'Researcher', 'Home Planet': 'Betelgeuse Seven'}, 'Arthur': {'Name': 'Arthur Dent', 'Gender': 'Male', 'Occupation': 'Sandwich-Maker', 'Home Planet': 'Earth'}, 'Trillian': {'Name': 'Tricia McMillan', 'Gender': 'Female', 'Occupation': 'Mathematician', 'Home Planet': 'Earth'}, 'Robot': {'Name': 'Marvin', 'Gender': 'Unknown', 'Occupation': 'Paranoid Android', 'Home Planet': 'Unknown'}}
+'''
+
+# 可以更加优美的打印
+>>> import pprint
+>>> pprint.pprint(people)
+#输出
+"""
+{'Arthur': {'Gender': 'Male',
+            'Home Planet': 'Earth',
+            'Name': 'Arthur Dent',
+            'Occupation': 'Sandwich-Maker'},
+ 'Ford': {'Gender': 'Male',
+          'Home Planet': 'Betelgeuse Seven',
+          'Name': 'Ford Prefect',
+          'Occupation': 'Researcher'},
+ 'Robot': {'Gender': 'Unknown',
+           'Home Planet': 'Unknown',
+           'Name': 'Marvin',
+           'Occupation': 'Paranoid Android'},
+ 'Trillian': {'Gender': 'Female',
+              'Home Planet': 'Earth',
+              'Name': 'Tricia McMillan',
+              'Occupation': 'Mathematician'}}
+
+"""
+```
+访问嵌套数据：  
+```py
+>>> people['Arthur']
+{'Name': 'Arthur Dent', 'Gender': 'Male', 'Occupation': 'Sandwich-Maker', 'Home Planet': 'Earth'}
+>>> people['Arthur']['Occupation']
+'Sandwich-Maker'
+```
+数据结构的嵌套是个非常强大的功能，python会帮我们考虑内存的分配等等问题。  
+
+下一章我们开始学习python最基本的代码重用技术：函数。  
 
