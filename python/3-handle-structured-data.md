@@ -332,6 +332,12 @@ word = input("Provide a word to search for vowels: ")
 found = = vowels.intersection(set(word))
 for vowel in found:
     print(vowel)
+#或者
+vowels = set('aeiou')
+word = input("Provide a word to search for vowels: ")
+found = = vowels.intersection(set(word))
+for vowel in found:
+    print(vowel)
 ```
 集合就学习完了，接下来学习元组。  
 
