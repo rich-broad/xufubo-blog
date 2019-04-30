@@ -242,5 +242,78 @@ with UseDatabase(dbconfig) as cursor: # 这个with语句处理数据库而不是
 ```
 **好消息是python提供了上下文管理协议，它允许程序员根据需要挂接with语句，不过为了做到这一点，通常你需要创建python类来成功挂接这个协议。**  
 为了更好的处理数据库连接，我们需要先学习类的知识，然后我们再编写上下文管理器：UseDatabase。  
+以下是本章完整的代码：  
+```py
+from flask import Flask, render_template, request, escape
+from vsearch import search4letters
+
+app = Flask(__name__)
+
+
+def log_request(req: 'flask_request', res: str) -> None:
+    dbconfig = { 'host': '127.0.0.1',
+        'user': 'vsearch',
+        'password': 'vsearchpasswd',
+        'database': 'vsearchlogDB',
+        'port': 3309, # 默认为3306，我安装的数据库设置成了3309
+        'charset':'utf8mb4',}
+    import mysql.connector
+    conn = mysql.connector.connect(**dbconfig)
+    cursor = conn.cursor() # 创建一个游标来向数据发送语句以及接受结果
+    _SQL = """insert into log
+            (phrase, letters, ip, browser_string, results)
+            values
+            (%s, %s, %s, %s, %s)"""
+    cursor.execute(_SQL, (req.form['phrase'],
+                    req.form['letters'],
+                    req.remote_addr,
+                    req.user_agent.browser,
+                    res,))
+    conn.commit()
+    cursor.close() # 关闭游标
+    conn.close() # 关闭连接
+
+
+@app.route('/search4', methods=['POST'])
+def do_search() -> 'html':
+    """Extract the posted data; perform the search; return results."""
+    phrase = request.form['phrase']
+    letters = request.form['letters']
+    title = 'Here are your results:'
+    results = str(search4letters(phrase, letters))
+    log_request(request, results)
+    return render_template('results.html',
+                           the_title=title,
+                           the_phrase=phrase,
+                           the_letters=letters,
+                           the_results=results,)
+
+@app.route('/')
+@app.route('/entry')
+def entry_page() -> 'html':
+    """Display this webapp's HTML form."""
+    return render_template('entry.html',
+                           the_title='Welcome to search4letters on the web!')
+
+
+@app.route('/viewlog')
+def view_the_log() -> 'html':
+    """Display the contents of the log file as a HTML table."""
+    contents = []
+    with open('vsearch.log') as log:
+        for line in log:
+            contents.append([])
+            for item in line.split('|'):
+                contents[-1].append(escape(item))
+    titles = ('Form Data', 'Remote_addr', 'User_agent', 'Results')
+    return render_template('viewlog.html',
+                           the_title='View Log',
+                           the_row_titles=titles,
+                           the_data=contents,)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+```
 
 下一章就学习python的类。  
