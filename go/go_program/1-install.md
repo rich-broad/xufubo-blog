@@ -2,7 +2,7 @@
 title: Linux下安装Go
 ---
 # Linux下安装Go开发环境
-## 下载安装包并解压
+## 1. 下载安装包并解压
 ```
 [xufubo@localhost tmp]$ sudo tar -C /usr/local -xzf go1.10.linux-amd64.tar.gz 
 [xufubo@localhost tmp]$ cd /usr/local/go/
@@ -29,7 +29,7 @@ drwxr-xr-x. 20 root root 12288 Feb 17 01:18 test
 [xufubo@localhost go]$ 
 ```
 如上,我们将go安装在了/usr/local下。当然你也可以指定别的安装目录。
-## 配置环境变量
+## 2. 配置环境变量
 如上，解压之后需要配置相关的环境变量，Linux下有连个文件可以配置环境变量，分别为：  
 - /etc/profile：针对所有用户都有效的；
 - $HOME/.bash_profile：是针对当前用户有效的.
@@ -55,7 +55,7 @@ GOPATH 目录约定有三个子目录：
 - src 存放源代码（比如：.go .c .h .s等）  
 - pkg 编译后生成的文件（比如：.a）  
 - bin 编译后生成的可执行文件（为了方便，可以把此目录加入到 $PATH 变量中，如果有多个gopath，那么使用${GOPATH//://bin:}/bin添加所有的bin目录）
-## 删除安装的go
+## 3. 删除安装的go
 - 删除go的安装目录,通常为/usr/local/go
 - 删除添加的环境变量
 
