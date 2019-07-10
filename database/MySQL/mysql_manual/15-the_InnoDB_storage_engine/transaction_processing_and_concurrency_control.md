@@ -376,7 +376,7 @@ mysql> select THREAD_ID, OBJECT_SCHEMA, OBJECT_NAME, LOCK_MODE,LOCK_STATUS from 
 5 rows in set (0.00 sec)
 ```
 ### 5.5.2 写偏序异常解决
-![可重复读下避免写偏序异常](../image/transaction/avoid_writing _partial_orders.png)   
+![可重复读下避免写偏序异常](../image/transaction/avoid_writing_partial_orders.png)   
 
 ```sql
 set @v1=(select count(*) from docts where `status`=1 for update);的加锁情况
