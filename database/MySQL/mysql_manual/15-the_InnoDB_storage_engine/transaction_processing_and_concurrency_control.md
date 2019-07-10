@@ -211,8 +211,8 @@ InnoDB的加锁机制符合SS2PL（增强两阶段封锁协议），即：
 可以通过：  
 ```sql
 show status like 'innodb_row_lock%';  
-select * from innodb_locks;  -- 5.7即以前
-select * from data_locks;  -- 8.0即以前
+select * from information_schema.innodb_locks;  -- 5.7即以前
+select * from performance_schema.data_locks;  -- 8.0即以后
 ```
 来查看行锁的争用情况。更多信息，可以参考MySQL官方手册。  
 
