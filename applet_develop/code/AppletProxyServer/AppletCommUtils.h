@@ -23,7 +23,7 @@ public:
     static int Value2Document(const rapidjson::Value& value, rapidjson::Document &document);
     static string Value2Str(const rapidjson::Value& value);
     static string Document2Str(const rapidjson::Document &document);
-
+/*
     static void ShopCartItem2Json(rapidjson::Document& document, const HardwareApplet::ShopCartItem& sitem, rapidjson::Value& item);
     static void Json2ShopCartItem(const rapidjson::Value& item, HardwareApplet::ShopCartItem& sitem);
 
@@ -68,7 +68,7 @@ public:
 
     static void SKUStockItem2Json(rapidjson::Document& document, const HardwareApplet::SKUStockItem &sitem, rapidjson::Value& item);
     static void Json2SKUStockItem(const rapidjson::Value& item, HardwareApplet::SKUStockItem &sitem);
-
+*/
 };
 
 

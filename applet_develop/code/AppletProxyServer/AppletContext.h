@@ -9,14 +9,13 @@
  ********************************************************************************/
 #include "Global.h"
 #include "Configuration.h"
-#include "AppletCommUtils.h"
 
 
 using namespace std;
-using namespace rapidjson;
 using namespace tars;
 using namespace HardwareApplet;
 using namespace base_utils;
+using namespace rapidjson;
 
 class AppletContext : public TC_HandleBase
 {
@@ -31,7 +30,6 @@ public:
         _current = current;
         _beginTime = TNOW;
 		_clienIp = current->getIp();
-        _document.SetObject();
     }
 	virtual ~AppletContext()
     {
@@ -44,7 +42,6 @@ public:
 	ProxyReqHead _reqHead;
     SecurityTicket _st;
     SessionInfo _sessionInfo;
-    Document _document;
     string _reqBodyStr;
 	ProxyRspHead _rspHead;
     vector<char> _vtRsp;
@@ -97,79 +94,52 @@ public:
     int Tars2Json(string &json_body);
 
 private:
-    inline int CreateRspHead(rapidjson::Document &document);
-    int ParseGetNewTicketReq(vector<char>& reqData);
-    int PackGetNewTicketRsp(string& rspData);
+    template<typename ReqType>
+    int ParseJson2Request(vector<char> &reqData)
+    {
+        int ret = 0;
+        ReqType request;
+        try
+        {
+            request.readFromJsonString(_ctx->_reqBodyStr);
+            ret = TarsEncode<ReqType>(request, reqData);
+            if (ret)
+            {
+                ERRORLOG("TarsEncode err|"<< endl);
+            }
+        }
+        catch(const std::exception& e)
+        {
+            ERRORLOG("exception err|" << e.what() << endl);
+            ret = -1;
+        }
+        return ret;
+    }
 
+    template<typename ProxyRspType, typename RspType>
+    int PackJsonFromResponse(string &rspData)
+    {
+        int ret = 0;
+        ProxyRspType response;
 
-    int ParseGetCategoryListReq(vector<char>& reqData);
-    int PackGetCategoryListRsp(string &rspData);
+        try
+        {
+            ret = TarsDecode<RspType>(_ctx->_vtRsp, response.body);
+            if (ret)
+            {
+                ERRORLOG("TarsDecode err|"<< endl);
+            }
+            response.head = _ctx->_rspHead;
 
-    int ParseAddCategoryInfoReq(vector<char>& reqData);
-    int PackAddCategoryInfoRsp(string &rspData);
-
-    int ParseGetAttributeListReq(vector<char>& reqData);
-    int PackGetAttributeListRsp(string &rspData);
-
-    int ParseAddAttributeInfoReq(vector<char>& reqData);
-    int PackAddAttributeInfoRsp(string &rspData);
-
-    int ParseGetAttributeValueListReq(vector<char>& reqData);
-    int PackGetAttributeValueListRsp(string &rspData);
-
-    int ParseAddAttributeValueInfoReq(vector<char>& reqData);
-    int PackAddAttributeValueInfoRsp(string &rspData);
-
-    int ParseGetBrandListReq(vector<char>& reqData);
-    int PackGetBrandListRsp(string &rspData);
-
-    int ParseAddBrandInfoReq(vector<char>& reqData);
-    int PackAddBrandInfoRsp(string &rspData);
-
-    int ParseGetMakerListReq(vector<char>& reqData);
-    int PackGetMakerListRsp(string &rspData);
-
-    int ParseAddMakerInfoReq(vector<char>& reqData);
-    int PackAddMakerInfoRsp(string &rspData);
-
-    int ParseGetGoodsSPUListReq(vector<char>& reqData);
-    int PackGetGoodsSPUListRsp(string &rspData);
-
-    int ParseAddGoodsSPUInfoReq(vector<char>& reqData);
-    int PackAddGoodsSPUInfoRsp(string &rspData);
-
-    int ParseAddGoodsSKUInfoReq(vector<char>& reqData);
-    int PackAddGoodsSKUInfoRsp(string &rspData);
-
-    int ParseGetGoodsSKUListReq(vector<char>& reqData);
-    int PackGetGoodsSKUListRsp(string &rspData);
-
-    int ParseAddMyAddressInfoReq(vector<char>& reqData);
-    int PackAddMyAddressInfoRsp(string &rspData);
-
-    int ParseGetMyAddressListReq(vector<char>& reqData);
-    int PackGetMyAddressListRsp(string &rspData);
-
-    int ParseGetProvinceListReq(vector<char>& reqData);
-    int PackGetProvinceListRsp(string &rspData);
-
-    int ParseGetCityListByProvinceReq(vector<char>& reqData);
-    int PackGetCityListByProvinceRsp(string &rspData);
-
-    int ParseGetCountyListByCityReq(vector<char>& reqData);
-    int PackGetCountyListByCityRsp(string &rspData);
-
-    int ParseAddGoodsToShopCartReq(vector<char>& reqData);
-    int PackAddGoodsToShopCartRsp(string &rspData);
-
-    int ParseGetMyShopCartInfoReq(vector<char>& reqData);
-    int PackGetMyShopCartInfoRsp(string &rspData);
-
-    int ParseSubmitOrderReq(vector<char>& reqData);
-    int PackSubmitOrderRsp(string &rspData);
-
-    int ParseConfirmOrderReq(vector<char>& reqData);
-    int PackConfirmOrderRsp(string &rspData);
+            rspData = response.writeToJsonString();
+        }
+        catch(const std::exception& e)
+        {
+            ERRORLOG("exception err|" << e.what() << endl);
+            ret = -1;
+        }
+        return ret;
+    }
 
 private:
     AppletContextPtr _ctx;

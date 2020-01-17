@@ -44,6 +44,7 @@ string AppletCommUtils::Document2Str(const rapidjson::Document &document)
     return buffer.GetString();
 }
 
+/*
 //=======================================结构体和Json转换的函数 start=====================================//
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -448,3 +449,4 @@ void AppletCommUtils::Json2SKUStockItem(const rapidjson::Value& item, HardwareAp
 }
 
 //=======================================结构体和Json转换的函数 end=====================================//
+*/

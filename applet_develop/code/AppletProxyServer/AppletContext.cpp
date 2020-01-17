@@ -8,7 +8,7 @@
      <author>        <time>          <version>          <desc>
  ********************************************************************************/
 #include "AppletContext.h"
-
+#include "AppletCommUtils.h"
 
 using namespace std;
 using namespace rapidjson;
@@ -98,69 +98,39 @@ int32_t AppletContext::parseHttpReq(const vector<char>& httpReqData)
 
 int32_t AppletContext::parseHttpBody(const string & content)
 {
-    _document.Parse(content.c_str());
-    if(_document.FindMember("head") == _document.MemberEnd() || _document.FindMember("body") == _document.MemberEnd())
-    {
-        ERRORLOG("find member head or body err" << endl);
-        return -1;
-    }
-    if (!_document["head"].IsObject() || _document["body"].IsObject())
-    {
-        ERRORLOG("head or body is not object err" << endl);
-        return -1;
-    }
+    int ret = -1;
+    try
+	{
+		if(content.empty())
+		{
+            return -1;
+		}
+        Document document;
+        document.Parse(content.c_str());
+        if(document.FindMember("head") == document.MemberEnd() || document.FindMember("body") == document.MemberEnd())
+        {
+            ERRORLOG("find member head or body err" << endl);
+            return -1;
+        }
+        if (!document["head"].IsObject() || document["body"].IsObject())
+        {
+            ERRORLOG("head or body is not object err" << endl);
+            return -1;
+        }
     
-    _reqBodyStr = AppletCommUtils::Value2Str(_document["body"]);
-    const Value& head = _document["head"];
-
-    if (head.FindMember("requestId") == head.MemberEnd() || head.FindMember("cmd") == head.MemberEnd() ||
-        head.FindMember("st") == head.MemberEnd() || head.FindMember("clientTimestamp") == head.MemberEnd() ||
-        head.FindMember("svrTimestamp") == head.MemberEnd())
-    {
-        ERRORLOG("head member find err" << endl);
-        return -1;
-    }
-    _reqHead.requestId = head["requestId"].GetInt();
-    _reqHead.cmd = head["cmd"].GetString();
-    if (DEF_CFG_SINGLETON->_mpFunc.find(_reqHead.cmd) == DEF_CFG_SINGLETON->_mpFunc.end())
-    {
-        ERRORLOG("cmdToFuncName err" << endl);
-        return -1;
-    }
-    _funcName = _reqHead.cmd;
-    _reqHead.st = head["st"].GetString();
-    _reqHead.clientTimestamp = head["clientTimestamp"].GetInt64();
-    _reqHead.svrTimestamp = head["svrTimestamp"].GetInt64();
-
-    Value::ConstMemberIterator iter;
-    if (head.FindMember("deviceInfo") != head.MemberEnd())
-    {
-        const Value& deviceInfo = head["deviceInfo"];
-        _reqHead.deviceInfo.imei1 = (iter = deviceInfo.FindMember("imei1")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.deviceInfo.imei2 = (iter = deviceInfo.FindMember("imei2")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.deviceInfo.macAddr = (iter = deviceInfo.FindMember("macAddr")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.deviceInfo.brand = (iter = deviceInfo.FindMember("brand")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.deviceInfo.mode = (iter = deviceInfo.FindMember("mode")) != deviceInfo.MemberEnd() ? iter->value.GetString() : "";
-    }
-    
-    if (head.FindMember("romInfo") != head.MemberEnd())
-    {
-        const Value& romInfo = head["romInfo"];
-        _reqHead.romInfo.sysId = (iter = romInfo.FindMember("sysId")) != romInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.romInfo.sysVersionName = (iter = romInfo.FindMember("sysVersionName")) != romInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.romInfo.sysVersionCode = (iter = romInfo.FindMember("sysVersionCode")) != romInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.romInfo.rootFlag = (iter = romInfo.FindMember("rootFlag")) != romInfo.MemberEnd() ? iter->value.GetInt() : 0;
-    }
-    
-    if (head.FindMember("netInfo") != head.MemberEnd())
-    {
-        const Value& netInfo = head["netInfo"];
-        _reqHead.netInfo.netType = (iter = netInfo.FindMember("netType")) != netInfo.MemberEnd() ? iter->value.GetInt() : 0;
-        _reqHead.netInfo.wifiSsid = (iter = netInfo.FindMember("wifiSsid")) != netInfo.MemberEnd() ? iter->value.GetString() : "";
-        _reqHead.netInfo.wifiBssid = (iter = netInfo.FindMember("wifiBssid")) != netInfo.MemberEnd() ? iter->value.GetString() : "";
-    }
-    return 0;
+        _reqBodyStr = AppletCommUtils::Value2Str(document["body"]);
+        _reqHead.readFromJsonString(AppletCommUtils::Value2Str(document["head"]));
+        _funcName = _reqHead.cmd;
+        if (!_funcName.empty())
+        {
+            ret = 0;
+        }
+        
+	}
+	__COMMON_EXCEPTION_CATCH_EXT__("json exception|")
+    return ret;
 }
+
 // 这里管理登录态(卖家和买家是不一样的，这里只写了买家的登录态逻辑，卖家的怎么搞呢？？？？)
 int32_t AppletContext::parseST()
 {
