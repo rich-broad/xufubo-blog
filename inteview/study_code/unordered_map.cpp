@@ -78,6 +78,14 @@ int main(int argc, char** argv)
 
     cout << "user_info_hash_mp.size=" << user_info_hash_mp.size() << endl;
 
+    cout << "================clear start===============" << endl;
+    cout << time(NULL) << endl;
+    user_info_hash_mp.clear();
+    cout << time(NULL) << endl;
+    cout << "=================clear end==============" << endl;
+
+    cout << "user_info_hash_mp.size=" << user_info_hash_mp.size() << endl;
+
     sleep(1000);
     return 0;
     
@@ -85,34 +93,40 @@ int main(int argc, char** argv)
 
 /*
 [xufubo@localhost inteview]$ g++ ordered_map.cpp -std=c++11
-[xufubo@localhost inteview]$ ./a.out 
+[xufubo@localhost study_code]$ ./a.out 
 sizeof(user_info):8
-===========put 30000000 start====================  耗时10秒
-1582958025
-1582958034
+===========put 30000000 start====================
+1582971528
+1582971538
 ===========put 30000000 end====================
-===========get 30000000 start====================  耗时3秒
-1582958034
-1582958037
+===========get 30000000 start====================
+1582971538
+1582971540
 ===========get 30000000 end====================
 ================loop 100 put start===============
-1582958037
-1582958037
+1582971540
+1582971540
 =================loop 100 put end==============
 ================loop 100 get start===============
-1582958037
-1582958037
+1582971540
+1582971540
 =================loop 100 get end==============
 ================get start===============
-1582958037
+1582971540
 6311384
-1582958037
+1582971540
 =================get end==============
 ================put start===============
-1582958037
-1582958037
+1582971540
+1582971540
 =================put end==============
 user_info_hash_mp.size=30000000
+================clear start===============
+1582971540
+1582971541
+=================clear end==============
+user_info_hash_mp.size=0
+
 
 看看资源占用情况：
 [xufubo@localhost ~]$ ps aux | grep out

@@ -78,6 +78,14 @@ int main(int argc, char** argv)
 
     cout << "user_info_tree_mp.size=" << user_info_tree_mp.size() << endl;
 
+    cout << "================clear start===============" << endl;
+    cout << time(NULL) << endl;
+    user_info_tree_mp.clear();
+    cout << time(NULL) << endl;
+    cout << "=================clear end==============" << endl;
+
+    cout << "user_info_tree_mp.size=" << user_info_tree_mp.size() << endl;
+
     sleep(1000);
     return 0;
     
@@ -87,32 +95,38 @@ int main(int argc, char** argv)
 [xufubo@localhost study_code]$ g++ ordered_map.cpp -std=c++11
 [xufubo@localhost study_code]$ ./a.out 
 sizeof(user_info):8
-===========put 30000000 start====================   put 三千万数据，约30秒
-1582958787
-1582958815
+===========put 30000000 start====================
+1582971614
+1582971642
 ===========put 30000000 end====================
-===========get 30000000 start====================   get 三千万数据，约15秒
-1582958815
-1582958830
+===========get 30000000 start====================
+1582971642
+1582971656
 ===========get 30000000 end====================
 ================loop 100 put start===============
-1582958830
-1582958830
+1582971656
+1582971656
 =================loop 100 put end==============
 ================loop 100 get start===============
-1582958830
-1582958830
+1582971656
+1582971656
 =================loop 100 get end==============
 ================get start===============
-1582958830
-6307288
-1582958830
+1582971656
+6311384
+1582971656
 =================get end==============
 ================put start===============
-1582958830
-1582958830
+1582971656
+1582971656
 =================put end==============
 user_info_tree_mp.size=30000000
+================clear start===============
+1582971656
+1582971657
+=================clear end==============
+user_info_tree_mp.size=0
+
 
 
 看看资源占用情况：
