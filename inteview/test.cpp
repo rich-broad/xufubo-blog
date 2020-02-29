@@ -136,7 +136,7 @@ int main(int argc, char** argv)
     unordered_map<int64_t, user_info_info> user_info_hash_mp;
     cout << "===========put 30000000 start====================" << endl;
     cout << time(NULL) << endl;
-    for(size_t i = 0; i < 30000000; ++i)
+    for(size_t i = 0; i < 300000000; ++i)
     {
         user_info_hash_mp[i] = user_info;
     }
@@ -146,7 +146,7 @@ int main(int argc, char** argv)
 
     cout << "===========get 30000000 start====================" << endl;
     cout << time(NULL) << endl;
-    for(size_t i = 0; i < 30000000; ++i)
+    for(size_t i = 0; i < 300000000; ++i)
     {
         user_info_info tttt = user_info_hash_mp[i];
     }
@@ -191,53 +191,6 @@ int main(int argc, char** argv)
 }
 
 /*
-[xufubo@localhost inteview]$ g++ test.cpp -std=c++11
-[xufubo@localhost inteview]$ ./a.out 
-sizeof(user_info):8
-===========put 30000000 start====================
-1582958025
-1582958034
-===========put 30000000 end====================
-===========get 30000000 start====================
-1582958034
-1582958037
-===========get 30000000 end====================
-================loop 100 put start===============
-1582958037
-1582958037
-=================loop 100 put end==============
-================loop 100 get start===============
-1582958037
-1582958037
-=================loop 100 get end==============
-================get start===============
-1582958037
-6311384
-1582958037
-=================get end==============
-================put start===============
-1582958037
-1582958037
-=================put end==============
-user_info_hash_mp.size=30000000
-
-看看资源占用情况：
-[xufubo@localhost ~]$ ps aux | grep out
-xufubo    11909 48.7 23.6 1235124 1223616 pts/1 S+   22:21   0:18 ./a.out
-xufubo    11919  0.0  0.0 112712   956 pts/2    S+   22:21   0:00 grep --color=auto out
-
-[xufubo@localhost ~]$ 
-[xufubo@localhost ~]$ top -p 11909
-top - 22:23:15 up  9:20,  4 users,  load average: 0.05, 0.06, 0.05
-Tasks:   1 total,   0 running,   1 sleeping,   0 stopped,   0 zombie
-%Cpu(s):  0.0 us,  0.1 sy,  0.0 ni, 99.8 id,  0.1 wa,  0.0 hi,  0.0 si,  0.0 st
-KiB Mem :  5182416 total,  1477804 free,  1870608 used,  1834004 buff/cache
-KiB Swap:  5374972 total,  5374972 free,        0 used.  2984528 avail Mem 
-
-   PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                                                                                                                                    
- 11909 xufubo    20   0 1235124 1.167g   1016 S   0.0 23.6   0:18.03 a.out   
-
-unordered_map,3000万，key为int64_t,value大小也是8字节，总共占了1.2GB内存。
 
 */
 

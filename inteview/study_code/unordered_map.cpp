@@ -144,7 +144,7 @@ KiB Swap:  5374972 total,  5374972 free,        0 used.  2984528 avail Mem
    PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND                                                                                                                                    
  11909 xufubo    20   0 1235124 1.167g   1016 S   0.0 23.6   0:18.03 a.out   
 
-unordered_map,3000万，key为int64_t,value大小也是8字节，总共占了1.167GB内存。
+unordered_map,3000万，key为int64_t,value大小也是8字节，总共占了1.167GB内存。(每个元素约40字节，其中k+v共16字节)
 
 */
 
